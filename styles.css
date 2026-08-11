@@ -1,0 +1,1029 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  
+  /* Shift status colors (Light Theme) */
+  --color-day-bg: #e0f2fe;
+  --color-day-text: #0369a1;
+  --color-duty-bg: #fef3c7;
+  --color-duty-text: #b45309;
+  --color-night-bg: #f3e8ff;
+  --color-night-text: #6b21a8;
+  --color-off-bg: #f1f5f9;
+  --color-off-text: #475569;
+  --color-leave-bg: #dcfce7;
+  --color-leave-text: #15803d;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #0b0f19;
+  --card-bg: #151f32;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: #1e293b;
+  
+  /* Shift status colors (Dark Theme) */
+  --color-day-bg: rgba(3, 105, 161, 0.2);
+  --color-day-text: #7dd3fc;
+  --color-duty-bg: rgba(180, 83, 9, 0.2);
+  --color-duty-text: #fde047;
+  --color-night-bg: rgba(107, 33, 168, 0.2);
+  --color-night-text: #e9d5ff;
+  --color-off-bg: rgba(71, 85, 105, 0.2);
+  --color-off-text: #cbd5e1;
+  --color-leave-bg: rgba(21, 128, 61, 0.2);
+  --color-leave-text: #86efac;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header & Navigation Styles */
+header {
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  background: linear-gradient(135deg, var(--primary-color), #818cf8);
+  color: white;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.logo-text h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(to right, var(--text-main), var(--text-muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-text p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Utility buttons */
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-all);
+}
+
+.btn-icon:hover {
+  background-color: var(--border-color);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-all);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* App Main Container */
+main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* User Profile Widget in Header */
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-info-text {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Card Styling */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Monthly / Weekly Calendar Styling */
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.calendar-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.current-month-label {
+  font-size: 1.25rem;
+  font-weight: 700;
+  min-width: 140px;
+  text-align: center;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.overtime-label-prefix,
+.overtime-label-suffix {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
+.pending-ot {
+  color: #dc2626; /* Red for pending overtime on screen */
+}
+
+/* 1-Character rounded badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 1;
+}
+
+.badge-day { background-color: var(--color-day-bg); color: var(--color-day-text); }
+.badge-duty { background-color: var(--color-duty-bg); color: var(--color-duty-text); }
+.badge-night { background-color: var(--color-night-bg); color: var(--color-night-text); }
+.badge-off { background-color: var(--color-off-bg); color: var(--color-off-text); }
+.badge-leave { background-color: var(--color-leave-bg); color: var(--color-leave-text); }
+.badge-official-leave { background-color: #e0f2fe; color: #0369a1; }
+
+/* Pending Leave style (Dashed red border circle) */
+.badge-pending-leave {
+  background-color: transparent;
+  color: #dc2626;
+  border: 1.5px dashed #dc2626;
+}
+
+/* Table design for roster sheet */
+.roster-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  background-color: var(--card-bg);
+  max-width: 100%;
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.roster-table th, .roster-table td {
+  padding: 0.625rem 0.25rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8125rem;
+  min-width: 32px;
+  text-align: center;
+}
+
+.roster-table th {
+  background-color: var(--bg-color);
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.roster-table th.sunday, .roster-table th.holiday {
+  color: #ef4444 !important;
+}
+
+.roster-table th.saturday {
+  color: #3b82f6 !important;
+}
+
+.holiday-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #ef4444;
+  display: block;
+  margin-top: 0.125rem;
+  white-space: nowrap;
+}
+
+.roster-table tr:last-child td {
+  border-bottom: none;
+}
+
+.roster-table tbody tr:hover {
+  background-color: rgba(79, 70, 229, 0.02);
+}
+
+/* Horizontal single-line name cell layout */
+.instructor-cell {
+  font-weight: 700 !important;
+  position: sticky;
+  left: 0;
+  background-color: var(--card-bg);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+  z-index: 10;
+  min-width: 75px !important;
+  max-width: 90px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem !important; /* Ensure it stays on one line */
+}
+
+.instructor-cell strong {
+  display: block;
+  white-space: nowrap;
+}
+
+.shift-cell {
+  text-align: center;
+  transition: var(--transition-all);
+}
+
+.shift-cell.admin-mode,
+.shift-cell.staff-clickable-mode {
+  cursor: pointer;
+}
+
+.shift-cell.admin-mode:hover,
+.shift-cell.staff-clickable-mode:hover {
+  background-color: var(--color-primary-light) !important;
+  color: white !important;
+  transform: scale(1.08);
+  box-shadow: var(--shadow-sm);
+  z-index: 5;
+}
+
+/* User My Page Layout */
+.mypage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .mypage-grid {
+    grid-template-columns: 1fr 2.5fr;
+  }
+}
+
+.stats-card-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.stat-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-top: 0.25rem;
+}
+
+.stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Mini Calendar inside My Page */
+.mini-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-top: 1rem;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mini-cal-header {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--text-muted);
+  padding: 0.15rem;
+}
+
+.mini-cal-day {
+  height: 38px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  background-color: var(--bg-color);
+  font-size: 0.72rem !important;
+  position: relative;
+  border: 1px solid transparent;
+  padding: 0.1rem 0 !important;
+}
+
+.mini-cal-day .date-num {
+  font-weight: 500;
+}
+
+.mini-cal-day .shift-lbl {
+  font-size: 0.625rem;
+  font-weight: 600;
+  margin-top: 0.125rem;
+  padding: 0.05rem 0.2rem;
+  border-radius: 0.2rem;
+}
+
+.mini-cal-day.other-month {
+  opacity: 0.3;
+}
+
+.mini-cal-day.sunday, .mini-cal-day.holiday { color: #ef4444; }
+.mini-cal-day.saturday { color: #3b82f6; }
+
+/* Leave requests table - Strictly single horizontal line nowrap */
+.leave-requests-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leave-requests-table th, .leave-requests-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  white-space: nowrap !important; /* Force single line horizontal */
+  vertical-align: middle;
+}
+
+.leave-requests-table th {
+  background-color: var(--bg-color);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.badge-pending { background-color: #fef3c7; color: #d97706; }
+.badge-approved { background-color: #dcfce7; color: #16a34a; }
+.badge-rejected { background-color: #fee2e2; color: #dc2626; }
+
+/* Modal and Dialogs styling */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.dialog-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.dialog-content {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 450px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.95);
+  transition: transform 0.2s ease;
+}
+
+.dialog-overlay.active .dialog-content {
+  transform: scale(1);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dialog-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.dialog-body {
+  margin-bottom: 1.5rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Authentication tabs inside Login Modal */
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.auth-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: var(--transition-all);
+}
+
+.auth-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.auth-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.auth-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.auth-form-group input, .auth-form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition-all);
+}
+
+.auth-form-group input:focus, .auth-form-group select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Approval block for A4 output */
+.print-approval-block {
+  display: none; /* Screen-only hidden */
+}
+
+/* CSS Print styles */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0.6cm;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9pt;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  /* Hide screen main completely and show print container only */
+  #screen-main,
+  header,
+  .dialog-overlay,
+  footer {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
+
+  .print-header-row {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .print-main-title {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #000000;
+  }
+
+  .print-approval-table {
+    border-collapse: collapse !important;
+    margin-left: auto;
+  }
+
+  .print-approval-table td {
+    border: 1.2px solid #000000 !important;
+    padding: 0.2rem 0.4rem;
+    text-align: center;
+    font-size: 8.5pt;
+  }
+
+  .print-approval-table td.print-approval-header {
+    background-color: #f1f5f9 !important;
+    font-weight: 600;
+    width: 18px;
+    line-height: 1.2;
+    border-left: 2.5px solid #000000 !important;   /* Left outer boundary */
+    border-right: 2.5px solid #000000 !important;  /* Thick vertical divider */
+    border-top: 2.5px solid #000000 !important;    /* Top outer boundary */
+    border-bottom: 2.5px solid #000000 !important; /* Bottom outer boundary */
+  }
+
+  /* Top row outer boundary for header columns */
+  .print-approval-table tr:first-child td {
+    border-top: 2.5px solid #000000 !important;
+  }
+
+  /* Bottom row outer boundary for signature columns */
+  .print-approval-table tr:last-child td {
+    border-bottom: 2.5px solid #000000 !important;
+  }
+
+  /* Left boundary of Team Leader column to align with 결재 right border */
+  .print-approval-table tr:first-child td:nth-child(2) {
+    border-left: 2.5px solid #000000 !important;
+  }
+
+  .print-approval-table tr:last-child td:first-child {
+    border-left: 2.5px solid #000000 !important;
+  }
+
+  /* Rightmost columns outer boundary */
+  .print-approval-table tr td:last-child {
+    border-right: 2.5px solid #000000 !important;
+  }
+
+  .print-approval-cell {
+    width: 55px;
+    height: 44px;
+  }
+
+  .print-master-table #print-th-row-1 th {
+    background-color: #f1f5f9 !important;
+  }
+
+  .print-master-table #print-th-row-2 th {
+    background-color: #ffffff !important;
+  }
+
+  /* Format master table to match layout */
+  .print-master-table {
+    width: 100% !important;
+    table-layout: fixed !important; /* Force equal widths for all columns */
+    border-collapse: collapse !important;
+    margin-bottom: 0.5rem;
+    border: 2.5px solid #000000 !important; /* Thick outer border */
+  }
+
+  .print-master-table thead th {
+    border-bottom: 2.5px solid #000000 !important; /* Thick horizontal header line */
+  }
+
+  /* Define exact fixed widths for master columns in A4 landscape by class */
+  .print-master-table .print-hall-col {
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    border-right: 2.5px solid #000000 !important; /* Thick vertical divider */
+  }
+
+  .print-master-table .print-group-col {
+    width: 25px !important;
+    min-width: 25px !important;
+    max-width: 25px !important;
+  }
+
+  .print-master-table .print-name-col {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+  }
+
+  .print-master-table .print-sig-col {
+    width: 35px !important;
+    min-width: 35px !important;
+    max-width: 35px !important;
+    border-right: 2.5px solid #000000 !important; /* Thick vertical divider */
+  }
+
+  /* Ensure date columns are of exactly identical width */
+  .print-master-table th.date-col,
+  .print-master-table td.date-cell {
+    width: calc((100% - 169px) / 31) !important;
+    min-width: calc((100% - 169px) / 31) !important;
+    max-width: calc((100% - 169px) / 31) !important;
+  }
+
+  /* Sum column (합) - minimized width as requested */
+  .print-master-table .print-sum-col {
+    width: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    border-left: 2.5px solid #000000 !important; /* Thick vertical divider */
+    border-right: 2.5px solid #000000 !important; /* RIGHTMOST OUTER BORDER! */
+  }
+
+  .print-master-table th, 
+  .print-master-table td {
+    border: 1px solid #000000 !important;
+    padding: 0.125rem 0.2rem !important; /* Tighter padding for horizontal fitting */
+    font-size: 6.8pt !important;        /* Smaller font size so it fits strictly on one A4 page width */
+    text-align: center !important;
+    color: #000000 !important;
+    white-space: nowrap !important;     /* Prevent vertical wrapping inside name/cells */
+    vertical-align: middle !important;
+  }
+
+  .print-master-table th {
+    background-color: #f1f5f9 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Stretch rows vertically to fill the page, reducing empty space at the bottom */
+  .print-master-table tr:not(.print-separator-row) {
+    height: 28px !important;
+  }
+
+  .print-master-table tr.print-separator-row {
+    height: 10px !important;
+  }
+
+  .print-master-table th.sunday, 
+  .print-master-table th.holiday { 
+    color: #dc2626 !important; 
+    background-color: #ffffff !important; 
+  }
+
+  .print-master-table th.saturday { 
+    color: #000000 !important; 
+    background-color: #ffffff !important; 
+  }
+
+  .print-footer-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-footer-table td {
+    border: 1px solid #000000 !important;
+    padding: 0.6rem 0.5rem !important;
+    font-size: 8.5pt !important;
+    line-height: 1.4 !important;
+  }
+
+  .badge {
+    border: none !important;
+    background-color: transparent !important;
+    color: #000000 !important;
+    font-size: 8.5pt !important;
+    font-weight: bold !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    display: inline !important;
+    line-height: inherit !important;
+    vertical-align: middle !important;
+  }
+
+  .badge-day { color: #000000 !important; }
+  .badge-duty { color: #000000 !important; }
+  .badge-night { color: #000000 !important; }
+  .badge-off { color: #000000 !important; }
+  .badge-leave { color: #1d4ed8 !important; font-weight: bold !important; }
+  .badge-pending-leave { color: #dc2626 !important; font-weight: bold !important; }
+  .badge-official-leave { color: #1d4ed8 !important; font-weight: bold !important; }
+  .badge.manual-off { color: #dc2626 !important; font-weight: bold !important; }
+
+  .overtime-label-prefix,
+  .overtime-label-suffix {
+    color: #000000 !important;
+    font-size: 8.5pt !important; /* Same as badge */
+    font-weight: bold !important; /* Same as badge */
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin: 0 1px !important;
+  }
+
+  .pending-ot {
+    color: #dc2626 !important; /* Red for pending overtime in print */
+    display: inline-block !important;
+    vertical-align: middle !important;
+  }
+
+/* Mobile responsive selector styles */
+@media (max-width: 768px) {
+  .mobile-tabs {
+    display: flex !important;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .mobile-tab-btn {
+    flex: 1;
+    padding: 0.625rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-tab-btn.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Responsive visibility of cards */
+  .schedule-card {
+    display: none !important;
+  }
+  
+  body.show-tab-girincho #schedule-section-girincho,
+  body.show-tab-mulbongseon #schedule-section-mulbongseon,
+  body.show-tab-managers #schedule-section-managers {
+    display: block !important;
+  }
+}
+
+/* Editable shift cells in admin mode */
+.shift-cell.admin-mode {
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.shift-cell.admin-mode:hover {
+  background-color: var(--border-color) !important;
+  transform: scale(1.08);
+  box-shadow: var(--shadow-sm);
+  z-index: 5;
+}
+
+/* Collapsible Section Layouts */
+.collapse-trigger {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  outline: none;
+}
+
+.collapse-trigger::after {
+  content: ' ▲';
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.collapse-trigger.collapsed::after {
+  content: ' ▼';
+}
+
+.collapse-content {
+  transition: max-height 0.2s ease-out;
+  overflow: hidden;
+  max-height: 2000px;
+}
+
+.collapse-content.collapsed {
+  max-height: 0 !important;
+  display: none !important;
+}
+
+/* Signature column screen hiding */
+.print-only-cell {
+  display: none !important;
+}
+
+/* Alternating row shading for Group 2, 4, 6 on screen */
+.roster-shaded-row td {
+  background-color: #f1f5f9 !important; /* Screen roster shading color */
+}
+
+/* Logged-in employee row highlight */
+tr.my-roster-row td {
+  background-color: #e0f2fe !important; /* Soft sky-100 blue background */
+  box-shadow: inset 0 1px 0 #bae6fd, inset 0 -1px 0 #bae6fd !important; /* Sky-200 top/bottom borders */
+}
+
+@media print {
+  tr.my-roster-row td {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
