@@ -116,8 +116,8 @@ const INITIAL_EMPLOYEES = [
   { id: 'emp_m7', name: '이윤경', phoneLast4: '7777', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 14, usedLeave: 1 },
   
   // Managers (2 Team Leaders + 1 System Admin)
-  { id: 'mgr_g', name: '변은주', username: 'admin1', password: 'admin123', hall: 'girincho', role: 'manager' },
-  { id: 'mgr_m', name: '정경숙', username: 'admin2', password: 'admin123', hall: 'mulbongseon', role: 'manager' },
+  { id: 'mgr_g', name: '변은주', username: 'admin1', password: 'admin123', hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'mgr_m', name: '정경숙', username: 'admin2', password: 'admin123', hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
   { id: 'mgr_admin', name: '시스템 관리자 (개발자)', username: 'admin', password: 'admin123', hall: 'all', role: 'manager' }
 ];
 
@@ -235,8 +235,9 @@ const initialNamesStr = INITIAL_EMPLOYEES.map(e => e.name).sort().join(',');
 const currentNamesStr = employees ? employees.map(e => e.name).sort().join(',') : '';
 const foundBaek = employees ? employees.find(e => e.id === 'emp_g3') : null;
 
-// Force migration/fresh reload when screenshot name or phone configuration changes
-if (!employees || initialNamesStr !== currentNamesStr || (foundBaek && foundBaek.phoneLast4 !== '7188')) {
+// Force migration/fresh reload when screenshot name, phone configuration changes, or leader leave balances need to be initialized
+const hasLeaderLeaveMigrated = localStorage.getItem('team_leader_leave_migrated_v1') === 'true';
+if (!employees || initialNamesStr !== currentNamesStr || (foundBaek && foundBaek.phoneLast4 !== '7188') || !hasLeaderLeaveMigrated) {
   employees = INITIAL_EMPLOYEES;
   leaveRequests = INITIAL_LEAVE_REQUESTS;
   overtimeRequests = []; // Pre-populate empty
@@ -244,6 +245,7 @@ if (!employees || initialNamesStr !== currentNamesStr || (foundBaek && foundBaek
   currentUser = null;
   localStorage.clear();
   sessionStorage.clear();
+  localStorage.setItem('team_leader_leave_migrated_v1', 'true');
   saveState();
 } else {
   saveState(); // Rewrite sanitized state back
@@ -557,6 +559,10 @@ function calculateShift(employee, dateStr) {
     const lType = leaveReq.leaveType || '연가';
     if (lType === '공가') {
       return leaveReq.status === 'approved' ? '공가' : '공가(대기)';
+    } else if (lType === '병가') {
+      return leaveReq.status === 'approved' ? '병가' : '병가(대기)';
+    } else if (lType === '안식년') {
+      return leaveReq.status === 'approved' ? '안식년' : '안식년(대기)';
     }
     return leaveReq.status === 'approved' ? '연가' : '연가(대기)';
   }
@@ -1160,7 +1166,7 @@ function setupEventListeners() {
         renderAdminDashboard();
         
         // Custom greeting alert for team leaders
-        alert(`${found.name} 팀장님, 로그인 되었습니다. 거주시설 교대근무 관리에 수고가 많으십니다. 힘찬 하루 되세요! 💼✨`);
+        alert(`${found.name} 팀장님, 수고가 많으십니다. 힘찬 하루 되세요! 💼✨`);
       } else {
         alert('관리자 로그인 정보가 올바르지 않습니다.');
       }
@@ -1374,7 +1380,7 @@ function setupEventListeners() {
 // Recalculate remaining & used leaves based on approved leave requests and manual overrides
 function recalculateEmployeeLeaveCounts() {
   employees.forEach(emp => {
-    if (emp.role === 'staff') {
+    if (emp.role === 'staff' || (emp.role === 'manager' && emp.id !== 'mgr_admin')) {
       const approvedCount = leaveRequests.filter(req => req.employeeId === emp.id && req.status === 'approved' && req.leaveType !== '공가').length;
       const manualLeaveCount = shiftModifications.filter(mod => mod && mod.employeeId === emp.id && mod.shift === '연가').length;
       const totalUsed = approvedCount + manualLeaveCount;
@@ -2061,15 +2067,56 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
     let monthlyTotalOt = 0;
 
     // Daily shifts
-    for (let day = 1; day <= totalDays; day++) {
-      const td = document.createElement('td');
-      td.className = 'shift-cell';
-      
+    let day = 1;
+    while (day <= totalDays) {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
+      
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (화면 - 일반직원)
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
+        let colspan = 1;
+        let checkDay = day + 1;
+        while (checkDay <= totalDays) {
+          const nextDateStr = formatDateString(year, month, checkDay);
+          const nextShift = calculateShift(emp, nextDateStr);
+          
+          const isSameType = (
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
+          );
+          if (isSameType) {
+            colspan++;
+            checkDay++;
+          } else {
+            break;
+          }
+        }
+        
+        const td = document.createElement('td');
+        td.className = 'shift-cell special-leave-cell';
+        td.setAttribute('colspan', colspan);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
+        
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
+        
+        if (currentUser && isUserAdmin()) {
+          td.classList.add('admin-mode');
+          td.addEventListener('click', () => {
+            alert('이 기간은 관리자 대시보드 내 [🏥 병가 / ✈️ 안식년 일괄 설정] 목록에서 직접 삭제 및 취소하시절 수 있습니다.');
+          });
+        }
+        
+        tr.appendChild(td);
+        day += colspan;
+        continue;
+      }
+      
+      const td = document.createElement('td');
+      td.className = 'shift-cell';
       td.setAttribute('title', getShiftTooltipText(shift, emp, dateStr));
       
-      // Sum includes both base shifts (당직:3, 야간:4) and custom approved overtimes
       const otHours = getOvertimeHours(emp, dateStr);
       monthlyTotalOt += otHours;
       
@@ -2099,6 +2146,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
       }
       
       tr.appendChild(td);
+      day++;
     }
     
     // Monthly Sum cell
@@ -2215,12 +2263,54 @@ function renderRosterForManagers(headerRowId, tbodyId) {
     let monthlyTotalOt = 0;
 
     // Daily shifts
-    for (let day = 1; day <= totalDays; day++) {
-      const td = document.createElement('td');
-      td.className = 'shift-cell';
-      
+    let day = 1;
+    while (day <= totalDays) {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
+      
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
+        let colspan = 1;
+        let checkDay = day + 1;
+        while (checkDay <= totalDays) {
+          const nextDateStr = formatDateString(year, month, checkDay);
+          const nextShift = calculateShift(emp, nextDateStr);
+          
+          const isSameType = (
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
+          );
+          if (isSameType) {
+            colspan++;
+            checkDay++;
+          } else {
+            break;
+          }
+        }
+        
+        const td = document.createElement('td');
+        td.className = 'shift-cell special-leave-cell';
+        td.setAttribute('colspan', colspan);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
+        
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
+        
+        if (currentUser && isUserAdmin()) {
+          td.classList.add('admin-mode');
+          td.addEventListener('click', () => {
+            alert('이 기간은 관리자 대시보드 내 [🏥 병가 / ✈️ 안식년 일괄 설정] 목록에서 직접 삭제 및 취소하실 수 있습니다.');
+          });
+        }
+        
+        tr.appendChild(td);
+        day += colspan;
+        continue;
+      }
+      
+      const td = document.createElement('td');
+      td.className = 'shift-cell';
       td.setAttribute('title', getShiftTooltipText(shift, emp, dateStr));
       
       const otHours = getOvertimeHours(emp, dateStr);
@@ -2234,6 +2324,8 @@ function renderRosterForManagers(headerRowId, tbodyId) {
       else if (shift === '야간') { badgeClass = 'badge-night'; displayLabel = '야'; }
       else if (shift === '연가') { badgeClass = 'badge-leave'; displayLabel = '연'; }
       else if (shift === '연가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '대'; }
+      else if (shift === '공가') { badgeClass = 'badge-official-leave'; displayLabel = '공'; }
+      else if (shift === '공가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '공'; }
       
       const otMorningDisplay = getOvertimeCellHtml(emp, dateStr, 'morning');
       const otAfternoonDisplay = getOvertimeCellHtml(emp, dateStr, 'afternoon');
@@ -2259,6 +2351,7 @@ function renderRosterForManagers(headerRowId, tbodyId) {
       }
       
       tr.appendChild(td);
+      day++;
     }
     
     // Sum cell
@@ -2433,11 +2526,64 @@ function populateMasterPrintTable() {
 
       // Shifts 1..31
       let monthlyTotalOt = 0;
-      for (let day = 1; day <= totalDays; day++) {
-        const td = document.createElement('td');
-        td.className = 'date-cell';
+      let day = 1;
+      while (day <= totalDays) {
         const dateStr = formatDateString(year, month, day);
         const shift = calculateShift(emp, dateStr);
+        
+        // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (인쇄용 - 일반직원)
+        if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
+          let colspan = 1;
+          let checkDay = day + 1;
+          while (checkDay <= totalDays) {
+            const nextDateStr = formatDateString(year, month, checkDay);
+            const nextShift = calculateShift(emp, nextDateStr);
+            
+            const isSameType = (
+              ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+              ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
+            );
+            if (isSameType) {
+              colspan++;
+              checkDay++;
+            } else {
+              break;
+            }
+          }
+          
+          const td = document.createElement('td');
+          td.className = 'date-cell special-leave-cell';
+          td.setAttribute('colspan', colspan);
+          td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
+          
+          const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+          const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+          td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
+          
+          if (isShaded) {
+            td.style.backgroundColor = bgColor;
+          }
+          
+          // 일요일이 병합 범위 내에 포함되어 있는지 체크하여 border-right 부여
+          let hasSunday = false;
+          for (let offset = 0; offset < colspan; offset++) {
+            const d = new Date(year, month, day + offset);
+            if (d.getDay() === 0) {
+              hasSunday = true;
+              break;
+            }
+          }
+          if (hasSunday) {
+            td.style.setProperty('border-right', '2.5px solid #000000', 'important');
+          }
+          
+          tr.appendChild(td);
+          day += colspan;
+          continue;
+        }
+        
+        const td = document.createElement('td');
+        td.className = 'date-cell';
         
         const otHours = getOvertimeHours(emp, dateStr);
         monthlyTotalOt += otHours;
@@ -2455,18 +2601,18 @@ function populateMasterPrintTable() {
 
         td.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5px; width: 100%; height: 100%;">${otMorningDisplay}<span class="badge ${badgeClass} ${isManualOff ? 'manual-off' : ''}">${printLabel}</span>${otAfternoonDisplay}</div>`;
         
-        // Solid horizontal row shading
         if (isShaded) {
-          td.style.backgroundColor = bgColor; // solid gray shading for Group 2, 4, 6
+          td.style.backgroundColor = bgColor;
         }
-        
+
         // Weekly thick vertical divider (Sunday to Monday boundary)
         const d = new Date(year, month, day);
         if (d.getDay() === 0) {
           td.style.setProperty('border-right', '2.5px solid #000000', 'important');
         }
-        
+
         tr.appendChild(td);
+        day++;
       }
 
       // Monthly Overtime Sum
@@ -2535,11 +2681,60 @@ function populateMasterPrintTable() {
 
     // Shifts 1..31
     let monthlyTotalOt = 0;
-    for (let day = 1; day <= totalDays; day++) {
-      const td = document.createElement('td');
-      td.className = 'date-cell';
+    let day = 1;
+    while (day <= totalDays) {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
+      
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (인쇄용)
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
+        let colspan = 1;
+        let checkDay = day + 1;
+        while (checkDay <= totalDays) {
+          const nextDateStr = formatDateString(year, month, checkDay);
+          const nextShift = calculateShift(emp, nextDateStr);
+          
+          const isSameType = (
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
+          );
+          if (isSameType) {
+            colspan++;
+            checkDay++;
+          } else {
+            break;
+          }
+        }
+        
+        const td = document.createElement('td');
+        td.className = 'date-cell special-leave-cell';
+        td.setAttribute('colspan', colspan);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
+        
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
+        
+        // 일요일이 병합 범위 내에 포함되어 있는지 체크하여 border-right 부여
+        let hasSunday = false;
+        for (let offset = 0; offset < colspan; offset++) {
+          const d = new Date(year, month, day + offset);
+          if (d.getDay() === 0) {
+            hasSunday = true;
+            break;
+          }
+        }
+        if (hasSunday) {
+          td.style.setProperty('border-right', '2.5px solid #000000', 'important');
+        }
+        
+        tr.appendChild(td);
+        day += colspan;
+        continue;
+      }
+      
+      const td = document.createElement('td');
+      td.className = 'date-cell';
       
       const otHours = getOvertimeHours(emp, dateStr);
       monthlyTotalOt += otHours;
@@ -2573,6 +2768,7 @@ function populateMasterPrintTable() {
       }
 
       tr.appendChild(td);
+      day++;
     }
 
     // Monthly Overtime Sum (Blank for team leaders)
@@ -2589,6 +2785,10 @@ function populateMasterPrintTable() {
 // Render Admin Dashboard
 function renderAdminDashboard() {
   if (!currentUser || !isUserAdmin()) return;
+
+  // Initialize and render special leaves (Sick / Sabbatical)
+  renderSpecialLeaveEmployeeSelect();
+  renderSpecialLeaveList();
 
   const leaveTbody = document.getElementById('admin-leave-requests-tbody');
   if (leaveTbody) leaveTbody.innerHTML = '';
@@ -3426,4 +3626,192 @@ window.importData = function(event) {
   };
   reader.readAsText(file);
   event.target.value = ''; // Reset input selection
+};
+
+// Render select options for special leave page
+function renderSpecialLeaveEmployeeSelect() {
+  const select = document.getElementById('special-leave-emp');
+  if (!select) return;
+  
+  select.innerHTML = '';
+  // Target all employees except mgr_admin
+  const targetList = employees.filter(emp => emp.id !== 'mgr_admin');
+  targetList.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.id;
+    const roleLabel = emp.role === 'manager' ? '팀장' : (emp.hall === 'girincho' ? '기린초' : '물봉선');
+    opt.textContent = `${emp.name} (${roleLabel})`;
+    select.appendChild(opt);
+  });
+}
+
+// Render the list of registered special leaves (Sick / Sabbatical)
+function renderSpecialLeaveList() {
+  const tbody = document.getElementById('special-leave-list-tbody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  // Filter special leaves (병가, 안식년)
+  const list = leaveRequests.filter(req => req && (req.leaveType === '병가' || req.leaveType === '안식년'));
+  
+  // Group by groupId
+  const groups = {};
+  list.forEach(req => {
+    const gid = req.groupId || req.id; // Fallback if no groupId (legacy data)
+    if (!groups[gid]) {
+      groups[gid] = {
+        id: gid,
+        employeeName: req.employeeName,
+        leaveType: req.leaveType,
+        dates: []
+      };
+    }
+    groups[gid].dates.push(req.date);
+  });
+  
+  const groupList = Object.values(groups).map(g => {
+    g.dates.sort(); // Sort dates chronologically
+    return {
+      id: g.id,
+      employeeName: g.employeeName,
+      leaveType: g.leaveType,
+      startDate: g.dates[0],
+      endDate: g.dates[g.dates.length - 1],
+      dateCount: g.dates.length
+    };
+  });
+  
+  // Sort by startDate descending (recent first)
+  groupList.sort((a, b) => b.startDate.localeCompare(a.startDate));
+  
+  if (groupList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="padding: 0.75rem; text-align: center; color: var(--text-muted);">등록된 특수 휴가(병가/안식년) 내역이 없습니다.</td></tr>`;
+    return;
+  }
+  
+  groupList.forEach(group => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border-color)';
+    
+    const isSick = group.leaveType === '병가';
+    const badgeHtml = isSick 
+      ? `<span class="badge badge-sick" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">🏥 병가</span>`
+      : `<span class="badge badge-sabbatical" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">✈️ 안식년</span>`;
+      
+    const dateRangeText = group.startDate === group.endDate 
+      ? group.startDate 
+      : `${group.startDate} ~ ${group.endDate} (${group.dateCount}일간)`;
+      
+    tr.innerHTML = `
+      <td style="padding: 0.5rem 0.75rem; font-weight: 500;">${group.employeeName}</td>
+      <td style="padding: 0.5rem 0.75rem;">${badgeHtml}</td>
+      <td style="padding: 0.5rem 0.75rem; color: var(--text-main); font-family: monospace;">${dateRangeText}</td>
+      <td style="padding: 0.5rem 0.75rem; text-align: right; padding-right: 1.5rem;">
+        <button class="btn btn-secondary btn-sm" onclick="deleteSpecialLeave('${group.id}')" style="background-color: #ef4444; border-color: #ef4444; color: #fff; padding: 2px 8px; font-size: 0.725rem; font-weight: bold; cursor: pointer;" type="button">삭제</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Generate array of YYYY-MM-DD date strings within range
+function getDatesInRange(startStr, endStr) {
+  const dates = [];
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+  
+  // Safety threshold to avoid infinite loop
+  let limit = 1000; 
+  while (start <= end && limit > 0) {
+    const y = start.getFullYear();
+    const m = start.getMonth();
+    const d = start.getDate();
+    dates.push(formatDateString(y, m, d));
+    start.setDate(start.getDate() + 1);
+    limit--;
+  }
+  return dates;
+}
+
+// Add special leave action
+window.addSpecialLeave = function() {
+  if (!isUserAdmin()) return;
+  
+  const empId = document.getElementById('special-leave-emp').value;
+  const typeVal = document.getElementById('special-leave-type').value;
+  const startVal = document.getElementById('special-leave-start').value;
+  const endVal = document.getElementById('special-leave-end').value;
+  
+  if (!empId) {
+    alert('대상 직원을 선택해 주세요.');
+    return;
+  }
+  if (!startVal || !endVal) {
+    alert('시작일과 종료일을 입력해 주세요.');
+    return;
+  }
+  if (startVal > endVal) {
+    alert('시작일은 종료일보다 이전 날짜여야 합니다.');
+    return;
+  }
+  
+  const employee = employees.find(emp => emp.id === empId);
+  if (!employee) return;
+  
+  const dates = getDatesInRange(startVal, endVal);
+  if (dates.length === 0) return;
+  
+  // Confirm action
+  if (!confirm(`${employee.name} 선생님의 ${startVal} ~ ${endVal} (${dates.length}일간) 기간에 대해 [${typeVal}]을 등록하시겠습니까?`)) {
+    return;
+  }
+  
+  // Generate a group ID for this block of leaves
+  const groupId = `group_sl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+  
+  // Add leaves for each day (overwrite existing leaves for those days)
+  dates.forEach(dStr => {
+    // Remove existing leave requests for this employee on this date
+    leaveRequests = leaveRequests.filter(req => !(req.employeeId === empId && req.date === dStr));
+    
+    const newReq = {
+      id: `sl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      groupId: groupId,
+      employeeId: empId,
+      employeeName: employee.name,
+      hall: employee.hall,
+      date: dStr,
+      leaveType: typeVal,
+      reason: `${typeVal} 설정`,
+      status: 'approved'
+    };
+    leaveRequests.push(newReq);
+  });
+  
+  saveState();
+  renderRoster();
+  renderSpecialLeaveList();
+  
+  // Reset date fields
+  document.getElementById('special-leave-start').value = '';
+  document.getElementById('special-leave-end').value = '';
+  alert(`${employee.name} 선생님의 [${typeVal}] 등록이 완료되었습니다.`);
+};
+
+// Delete special leave action
+window.deleteSpecialLeave = function(groupId) {
+  if (!isUserAdmin()) return;
+  
+  const sample = leaveRequests.find(r => r.groupId === groupId || r.id === groupId);
+  if (!sample) return;
+  
+  if (!confirm(`${sample.employeeName} 선생님의 등록된 특별 휴가(병가/안식년) 기간을 일괄 삭제(취소)하시겠습니까?`)) {
+    return;
+  }
+  
+  leaveRequests = leaveRequests.filter(r => r.groupId !== groupId && r.id !== groupId);
+  saveState();
+  renderRoster();
+  renderSpecialLeaveList();
+  alert('삭제되었습니다.');
 };
