@@ -1,3 +1,19 @@
+// Supabase Client Config
+const SUPABASE_URL = 'https://lhkccdnurzgvtdssjlwz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_RGywmSTTq1lF3bQZ3Pha4Q_gzB-J3wu';
+let supabaseClient = null;
+
+function getDB() {
+  if (!supabaseClient) {
+    const lib = window.supabase;
+    if (!lib) {
+      throw new Error("Supabase JS SDK not loaded yet.");
+    }
+    supabaseClient = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return supabaseClient;
+}
+
 // State configuration
 const SHIFT_CYCLE = ['주간', '주간', '당직', '야간', '휴무', '휴무'];
 const ANCHOR_DATE = new Date(2026, 6, 1); // July 1, 2026 (local date)
@@ -214,41 +230,176 @@ function safeGetSessionStorageObject(key, fallback = null) {
 }
 
 let globalNotices = [];
-try {
-  const savedNotices = localStorage.getItem('shift_global_notices');
-  if (savedNotices) {
-    const parsedNotices = JSON.parse(savedNotices);
-    if (Array.isArray(parsedNotices)) {
-      globalNotices = parsedNotices.filter(item => typeof item === 'string');
-    }
+let employees = [];
+let leaveRequests = [];
+let overtimeRequests = [];
+let shiftModifications = [];
+let currentUser = null;
+
+// Helper to check and parse sessionStorage safely
+function safeGetSessionStorageObject(key, defaultValue) {
+  try {
+    const val = sessionStorage.getItem(key);
+    return val ? JSON.parse(val) : defaultValue;
+  } catch (e) {
+    console.error("Failed to parse sessionStorage key:", key, e);
+    return defaultValue;
   }
-} catch (e) {
-  console.error("Failed to load global notices", e);
 }
-let employees = safeGetLocalStorageArray('shift_employees', null);
-let leaveRequests = safeGetLocalStorageArray('shift_leave_requests', INITIAL_LEAVE_REQUESTS);
-let overtimeRequests = safeGetLocalStorageArray('shift_overtime_requests', []);
-let shiftModifications = safeGetLocalStorageArray('shift_modifications', INITIAL_SHIFT_MODIFICATIONS);
-let currentUser = safeGetSessionStorageObject('shift_current_user', null);
 
+// 1. Initial Data Seed (Only used for database initialization when empty)
 const initialNamesStr = INITIAL_EMPLOYEES.map(e => e.name).sort().join(',');
-const currentNamesStr = employees ? employees.map(e => e.name).sort().join(',') : '';
-const foundBaek = employees ? employees.find(e => e.id === 'emp_g3') : null;
 
-// Force migration/fresh reload when screenshot name, phone configuration changes, or leader leave balances need to be initialized
-const hasLeaderLeaveMigrated = localStorage.getItem('team_leader_leave_migrated_v1') === 'true';
-if (!employees || initialNamesStr !== currentNamesStr || (foundBaek && foundBaek.phoneLast4 !== '7188') || !hasLeaderLeaveMigrated) {
-  employees = INITIAL_EMPLOYEES;
-  leaveRequests = INITIAL_LEAVE_REQUESTS;
-  overtimeRequests = []; // Pre-populate empty
-  shiftModifications = INITIAL_SHIFT_MODIFICATIONS;
-  currentUser = null;
-  localStorage.clear();
-  sessionStorage.clear();
-  localStorage.setItem('team_leader_leave_migrated_v1', 'true');
-  saveState();
-} else {
-  saveState(); // Rewrite sanitized state back
+// Load State from Supabase Server (Async)
+async function loadStateFromServer() {
+  try {
+    currentUser = safeGetSessionStorageObject('shift_current_user', null);
+
+    // 1. Fetch Employees
+    const { data: empData, error: empErr } = await getDB().from('employees').select('*');
+    if (empErr) throw empErr;
+
+    // If database is completely empty, initialize it with seed data
+    if (!empData || empData.length === 0) {
+      const confirmInit = confirm("Supabase 데이터베이스에 등록된 근무자 데이터가 없습니다.\n기본 초기 데이터를 서버에 자동 등록하시겠습니까?");
+      if (confirmInit) {
+        await initializeDatabaseIfEmpty();
+        alert("초기 데이터 등록이 완료되었습니다. 페이지가 새로고침됩니다.");
+        location.reload();
+      }
+      return;
+    }
+
+    // 2. Fetch Leave Requests
+    const { data: leaveData, error: leaveErr } = await getDB().from('leave_requests').select('*');
+    if (leaveErr) throw leaveErr;
+
+    // 3. Fetch Overtime Requests
+    const { data: otData, error: otErr } = await getDB().from('overtime_requests').select('*');
+    if (otErr) throw otErr;
+
+    // 4. Fetch Shift Modifications
+    const { data: modData, error: modErr } = await getDB().from('shift_modifications').select('*');
+    if (modErr) throw modErr;
+
+    // 5. Fetch Global Notices
+    const { data: noticeData, error: noticeErr } = await getDB().from('global_notices').select('*').order('created_at', { ascending: true });
+    if (noticeErr) throw noticeErr;
+
+    // Map database structures to local JS schemas
+    employees = empData.map(e => ({
+      id: e.id,
+      name: e.name,
+      phoneLast4: e.phone_last_4,
+      username: e.username,
+      password: e.password,
+      hall: e.hall,
+      role: e.role,
+      shiftGroup: e.shift_group,
+      joinYearMonth: e.join_year_month,
+      totalLeave: e.total_leave,
+      remainingLeave: e.remaining_leave,
+      usedLeave: e.used_leave
+    }));
+
+    leaveRequests = leaveData.map(l => ({
+      id: l.id,
+      groupId: l.group_id,
+      employeeId: l.employee_id,
+      employeeName: l.employee_name,
+      hall: l.hall,
+      date: l.date,
+      leaveType: l.leave_type,
+      reason: l.reason,
+      status: l.status
+    }));
+
+    overtimeRequests = otData.map(o => ({
+      id: o.id,
+      employeeId: o.employee_id,
+      employeeName: o.employee_name,
+      hall: o.hall,
+      date: o.date,
+      timeOfDay: o.time_of_day,
+      hours: o.hours,
+      reason: o.reason,
+      status: o.status
+    }));
+
+    shiftModifications = modData.map(m => ({
+      id: m.id,
+      employeeId: m.employee_id,
+      date: m.date,
+      shift: m.shift,
+      otMorning: m.ot_morning,
+      otAfternoon: m.ot_afternoon
+    }));
+
+    globalNotices = noticeData.map(n => n.content);
+
+    updateNoticeBanner();
+  } catch (err) {
+    console.error("Failed to load state from Supabase:", err);
+    alert("데이터베이스 로딩 중 오류가 발생했습니다:\n" + (err.message || err));
+  }
+}
+
+// Initialize Supabase database with default seed data
+async function initializeDatabaseIfEmpty() {
+  console.log("Initializing Supabase database with default seed data...");
+  try {
+    // 1. Insert Employees
+    const dbEmps = INITIAL_EMPLOYEES.map(e => ({
+      id: e.id,
+      name: e.name,
+      phone_last_4: e.phoneLast4 || null,
+      username: e.username || null,
+      password: e.password || null,
+      hall: e.hall,
+      role: e.role,
+      shift_group: e.shiftGroup || null,
+      join_year_month: e.joinYearMonth || null,
+      total_leave: e.totalLeave || 15,
+      remaining_leave: e.remainingLeave || 15,
+      used_leave: e.usedLeave || 0
+    }));
+    const { error: empErr } = await getDB().from('employees').insert(dbEmps);
+    if (empErr) throw empErr;
+
+    // 2. Insert Leave Requests
+    const dbLeaves = INITIAL_LEAVE_REQUESTS.map(l => ({
+      id: l.id,
+      group_id: l.groupId || null,
+      employee_id: l.employeeId,
+      employee_name: l.employeeName,
+      hall: l.hall,
+      date: l.date,
+      leave_type: l.reason || '연가',
+      reason: l.reason || '연가 신청',
+      status: l.status || 'approved'
+    }));
+    const { error: leaveErr } = await getDB().from('leave_requests').insert(dbLeaves);
+    if (leaveErr) throw leaveErr;
+
+    // 3. Insert Shift Modifications
+    const dbMods = INITIAL_SHIFT_MODIFICATIONS.map(m => ({
+      id: `mod_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      employee_id: m.employeeId,
+      date: m.date,
+      shift: m.shift,
+      ot_morning: m.otMorning || 0,
+      ot_afternoon: m.otAfternoon || 0
+    }));
+    const { error: modErr } = await getDB().from('shift_modifications').insert(dbMods);
+    if (modErr) throw modErr;
+
+    console.log("Database initialized successfully!");
+    await loadStateFromServer();
+  } catch (err) {
+    console.error("Failed to initialize database:", err);
+    alert("서버 데이터베이스 초기화 중 오류가 발생했습니다:\n" + (err.message || err.details || JSON.stringify(err)));
+    throw err;
+  }
 }
 
 // Display settings (Defaults to current system date)
@@ -262,14 +413,98 @@ let editingShiftData = null;
 
 
 // Save helper
-function saveState() {
-  localStorage.setItem('shift_employees', JSON.stringify(employees));
-  localStorage.setItem('shift_leave_requests', JSON.stringify(leaveRequests));
-  localStorage.setItem('shift_overtime_requests', JSON.stringify(overtimeRequests));
-  localStorage.setItem('shift_modifications', JSON.stringify(shiftModifications));
-  sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
-  localStorage.setItem('shift_global_notices', JSON.stringify(globalNotices));
-  updateNoticeBanner();
+// Save helper (Async Supabase Sync-upsert and delete sync)
+async function saveState() {
+  try {
+    // 1. Upsert Employees
+    const dbEmps = employees.map(e => ({
+      id: e.id,
+      name: e.name,
+      phone_last_4: e.phoneLast4,
+      username: e.username,
+      password: e.password,
+      hall: e.hall,
+      role: e.role,
+      shift_group: e.shiftGroup,
+      join_year_month: e.joinYearMonth,
+      total_leave: e.totalLeave,
+      remaining_leave: e.remainingLeave,
+      used_leave: e.usedLeave
+    }));
+    await getDB().from('employees').upsert(dbEmps);
+
+    // 2. Sync Leave Requests
+    const dbLeaves = leaveRequests.map(l => ({
+      id: l.id,
+      group_id: l.groupId || null,
+      employee_id: l.employeeId,
+      employee_name: l.employeeName,
+      hall: l.hall,
+      date: l.date,
+      leave_type: l.leaveType || '연가',
+      reason: l.reason,
+      status: l.status
+    }));
+    if (dbLeaves.length > 0) {
+      await getDB().from('leave_requests').upsert(dbLeaves);
+      const localLeaveIds = dbLeaves.map(l => l.id);
+      await getDB().from('leave_requests').delete().not('id', 'in', `(${localLeaveIds.join(',')})`);
+    } else {
+      await getDB().from('leave_requests').delete().neq('id', 'placeholder');
+    }
+
+    // 3. Sync Overtime Requests
+    const dbOts = overtimeRequests.map(o => ({
+      id: o.id,
+      employee_id: o.employeeId,
+      employee_name: o.employeeName,
+      hall: o.hall,
+      date: o.date,
+      time_of_day: o.timeOfDay,
+      hours: o.hours,
+      reason: o.reason,
+      status: o.status
+    }));
+    if (dbOts.length > 0) {
+      await getDB().from('overtime_requests').upsert(dbOts);
+      const localOtIds = dbOts.map(o => o.id);
+      await getDB().from('overtime_requests').delete().not('id', 'in', `(${localOtIds.join(',')})`);
+    } else {
+      await getDB().from('overtime_requests').delete().neq('id', 'placeholder');
+    }
+
+    // 4. Sync Shift Modifications
+    const dbMods = shiftModifications.map(m => ({
+      id: m.id || `mod_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      employee_id: m.employeeId,
+      date: m.date,
+      shift: m.shift,
+      ot_morning: m.otMorning || 0,
+      ot_afternoon: m.otAfternoon || 0
+    }));
+    if (dbMods.length > 0) {
+      await getDB().from('shift_modifications').upsert(dbMods);
+      const localModIds = dbMods.map(m => m.id);
+      await getDB().from('shift_modifications').delete().not('id', 'in', `(${localModIds.join(',')})`);
+    } else {
+      await getDB().from('shift_modifications').delete().neq('id', 'placeholder');
+    }
+
+    // 5. Sync Global Notices
+    await getDB().from('global_notices').delete().neq('id', 'placeholder');
+    const dbNotices = globalNotices.map((content, idx) => ({
+      id: `n_${idx}_${Date.now()}`,
+      content: content
+    }));
+    if (dbNotices.length > 0) {
+      await getDB().from('global_notices').insert(dbNotices);
+    }
+
+    sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
+    updateNoticeBanner();
+  } catch (err) {
+    console.error("Failed to save state to Supabase:", err);
+  }
 }
 
 // Admin checking helper: grants admin status to team leaders and system admin
@@ -645,9 +880,9 @@ function initTheme() {
 }
 
 // Initialize Application UI
-function initApp() {
+async function initApp() {
   initTheme();
-  saveState(); // Ensure seed data is written on initial load
+  await loadStateFromServer();
   
   // Hook Theme Toggle (Forced light mode override)
   const themeBtn = document.getElementById('theme-toggle');
@@ -736,6 +971,23 @@ function initApp() {
   
   // Set up event listeners
   setupEventListeners();
+  subscribeRealtimeChanges();
+}
+
+// Subscribe to Realtime DB updates via Supabase
+function subscribeRealtimeChanges() {
+  getDB()
+    .channel('db-changes')
+    .on('postgres_changes', { event: '*', schema: 'public' }, async (payload) => {
+      console.log('Realtime change detected:', payload);
+      await loadStateFromServer();
+      renderRoster();
+      renderAdminDashboard();
+      renderSpecialLeaveList();
+      renderMyPage();
+      updateNoticeBanner();
+    })
+    .subscribe();
 }
 
 if (document.readyState === 'loading') {
