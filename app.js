@@ -230,11 +230,23 @@ function safeGetSessionStorageObject(key, fallback = null) {
 }
 
 let globalNotices = [];
-let employees = [];
-let leaveRequests = [];
-let overtimeRequests = [];
-let shiftModifications = [];
-let currentUser = null;
+try {
+  const savedNotices = localStorage.getItem('shift_global_notices');
+  if (savedNotices) {
+    const parsedNotices = JSON.parse(savedNotices);
+    if (Array.isArray(parsedNotices)) {
+      globalNotices = parsedNotices.filter(item => typeof item === 'string');
+    }
+  }
+} catch (e) {
+  console.error("Failed to load global notices", e);
+}
+
+let employees = safeGetLocalStorageArray('shift_employees', INITIAL_EMPLOYEES);
+let leaveRequests = safeGetLocalStorageArray('shift_leave_requests', INITIAL_LEAVE_REQUESTS);
+let overtimeRequests = safeGetLocalStorageArray('shift_overtime_requests', []);
+let shiftModifications = safeGetLocalStorageArray('shift_modifications', INITIAL_SHIFT_MODIFICATIONS);
+let currentUser = safeGetSessionStorageObject('shift_current_user', null);
 
 // Helper to check and parse sessionStorage safely
 function safeGetSessionStorageObject(key, defaultValue) {
@@ -336,6 +348,13 @@ async function loadStateFromServer() {
     }));
 
     globalNotices = noticeData.map(n => n.content);
+
+    // Save to local storage cache so that NEXT reload/refresh is 0ms instant
+    localStorage.setItem('shift_employees', JSON.stringify(employees));
+    localStorage.setItem('shift_leave_requests', JSON.stringify(leaveRequests));
+    localStorage.setItem('shift_overtime_requests', JSON.stringify(overtimeRequests));
+    localStorage.setItem('shift_modifications', JSON.stringify(shiftModifications));
+    localStorage.setItem('shift_global_notices', JSON.stringify(globalNotices));
 
     updateNoticeBanner();
   } catch (err) {
@@ -890,7 +909,21 @@ function initTheme() {
 // Initialize Application UI
 async function initApp() {
   initTheme();
-  await loadStateFromServer();
+  
+  // 0ms instant render using local storage cache
+  updateLoginUI();
+  updateNoticeBanner();
+  renderRoster();
+  
+  // Fetch fresh server state in background and update UI on completion
+  loadStateFromServer().then(() => {
+    renderRoster();
+    if (currentUser && currentUser.role === 'manager') {
+      renderAdminDashboard();
+    } else if (currentUser) {
+      renderMyPage();
+    }
+  });
   
   // Hook Theme Toggle (Forced light mode override)
   const themeBtn = document.getElementById('theme-toggle');
@@ -972,10 +1005,7 @@ async function initApp() {
   }
 
   // Render Login state
-  updateLoginUI();
   initYearMonthDropdowns();
-  updateNoticeBanner();
-  renderRoster();
   
   // Set up event listeners
   setupEventListeners();
