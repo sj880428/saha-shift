@@ -415,6 +415,8 @@ let editingShiftData = null;
 // Save helper
 // Save helper (Async Supabase Sync-upsert and delete sync)
 async function saveState() {
+  // Save session user immediately to avoid race condition and session loss during async DB calls
+  sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
   try {
     // 1. Upsert Employees
     const dbEmps = employees.map(e => ({
@@ -500,7 +502,6 @@ async function saveState() {
       await getDB().from('global_notices').insert(dbNotices);
     }
 
-    sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
     updateNoticeBanner();
   } catch (err) {
     console.error("Failed to save state to Supabase:", err);
@@ -1383,7 +1384,7 @@ function setupEventListeners() {
   });
 
   // Submit Login (Phone number only check for staff with custom warm greetings)
-  document.getElementById('login-form').addEventListener('submit', (e) => {
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const activeTab = document.querySelector('.auth-tab.active').dataset.type;
     
@@ -1393,7 +1394,7 @@ function setupEventListeners() {
       const found = employees.find(emp => emp.role === 'staff' && emp.phoneLast4 === phone);
       if (found) {
         currentUser = found;
-        saveState();
+        await saveState();
         updateLoginUI();
         loginOverlay.classList.remove('active');
         renderRoster();
@@ -1411,7 +1412,7 @@ function setupEventListeners() {
       const found = employees.find(emp => emp.role === 'manager' && emp.username === username && emp.password === password);
       if (found) {
         currentUser = found;
-        saveState();
+        await saveState();
         updateLoginUI();
         loginOverlay.classList.remove('active');
         renderRoster();
@@ -1428,9 +1429,9 @@ function setupEventListeners() {
   // Logout
   const logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', async () => {
       currentUser = null;
-      saveState();
+      await saveState();
       updateLoginUI();
       renderRoster();
       alert('로그아웃되었습니다.');
