@@ -414,8 +414,10 @@ let editingShiftData = null;
 
 // Save helper
 // Save helper (Async Supabase Sync-upsert and delete sync)
+let isLocallySaving = false; // Flag to prevent redundant realtime reloads on local save actions
+
 async function saveState() {
-  // Save session user immediately to avoid race condition and session loss during async DB calls
+  isLocallySaving = true; // Block incoming realtime updates while local save is in progress
   sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
   try {
     // 1. Upsert Employees
@@ -450,7 +452,7 @@ async function saveState() {
     if (dbLeaves.length > 0) {
       await getDB().from('leave_requests').upsert(dbLeaves);
       const localLeaveIds = dbLeaves.map(l => l.id);
-      await getDB().from('leave_requests').delete().not('id', 'in', `(${localLeaveIds.join(',')})`);
+      await getDB().from('leave_requests').delete().not('id', 'in', localLeaveIds);
     } else {
       await getDB().from('leave_requests').delete().neq('id', 'placeholder');
     }
@@ -470,7 +472,7 @@ async function saveState() {
     if (dbOts.length > 0) {
       await getDB().from('overtime_requests').upsert(dbOts);
       const localOtIds = dbOts.map(o => o.id);
-      await getDB().from('overtime_requests').delete().not('id', 'in', `(${localOtIds.join(',')})`);
+      await getDB().from('overtime_requests').delete().not('id', 'in', localOtIds);
     } else {
       await getDB().from('overtime_requests').delete().neq('id', 'placeholder');
     }
@@ -487,7 +489,7 @@ async function saveState() {
     if (dbMods.length > 0) {
       await getDB().from('shift_modifications').upsert(dbMods);
       const localModIds = dbMods.map(m => m.id);
-      await getDB().from('shift_modifications').delete().not('id', 'in', `(${localModIds.join(',')})`);
+      await getDB().from('shift_modifications').delete().not('id', 'in', localModIds);
     } else {
       await getDB().from('shift_modifications').delete().neq('id', 'placeholder');
     }
@@ -505,6 +507,11 @@ async function saveState() {
     updateNoticeBanner();
   } catch (err) {
     console.error("Failed to save state to Supabase:", err);
+  } finally {
+    // Release the local save lock after a small cooldown to ignore immediate echoed realtime events
+    setTimeout(() => {
+      isLocallySaving = false;
+    }, 1500);
   }
 }
 
@@ -976,17 +983,28 @@ async function initApp() {
 }
 
 // Subscribe to Realtime DB updates via Supabase
+let realtimeTimeout = null;
 function subscribeRealtimeChanges() {
   getDB()
     .channel('db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public' }, async (payload) => {
+    .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
       console.log('Realtime change detected:', payload);
-      await loadStateFromServer();
-      renderRoster();
-      renderAdminDashboard();
-      renderSpecialLeaveList();
-      renderMyPage();
-      updateNoticeBanner();
+      if (isLocallySaving) {
+        console.log('Bypassing realtime reload: change triggered by local client.');
+        return;
+      }
+      
+      // Debounce multiple fast updates into a single server reload
+      clearTimeout(realtimeTimeout);
+      realtimeTimeout = setTimeout(async () => {
+        console.log('Executing debounced state reload from Supabase...');
+        await loadStateFromServer();
+        renderRoster();
+        renderAdminDashboard();
+        renderSpecialLeaveList();
+        renderMyPage();
+        updateNoticeBanner();
+      }, 500);
     })
     .subscribe();
 }
