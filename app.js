@@ -198,6 +198,21 @@ function safeGetLocalStorageObject(key, fallback = null) {
   }
 }
 
+function safeGetSessionStorageObject(key, fallback = null) {
+  try {
+    const val = sessionStorage.getItem(key);
+    if (!val) return fallback;
+    const parsed = JSON.parse(val);
+    if (parsed && typeof parsed === 'object') {
+      return parsed;
+    }
+    return fallback;
+  } catch (e) {
+    console.error(`Failed to load sessionStorage key: ${key}`, e);
+    return fallback;
+  }
+}
+
 let globalNotices = [];
 try {
   const savedNotices = localStorage.getItem('shift_global_notices');
@@ -214,7 +229,7 @@ let employees = safeGetLocalStorageArray('shift_employees', null);
 let leaveRequests = safeGetLocalStorageArray('shift_leave_requests', INITIAL_LEAVE_REQUESTS);
 let overtimeRequests = safeGetLocalStorageArray('shift_overtime_requests', []);
 let shiftModifications = safeGetLocalStorageArray('shift_modifications', INITIAL_SHIFT_MODIFICATIONS);
-let currentUser = safeGetLocalStorageObject('shift_current_user', null);
+let currentUser = safeGetSessionStorageObject('shift_current_user', null);
 
 const initialNamesStr = INITIAL_EMPLOYEES.map(e => e.name).sort().join(',');
 const currentNamesStr = employees ? employees.map(e => e.name).sort().join(',') : '';
@@ -228,6 +243,7 @@ if (!employees || initialNamesStr !== currentNamesStr || (foundBaek && foundBaek
   shiftModifications = INITIAL_SHIFT_MODIFICATIONS;
   currentUser = null;
   localStorage.clear();
+  sessionStorage.clear();
   saveState();
 } else {
   saveState(); // Rewrite sanitized state back
@@ -249,7 +265,7 @@ function saveState() {
   localStorage.setItem('shift_leave_requests', JSON.stringify(leaveRequests));
   localStorage.setItem('shift_overtime_requests', JSON.stringify(overtimeRequests));
   localStorage.setItem('shift_modifications', JSON.stringify(shiftModifications));
-  localStorage.setItem('shift_current_user', JSON.stringify(currentUser));
+  sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
   localStorage.setItem('shift_global_notices', JSON.stringify(globalNotices));
   updateNoticeBanner();
 }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="사회복지 거주시설 생활지도원용 순환 근무표 및 연가 관리 웹 앱">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260811_8">
+  <link rel="stylesheet" href="styles.css?v=20260812_2">
 </head>
 <body>
 
@@ -18,12 +18,6 @@
           <h1>사하의집 근무계획</h1>
           <p>사하의집 연가 및 시간외 관리 시스템</p>
         </div>
-      </div>
-      
-      <!-- Global Notice banner (Inline next to Logo) -->
-      <div id="global-notice-banner" style="display: none; align-items: center; gap: 0.5rem; background-color: #fff9db; border-left: 4px solid #fab005; padding: 0.35rem 0.75rem; border-radius: 0.375rem; font-size: 0.8rem; max-width: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-        <span style="font-weight: 700; color: #b28600; white-space: nowrap;">📢 공지:</span>
-        <span id="global-notice-text" style="color: #2b2b2b; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
       </div>
     </div>
     
@@ -45,6 +39,12 @@
       <button id="btn-login-trigger" class="btn btn-primary">🔑 로그인</button>
     </div>
   </header>
+
+  <!-- Global Notice banner (Below Header) -->
+  <div id="global-notice-banner" class="global-notice-banner" style="display: none; align-items: center; gap: 0.5rem; background-color: #fff9db; border-left: 4px solid #fab005; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; max-width: 1200px; width: calc(100% - 3rem); margin: 1rem auto 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+    <span style="font-weight: 700; color: #b28600; white-space: nowrap;">📢 공지:</span>
+    <span id="global-notice-text" style="color: #2b2b2b; font-weight: 500; line-height: 1.4;"></span>
+  </div>
 
   <!-- Main Container -->
   <main id="screen-main">
