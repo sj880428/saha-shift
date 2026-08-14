@@ -1881,7 +1881,16 @@ function setupEventListeners() {
     if (submitButton) submitButton.disabled = true;
     try {
       const { data, error } = await getDB().functions.invoke('change-login-id', { body: { employeeId, newLoginId } });
-      if (error) throw error;
+      if (error) {
+        let serverMessage = error.message || String(error);
+        try {
+          const errorBody = await error.context?.json();
+          serverMessage = errorBody?.error || errorBody?.message || serverMessage;
+        } catch (_) {
+          // Keep the original message when the server did not return JSON.
+        }
+        throw new Error(serverMessage);
+      }
       if (!data?.ok) throw new Error(data?.error || '濡쒓렇??ID 蹂寃쎌뿉 ?ㅽ뙣?덉뒿?덈떎.');
       closeLoginIdChange();
       await loadStateFromServer();
@@ -1996,6 +2005,7 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
       item.style.paddingBottom = '0.75rem';
       item.style.borderBottom = '1px dashed var(--border-color)';
       const timeOfDayText = req.timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑';
+
       item.innerHTML = `
         <p style="font-size: 0.8rem; margin-bottom: 0.4rem;">
           <strong>援щ텇:</strong> ${timeOfDayText}<br>
@@ -2005,7 +2015,6 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
         <div style="display: flex; gap: 0.25rem;">
           <button type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="approve-ot-${req.id}">?뱀씤</button>
           <button type="button" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="reject-ot-${req.id}">諛섎젮</button>
-
         </div>
       `;
       otList.appendChild(item);
@@ -2248,6 +2257,7 @@ function renderMyCalendar() {
   const container = document.getElementById('my-mini-calendar');
   container.innerHTML = '';
 
+
   // Add weekday header labels to mini-calendar
   const weekdays = ['??, '??, '??, '??, '紐?, '湲?, '??];
   weekdays.forEach((day, idx) => {
@@ -2256,7 +2266,6 @@ function renderMyCalendar() {
     el.textContent = day;
     if (idx === 0) el.style.color = '#ef4444'; // Sunday red
     else if (idx === 6) el.style.color = '#3b82f6'; // Saturday blue
-
     container.appendChild(el);
   });
 
@@ -2498,6 +2507,7 @@ function renderRoster() {
   const month = currentMonth;
   
   // Sync selects
+
   const selectYear = document.getElementById('select-year');
   const selectMonth = document.getElementById('select-month');
   if (selectYear) selectYear.value = year;
@@ -2507,7 +2517,6 @@ function renderRoster() {
   const adminSelectMonth = document.getElementById('admin-select-month');
   if (adminSelectYear) adminSelectYear.value = year;
   if (adminSelectMonth) adminSelectMonth.value = month;
-
   
   // Render Girincho
   renderRosterForHall('girincho', 'roster-header-row-girincho', 'roster-tbody-girincho');
@@ -2749,6 +2758,7 @@ function renderRosterForManagers(headerRowId, tbodyId) {
 
   // Get total days in month
   const totalDays = new Date(year, month + 1, 0).getDate();
+
   
   // Filter employees for managers (except mgr_admin)
   const filteredEmployees = employees.filter(emp => emp.role === 'manager' && emp.id !== 'mgr_admin');
@@ -2758,7 +2768,6 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   headerRow.innerHTML = '';
   
   // Group col (shows '??? for managers)
-
   const groupTh = document.createElement('th');
   groupTh.textContent = '援щ텇';
   groupTh.className = 'group-cell';
@@ -3000,6 +3009,7 @@ function populateMasterPrintTable() {
   row2.innerHTML = '';
   for (let day = 1; day <= totalDays; day++) {
     const th = document.createElement('th');
+
     th.classList.add('date-col');
     th.style.fontSize = '7.5pt';
     th.style.fontWeight = 'normal';
@@ -3009,7 +3019,6 @@ function populateMasterPrintTable() {
       th.innerHTML = `${getKoranWeekday(year, month, day)}<br><span class="holiday-label" style="font-size: 6px; font-weight: bold; line-height: 1.1; display: block; margin-top: 1px; color: #ef4444; white-space: nowrap;">${holidayName}</span>`;
       th.classList.add('holiday');
     } else {
-
       th.textContent = getKoranWeekday(year, month, day);
       if (d.getDay() === 0) {
         th.classList.add('sunday');
@@ -3251,6 +3260,7 @@ function populateMasterPrintTable() {
     const sigTd = document.createElement('td');
     sigTd.className = 'print-sig-col';
     sigTd.innerHTML = '&nbsp;';
+
     tr.appendChild(sigTd);
 
     // Shifts 1..31
@@ -3260,7 +3270,6 @@ function populateMasterPrintTable() {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
       
-
       // ?밸퀎 ?닿?(蹂묎?, ?덉떇?? ?곗냽 ?뚮뜑留?? 蹂묓빀 (?몄뇙??
       if (shift === '蹂묎?' || shift === '蹂묎?(?湲?' || shift === '?덉떇?? || shift === '?덉떇???湲?') {
         let colspan = 1;
@@ -3502,6 +3511,7 @@ function renderAdminDashboard() {
       }
       return emp && emp.hall === hallFilter && emp.role !== 'manager';
     });
+
   }
 
   if (relevantOtRequests.length === 0) {
@@ -3511,7 +3521,6 @@ function renderAdminDashboard() {
 
     sortedOtRequests.forEach(req => {
       const tr = document.createElement('tr');
-
       
       let statusBadgeClass = 'badge-pending';
       let statusText = '?湲곗쨷';
@@ -3753,6 +3762,7 @@ window.approveOvertime = async function(requestId) {
     }
   }
 
+
   // Verify weekly limit before approval
   const currentWeeklyTotalWithoutThis = getWeeklyOvertimeTotal(req.employeeId, req.date, req.id);
   if (currentWeeklyTotalWithoutThis + req.hours > 12) {
@@ -3762,7 +3772,6 @@ window.approveOvertime = async function(requestId) {
 
   // Verify monthly limit before approval
   const reqDate = parseLocalDate(req.date);
-
   const rYear = reqDate.getFullYear();
   const rMonth = reqDate.getMonth();
   const currentMonthlyTotalWithoutThis = getMonthlyOvertimeTotal(req.employeeId, rYear, rMonth, req.id);
@@ -4004,6 +4013,7 @@ window.saveRosterAsImage = function() {
   container.style.backgroundColor = '#ffffff'; // White background
   
   // Use html2canvas after a short delay to allow browser repaint/reflow
+
   setTimeout(() => {
     html2canvas(container, {
       scale: 2, // High resolution scale
@@ -4013,7 +4023,6 @@ window.saveRosterAsImage = function() {
     }).then(canvas => {
       // Restore styling
       container.style.display = originalDisplay;
-
       container.style.position = originalPosition;
       container.style.left = originalLeft;
       container.style.top = originalTop;
@@ -4255,6 +4264,7 @@ window.importData = function(event) {
         employees = data.employees;
         leaveRequests = data.leaveRequests;
         overtimeRequests = data.overtimeRequests;
+
         shiftModifications = data.shiftModifications;
         if (data.globalNotices) {
           globalNotices = data.globalNotices;
@@ -4264,7 +4274,6 @@ window.importData = function(event) {
         alert('?곗씠??蹂듭썝???깃났?곸쑝濡??꾨즺?섏뿀?듬땲?? 蹂寃??ы빆??洹쇰Т?쒖뿉 ?곸슜?⑸땲??');
         syncDateAndRender();
       } else {
-
         alert('?щ컮瑜?諛깆뾽 ?뚯씪 ?뺤떇???꾨떃?덈떎. ?뚯씪 ?댁슜???뺤씤??二쇱꽭??');
       }
     } catch (err) {
