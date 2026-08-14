@@ -1100,7 +1100,7 @@ tr.my-roster-row td {
 }
 
 .mobile-bottom-nav-btn.active {
-  background: var(--color-primary);
+  background: var(--primary-color);
   color: #fff;
 }
 
