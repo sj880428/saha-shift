@@ -2,13 +2,31 @@ import { withSupabase } from 'npm:@supabase/server@^1';
 
 const result = (body: Record<string, unknown>) => Response.json(body, { status: 200 });
 
+function readUserId(request: Request, claims: Record<string, unknown> | undefined): string {
+  const claimId = String(claims?.sub || '');
+  if (claimId) return claimId;
+
+  try {
+    const authorization = request.headers.get('authorization') || '';
+    const token = authorization.replace(/^Bearer\s+/i, '');
+    const payloadPart = token.split('.')[1];
+    if (!payloadPart) return '';
+    const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    const payload = JSON.parse(atob(padded));
+    return String(payload?.sub || '');
+  } catch {
+    return '';
+  }
+}
+
 export default {
   fetch: withSupabase({ auth: 'user' }, async (request, ctx) => {
     try {
       if (request.method !== 'POST') return result({ ok: false, error: 'POST 요청만 허용됩니다.' });
 
       const admin = ctx.supabaseAdmin;
-      const actorId = String(ctx.userClaims?.sub || '');
+      const actorId = readUserId(request, ctx.userClaims as Record<string, unknown> | undefined);
       const body = await request.json().catch(() => null);
       const employeeId = String(body?.employeeId || '').trim();
       const newLoginId = String(body?.newLoginId || '').trim().toLowerCase();
