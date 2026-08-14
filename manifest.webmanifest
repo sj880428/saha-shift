@@ -1,0 +1,20 @@
+{
+  "name": "사하의집 근무표",
+  "short_name": "사하근무표",
+  "description": "사하의집 교대근무표 및 연가·공가·시간외 신청",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#13795b",
+  "lang": "ko-KR",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ function getDB() {
   }
   return supabaseClient;
 }
+window.getDB = getDB;
 
 // State configuration
 const SHIFT_CYCLE = ['주간', '주간', '당직', '야간', '휴무', '휴무'];
@@ -112,70 +113,40 @@ function calculateTotalLeave(joinYearMonth) {
   }
 }
 
-// Initial seed data from screenshot (백승진 phone updated to 7188)
+// Development-only seed data. Real employee information must live only in the database.
 const INITIAL_EMPLOYEES = [
   // Girincho Living Hall (6 staff)
-  { id: 'emp_g1', name: '황정임', phoneLast4: '1234', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 16, usedLeave: 1 },
-  { id: 'emp_g2', name: '천명순', phoneLast4: '5678', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 15, usedLeave: 2 },
-  { id: 'emp_g3', name: '백승진', phoneLast4: '7188', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 14, usedLeave: 2 },
-  { id: 'emp_g4', name: '박기택', phoneLast4: '3456', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 14, usedLeave: 2 },
-  { id: 'emp_g5', name: '허수영', phoneLast4: '7890', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 13, usedLeave: 2 },
-  { id: 'emp_g6', name: '김명수', phoneLast4: '2345', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 14, usedLeave: 1 },
+  { id: 'emp_g1', name: '기린초1', phoneLast4: '1001', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g2', name: '기린초2', phoneLast4: '1002', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g3', name: '기린초3', phoneLast4: '1003', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g4', name: '기린초4', phoneLast4: '1004', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g5', name: '기린초5', phoneLast4: '1005', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_g6', name: '기린초6', phoneLast4: '1006', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Mulbongseon Living Hall (7 staff)
-  { id: 'emp_m1', name: '정두리', phoneLast4: '1111', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 16, usedLeave: 2 },
-  { id: 'emp_m2', name: '송주애', phoneLast4: '2222', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-04', totalLeave: 17, remainingLeave: 15, usedLeave: 2 },
-  { id: 'emp_m3', name: '권미선', phoneLast4: '3333', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 16, usedLeave: 1 },
-  { id: 'emp_m4', name: '이종숙', phoneLast4: '4444', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 15, usedLeave: 1 },
-  { id: 'emp_m5', name: '김순이', phoneLast4: '5555', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 15, usedLeave: 1 },
-  { id: 'emp_m6', name: '임미경', phoneLast4: '6666', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 13, usedLeave: 2 },
-  { id: 'emp_m7', name: '이윤경', phoneLast4: '7777', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 14, usedLeave: 1 },
+  { id: 'emp_m1', name: '물봉선1', phoneLast4: '2001', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'emp_m2', name: '물봉선2', phoneLast4: '2002', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-04', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_m3', name: '물봉선3', phoneLast4: '2003', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_m4', name: '물봉선4', phoneLast4: '2004', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m5', name: '물봉선5', phoneLast4: '2005', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m6', name: '물봉선6', phoneLast4: '2006', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_m7', name: '물봉선7', phoneLast4: '2007', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Managers (2 Team Leaders + 1 System Admin)
-  { id: 'mgr_g', name: '변은주', username: 'admin1', password: 'admin123', hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'mgr_m', name: '정경숙', username: 'admin2', password: 'admin123', hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
-  { id: 'mgr_admin', name: '시스템 관리자 (개발자)', username: 'admin', password: 'admin123', hall: 'all', role: 'manager' }
+  { id: 'mgr_g', name: '기린초팀장', username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'mgr_m', name: '물봉선팀장', username: null, hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'mgr_admin', name: '시스템 관리자', username: null, hall: 'all', role: 'manager' }
 ];
 
-// Seed leave requests shown in the screenshot for July 2026
-const INITIAL_LEAVE_REQUESTS = [
-  // Girincho leaves (July 2026)
-  { id: 'l_g1', employeeId: 'emp_g1', employeeName: '황정임', hall: 'girincho', date: '2026-07-15', reason: '연가', status: 'approved' },
-  { id: 'l_g2_1', employeeId: 'emp_g2', employeeName: '천명순', hall: 'girincho', date: '2026-07-24', reason: '연가', status: 'approved' },
-  { id: 'l_g2_2', employeeId: 'emp_g2', employeeName: '천명순', hall: 'girincho', date: '2026-07-29', reason: '연가', status: 'approved' },
-  { id: 'l_g3_1', employeeId: 'emp_g3', employeeName: '백승진', hall: 'girincho', date: '2026-07-11', reason: '연가', status: 'approved' },
-  { id: 'l_g3_2', employeeId: 'emp_g3', employeeName: '백승진', hall: 'girincho', date: '2026-07-12', reason: '연가', status: 'approved' },
-  { id: 'l_g4_1', employeeId: 'emp_g4', employeeName: '박기택', hall: 'girincho', date: '2026-07-25', reason: '연가', status: 'approved' },
-  { id: 'l_g4_2', employeeId: 'emp_g4', employeeName: '박기택', hall: 'girincho', date: '2026-07-26', reason: '연가', status: 'approved' },
-  { id: 'l_g5_1', employeeId: 'emp_g5', employeeName: '허수영', hall: 'girincho', date: '2026-07-18', reason: '연가', status: 'approved' },
-  { id: 'l_g5_2', employeeId: 'emp_g5', employeeName: '허수영', hall: 'girincho', date: '2026-07-19', reason: '연가', status: 'approved' },
-  { id: 'l_g6', employeeId: 'emp_g6', employeeName: '김명수', hall: 'girincho', date: '2026-07-09', reason: '연가', status: 'approved' },
-  
-  // Mulbongseon leaves (July 2026)
-  { id: 'l_m1_1', employeeId: 'emp_m1', employeeName: '정두리', hall: 'mulbongseon', date: '2026-07-20', reason: '연가', status: 'approved' },
-  { id: 'l_m1_2', employeeId: 'emp_m1', employeeName: '정두리', hall: 'mulbongseon', date: '2026-07-26', reason: '연가', status: 'approved' },
-  { id: 'l_m2_1', employeeId: 'emp_m2', employeeName: '송주애', hall: 'mulbongseon', date: '2026-07-20', reason: '연가', status: 'approved' },
-  { id: 'l_m2_2', employeeId: 'emp_m2', employeeName: '송주애', hall: 'mulbongseon', date: '2026-07-26', reason: '연가', status: 'approved' },
-  { id: 'l_m3', employeeId: 'emp_m3', employeeName: '권미선', hall: 'mulbongseon', date: '2026-07-25', reason: '연가', status: 'approved' },
-  { id: 'l_m4', employeeId: 'emp_m4', employeeName: '이종숙', hall: 'mulbongseon', date: '2026-07-16', reason: '연가', status: 'approved' },
-  { id: 'l_m5', employeeId: 'emp_m5', employeeName: '김순이', hall: 'mulbongseon', date: '2026-07-13', reason: '연가', status: 'approved' },
-  { id: 'l_m6_1', employeeId: 'emp_m6', employeeName: '임미경', hall: 'mulbongseon', date: '2026-07-30', reason: '연가', status: 'approved' },
-  { id: 'l_m6_2', employeeId: 'emp_m6', employeeName: '임미경', hall: 'mulbongseon', date: '2026-07-31', reason: '연가', status: 'approved' },
-  { id: 'l_m7', employeeId: 'emp_m7', employeeName: '이윤경', hall: 'mulbongseon', date: '2026-07-03', reason: '연가', status: 'approved' },
-
-  // Team Leaders leaves (July 2026)
-  { id: 'l_mgr_g', employeeId: 'mgr_g', employeeName: '변은주', hall: 'girincho', date: '2026-07-13', reason: '연가', status: 'approved' },
-  { id: 'l_mgr_m_1', employeeId: 'mgr_m', employeeName: '정경숙', hall: 'mulbongseon', date: '2026-07-07', reason: '연가', status: 'approved' },
-  { id: 'l_mgr_m_2', employeeId: 'mgr_m', employeeName: '정경숙', hall: 'mulbongseon', date: '2026-07-28', reason: '연가', status: 'approved' }
-];
+const INITIAL_LEAVE_REQUESTS = [];
 
 // Seed manual shift exceptions from screenshot
 const INITIAL_SHIFT_MODIFICATIONS = [
-  // 변은주 (mgr_g) July 2026 exceptions
+  // Girincho manager July 2026 exceptions
   { employeeId: 'mgr_g', date: '2026-07-03', shift: '야간' },
   { employeeId: 'mgr_g', date: '2026-07-24', shift: '야간' },
   
-  // 정경숙 (mgr_m) July 2026 exceptions
+  // Mulbongseon manager July 2026 exceptions
   { employeeId: 'mgr_m', date: '2026-07-10', shift: '야간' },
   { employeeId: 'mgr_m', date: '2026-07-25', shift: '주간' },
   { employeeId: 'mgr_m', date: '2026-07-27', shift: '휴무' },
@@ -230,23 +201,24 @@ function safeGetSessionStorageObject(key, fallback = null) {
 }
 
 let globalNotices = [];
-try {
-  const savedNotices = localStorage.getItem('shift_global_notices');
-  if (savedNotices) {
-    const parsedNotices = JSON.parse(savedNotices);
-    if (Array.isArray(parsedNotices)) {
-      globalNotices = parsedNotices.filter(item => typeof item === 'string');
-    }
-  }
-} catch (e) {
-  console.error("Failed to load global notices", e);
-}
 
-let employees = safeGetLocalStorageArray('shift_employees', INITIAL_EMPLOYEES);
-let leaveRequests = safeGetLocalStorageArray('shift_leave_requests', INITIAL_LEAVE_REQUESTS);
-let overtimeRequests = safeGetLocalStorageArray('shift_overtime_requests', []);
-let shiftModifications = safeGetLocalStorageArray('shift_modifications', INITIAL_SHIFT_MODIFICATIONS);
-let currentUser = safeGetSessionStorageObject('shift_current_user', null);
+// Never restore private schedule data before Supabase Auth confirms the user.
+let employees = [];
+let leaveRequests = [];
+let overtimeRequests = [];
+let shiftModifications = [];
+let currentUser = null;
+
+function clearPrivateState() {
+  employees = [];
+  leaveRequests = [];
+  overtimeRequests = [];
+  shiftModifications = [];
+  globalNotices = [];
+  ['shift_employees', 'shift_leave_requests', 'shift_overtime_requests', 'shift_modifications', 'shift_global_notices']
+    .forEach((key) => localStorage.removeItem(key));
+  updateNoticeBanner();
+}
 
 // Helper to check and parse sessionStorage safely
 function safeGetSessionStorageObject(key, defaultValue) {
@@ -265,11 +237,15 @@ const initialNamesStr = INITIAL_EMPLOYEES.map(e => e.name).sort().join(',');
 // Load State from Supabase Server (Async)
 async function loadStateFromServer() {
   try {
-    currentUser = safeGetSessionStorageObject('shift_current_user', null);
-
     // 1. Fetch Employees
-    const { data: empData, error: empErr } = await getDB().from('employees').select('*');
+    let { data: empData, error: empErr } = await getDB().rpc('get_visible_employees');
+    if (empErr) {
+      const fallback = await getDB().from('employees').select('*');
+      empData = fallback.data;
+      empErr = fallback.error;
+    }
     if (empErr) throw empErr;
+    empData = Array.isArray(empData) ? empData : [];
 
     // If database is completely empty, initialize it with seed data
     if (!empData || empData.length === 0) {
@@ -282,13 +258,25 @@ async function loadStateFromServer() {
       return;
     }
 
-    // 2. Fetch Leave Requests
-    const { data: leaveData, error: leaveErr } = await getDB().from('leave_requests').select('*');
+    // 2. Fetch only the request details this user may see. The RPC hides other staff's reasons.
+    let { data: leaveData, error: leaveErr } = await getDB().rpc('get_visible_leave_requests');
+    if (leaveErr) {
+      const fallback = await getDB().from('leave_requests').select('*');
+      leaveData = fallback.data;
+      leaveErr = fallback.error;
+    }
     if (leaveErr) throw leaveErr;
+    leaveData = Array.isArray(leaveData) ? leaveData : [];
 
-    // 3. Fetch Overtime Requests
-    const { data: otData, error: otErr } = await getDB().from('overtime_requests').select('*');
+    // 3. Fetch overtime with the same privacy rule.
+    let { data: otData, error: otErr } = await getDB().rpc('get_visible_overtime_requests');
+    if (otErr) {
+      const fallback = await getDB().from('overtime_requests').select('*');
+      otData = fallback.data;
+      otErr = fallback.error;
+    }
     if (otErr) throw otErr;
+    otData = Array.isArray(otData) ? otData : [];
 
     // 4. Fetch Shift Modifications
     const { data: modData, error: modErr } = await getDB().from('shift_modifications').select('*');
@@ -302,9 +290,10 @@ async function loadStateFromServer() {
     employees = empData.map(e => ({
       id: e.id,
       name: e.name,
-      phoneLast4: e.phone_last_4,
-      username: e.username,
-      password: e.password,
+      phoneLast4: null,
+      username: e.login_id,
+      loginId: e.login_id,
+      authUserId: e.auth_user_id,
       hall: e.hall,
       role: e.role,
       shiftGroup: e.shift_group,
@@ -371,9 +360,8 @@ async function initializeDatabaseIfEmpty() {
     const dbEmps = INITIAL_EMPLOYEES.map(e => ({
       id: e.id,
       name: e.name,
-      phone_last_4: e.phoneLast4 || null,
-      username: e.username || null,
-      password: e.password || null,
+      login_id: e.loginId || null,
+      auth_user_id: e.authUserId || null,
       hall: e.hall,
       role: e.role,
       shift_group: e.shiftGroup || null,
@@ -437,7 +425,6 @@ let isLocallySaving = false; // Flag to prevent redundant realtime reloads on lo
 
 async function saveState() {
   isLocallySaving = true; // Block incoming realtime updates while local save is in progress
-  sessionStorage.setItem('shift_current_user', JSON.stringify(currentUser));
   try {
     // 1. Upsert Employees
     const dbEmps = employees.map(e => ({
@@ -445,7 +432,8 @@ async function saveState() {
       name: e.name,
       phone_last_4: e.phoneLast4,
       username: e.username,
-      password: e.password,
+      login_id: e.loginId || null,
+      auth_user_id: e.authUserId || null,
       hall: e.hall,
       role: e.role,
       shift_group: e.shiftGroup,
@@ -532,6 +520,85 @@ async function saveState() {
       isLocallySaving = false;
     }, 1500);
   }
+}
+
+// Request-specific writes. Staff actions must never synchronize or delete whole tables.
+async function createLeaveRequest(request) {
+  const row = {
+    id: request.id,
+    group_id: request.groupId || null,
+    employee_id: currentUser.id,
+    employee_name: currentUser.name,
+    hall: currentUser.hall,
+    date: request.date,
+    leave_type: request.leaveType,
+    reason: request.reason,
+    status: 'pending'
+  };
+  const { error } = await getDB().from('leave_requests').insert(row);
+  if (error) throw error;
+  leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+}
+
+async function updateOwnLeaveRequest(requestId, changes) {
+  const allowed = { reason: changes.reason, leave_type: changes.leaveType, status: 'pending' };
+  const { error } = await getDB().from('leave_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending');
+  if (error) throw error;
+}
+
+async function createOvertimeRequest(request) {
+  const row = {
+    id: request.id,
+    employee_id: currentUser.id,
+    employee_name: currentUser.name,
+    hall: currentUser.hall,
+    date: request.date,
+    time_of_day: request.timeOfDay,
+    hours: request.hours,
+    reason: request.reason,
+    status: 'pending'
+  };
+  const { error } = await getDB().from('overtime_requests').insert(row);
+  if (error) throw error;
+  overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+}
+
+async function updateOwnOvertimeRequest(requestId, changes) {
+  const allowed = { time_of_day: changes.timeOfDay, hours: changes.hours, reason: changes.reason, status: 'pending' };
+  const { error } = await getDB().from('overtime_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending');
+  if (error) throw error;
+}
+
+async function updateRequestStatus(table, requestId, status) {
+  if (!currentUser || currentUser.role !== 'manager') throw new Error('관리자 권한이 필요합니다.');
+  const { error } = await getDB().from(table).update({ status }).eq('id', requestId);
+  if (error) throw error;
+}
+
+async function deleteOwnRequest(table, requestId) {
+  const { data, error } = await getDB()
+    .from(table)
+    .delete()
+    .eq('id', requestId)
+    .eq('employee_id', currentUser.id)
+    .select('id');
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error('취소할 신청을 서버에서 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.');
+}
+
+async function saveEmployeeLeaveCounts(employee) {
+  const { error } = await getDB().from('employees').update({
+    total_leave: employee.totalLeave,
+    remaining_leave: employee.remainingLeave,
+    used_leave: employee.usedLeave
+  }).eq('id', employee.id);
+  if (error) throw error;
+}
+
+async function updateManagerProfile(managerId, changes) {
+  if (!currentUser || currentUser.hall !== 'all') throw new Error('전체 관리자 권한이 필요합니다.');
+  const { error } = await getDB().from('employees').update({ name: changes.name, hall: changes.hall }).eq('id', managerId).eq('role', 'manager');
+  if (error) throw error;
 }
 
 // Admin checking helper: grants admin status to team leaders and system admin
@@ -909,21 +976,41 @@ function initTheme() {
 // Initialize Application UI
 async function initApp() {
   initTheme();
+
+  // Local visual preview only. This never reads or writes the live Supabase project.
+  const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === '1';
+  if (isPreviewMode) {
+    employees = INITIAL_EMPLOYEES.map((employee) => ({ ...employee }));
+    leaveRequests = [];
+    overtimeRequests = [];
+    shiftModifications = INITIAL_SHIFT_MODIFICATIONS.map((item) => ({ ...item }));
+    currentUser = employees.find((employee) => employee.id === 'emp_g1') || null;
+  }
   
-  // 0ms instant render using local storage cache
+  // Render the shell first. Private schedule data is loaded only after Auth confirms a session.
   updateLoginUI();
   updateNoticeBanner();
   renderRoster();
   
   // Fetch fresh server state in background and update UI on completion
-  loadStateFromServer().then(() => {
-    renderRoster();
-    if (currentUser && currentUser.role === 'manager') {
-      renderAdminDashboard();
-    } else if (currentUser) {
-      renderMyPage();
+  if (!isPreviewMode) {
+    const sessionUser = await window.SahaAuth.getSessionUser();
+    if (sessionUser) {
+      await loadStateFromServer();
+      currentUser = employees.find((employee) => employee.authUserId === sessionUser.id) || null;
+      updateLoginUI();
+      renderRoster();
+      if (currentUser && currentUser.role === 'manager') {
+        renderAdminDashboard();
+      } else if (currentUser) {
+        renderMyPage();
+      }
+    } else {
+      clearPrivateState();
+      updateLoginUI();
+      renderRoster();
     }
-  });
+  }
   
   // Hook Theme Toggle (Forced light mode override)
   const themeBtn = document.getElementById('theme-toggle');
@@ -1009,7 +1096,8 @@ async function initApp() {
   
   // Set up event listeners
   setupEventListeners();
-  subscribeRealtimeChanges();
+  setupMobileStaffNavigation();
+  if (!isPreviewMode) subscribeRealtimeChanges();
 }
 
 // Subscribe to Realtime DB updates via Supabase
@@ -1061,7 +1149,8 @@ function setupEventListeners() {
     document.getElementById('manager-login-fields').style.display = 'none';
     
     // Manage required attributes
-    document.getElementById('staff-phone').required = true;
+    document.getElementById('staff-login-id').required = true;
+    document.getElementById('staff-password').required = true;
     document.getElementById('manager-id').required = false;
     document.getElementById('manager-pw').required = false;
 
@@ -1106,7 +1195,8 @@ function setupEventListeners() {
         document.getElementById('manager-login-fields').style.display = 'none';
         
         // Manage required fields
-        document.getElementById('staff-phone').required = true;
+        document.getElementById('staff-login-id').required = true;
+        document.getElementById('staff-password').required = true;
         document.getElementById('manager-id').required = false;
         document.getElementById('manager-pw').required = false;
       } else {
@@ -1114,7 +1204,8 @@ function setupEventListeners() {
         document.getElementById('manager-login-fields').style.display = 'block';
         
         // Manage required fields
-        document.getElementById('staff-phone').required = false;
+        document.getElementById('staff-login-id').required = false;
+        document.getElementById('staff-password').required = false;
         document.getElementById('manager-id').required = true;
         document.getElementById('manager-pw').required = true;
       }
@@ -1187,7 +1278,7 @@ function setupEventListeners() {
   document.getElementById('staff-ot-cancel').addEventListener('click', closeStaffModal);
 
   // Staff Leave Form Submit
-  formStaffLeave.addEventListener('submit', (e) => {
+  formStaffLeave.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentUser || !staffRequestData) return;
 
@@ -1203,9 +1294,14 @@ function setupEventListeners() {
     if (editingRequestId && editingRequestType === 'leave') {
       const req = leaveRequests.find(r => r.id === editingRequestId);
       if (req) {
+        try {
+          await updateOwnLeaveRequest(req.id, { reason: reason || '개인 사정', leaveType: '연가' });
+        } catch (error) {
+          alert('연가 신청을 수정하지 못했습니다: ' + (error.message || error));
+          return;
+        }
         req.reason = reason || '개인 사정';
         req.leaveType = '연가';
-        saveState();
         closeStaffModal();
         alert('연가 신청이 수정되었습니다.');
         renderMyPage();
@@ -1246,8 +1342,12 @@ function setupEventListeners() {
       status: 'pending'
     };
 
-    leaveRequests.push(newRequest);
-    saveState();
+    try {
+      await createLeaveRequest(newRequest);
+    } catch (error) {
+      alert('연가 신청을 저장하지 못했습니다: ' + (error.message || error));
+      return;
+    }
     closeStaffModal();
     alert('연가가 신청되어 근무표에 반영 대기 중입니다.');
     renderMyPage();
@@ -1257,7 +1357,7 @@ function setupEventListeners() {
   // Staff Official Leave Form Submit
   const formStaffOfficialLeaveElement = document.getElementById('staff-official-leave-form');
   if (formStaffOfficialLeaveElement) {
-    formStaffOfficialLeaveElement.addEventListener('submit', (e) => {
+    formStaffOfficialLeaveElement.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser || !staffRequestData) return;
 
@@ -1267,9 +1367,14 @@ function setupEventListeners() {
       if (editingRequestId && editingRequestType === 'leave') {
         const req = leaveRequests.find(r => r.id === editingRequestId);
         if (req) {
+          try {
+            await updateOwnLeaveRequest(req.id, { reason: reason || '공무 수행', leaveType: '공가' });
+          } catch (error) {
+            alert('공가 신청을 수정하지 못했습니다: ' + (error.message || error));
+            return;
+          }
           req.reason = reason || '공무 수행';
           req.leaveType = '공가';
-          saveState();
           closeStaffModal();
           alert('공가 신청이 수정되었습니다.');
           renderMyPage();
@@ -1310,8 +1415,12 @@ function setupEventListeners() {
         status: 'pending'
       };
 
-      leaveRequests.push(newRequest);
-      saveState();
+      try {
+        await createLeaveRequest(newRequest);
+      } catch (error) {
+        alert('공가 신청을 저장하지 못했습니다: ' + (error.message || error));
+        return;
+      }
       closeStaffModal();
       alert('공가가 신청되어 근무표에 반영 대기 중입니다.');
       renderMyPage();
@@ -1320,7 +1429,7 @@ function setupEventListeners() {
   }
 
   // Staff Overtime Form Submit
-  formStaffOt.addEventListener('submit', (e) => {
+  formStaffOt.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentUser || !staffRequestData) return;
 
@@ -1392,10 +1501,15 @@ function setupEventListeners() {
     if (editingRequestId && editingRequestType === 'overtime') {
       const req = overtimeRequests.find(r => r.id === editingRequestId);
       if (req) {
+        try {
+          await updateOwnOvertimeRequest(req.id, { timeOfDay, hours, reason: reason || '시간외 근무' });
+        } catch (error) {
+          alert('시간외 신청을 수정하지 못했습니다: ' + (error.message || error));
+          return;
+        }
         req.timeOfDay = timeOfDay;
         req.hours = hours;
         req.reason = reason || '시간외 근무';
-        saveState();
         closeStaffModal();
         alert('시간외 근무 신청이 수정되었습니다.');
         renderMyPage();
@@ -1423,54 +1537,56 @@ function setupEventListeners() {
       status: 'pending'
     };
 
-    overtimeRequests.push(newRequest);
-    saveState();
+    try {
+      await createOvertimeRequest(newRequest);
+    } catch (error) {
+      alert('시간외 신청을 저장하지 못했습니다: ' + (error.message || error));
+      return;
+    }
     closeStaffModal();
     alert('시간외 근무가 신청되어 결재 대기 상태로 등록되었습니다.');
     renderMyPage();
     renderRoster();
   });
 
-  // Submit Login (Phone number only check for staff with custom warm greetings)
+  // Submit Login through Supabase Auth. Passwords are never stored in employees.
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const activeTab = document.querySelector('.auth-tab.active').dataset.type;
-    
-    if (activeTab === 'staff') {
-      const phone = document.getElementById('staff-phone').value.trim();
-      
-      const found = employees.find(emp => emp.role === 'staff' && emp.phoneLast4 === phone);
-      if (found) {
-        currentUser = found;
-        await saveState();
-        updateLoginUI();
-        loginOverlay.classList.remove('active');
-        renderRoster();
-        renderMyPage();
-        
-        // Custom greeting alert for staff
-        alert(`${found.name} 선생님, 로그인 되었습니다. 오늘도 이용인들과 함께 행복하고 따뜻한 하루 보내세요! 😊🌱`);
-      } else {
-        alert('일치하는 직원 정보가 없습니다. 핸드폰 뒷 4자리를 확인하세요.');
+    const loginId = activeTab === 'staff'
+      ? document.getElementById('staff-login-id').value.trim()
+      : document.getElementById('manager-id').value.trim();
+    const password = activeTab === 'staff'
+      ? document.getElementById('staff-password').value.trim()
+      : document.getElementById('manager-pw').value;
+
+    if (activeTab === 'staff' && !/^\d{8}$/.test(password)) {
+      alert('직원 비밀번호는 숫자 8자리로 입력해 주세요.');
+      return;
+    }
+
+    try {
+      const authUser = await window.SahaAuth.signIn(loginId, password);
+      await loadStateFromServer();
+      const found = employees.find((employee) => employee.authUserId === authUser.id);
+
+      if (!found || (activeTab === 'staff' && found.role !== 'staff') || (activeTab === 'manager' && found.role !== 'manager')) {
+        await window.SahaAuth.signOut();
+        clearPrivateState();
+        alert('이 계정은 선택한 로그인 종류와 맞지 않습니다. 관리자에게 확인해 주세요.');
+        return;
       }
-    } else {
-      const username = document.getElementById('manager-id').value.trim();
-      const password = document.getElementById('manager-pw').value.trim();
-      
-      const found = employees.find(emp => emp.role === 'manager' && emp.username === username && emp.password === password);
-      if (found) {
-        currentUser = found;
-        await saveState();
-        updateLoginUI();
-        loginOverlay.classList.remove('active');
-        renderRoster();
-        renderAdminDashboard();
-        
-        // Custom greeting alert for team leaders
-        alert(`${found.name} 팀장님, 수고가 많으십니다. 힘찬 하루 되세요! 💼✨`);
-      } else {
-        alert('관리자 로그인 정보가 올바르지 않습니다.');
-      }
+
+      currentUser = found;
+      updateLoginUI();
+      loginOverlay.classList.remove('active');
+      renderRoster();
+      if (found.role === 'manager') renderAdminDashboard();
+      else renderMyPage();
+      alert(`${found.name}님, 로그인되었습니다.`);
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 확인해 주세요.');
     }
   });
 
@@ -1478,8 +1594,9 @@ function setupEventListeners() {
   const logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
+      await window.SahaAuth.signOut();
       currentUser = null;
-      await saveState();
+      clearPrivateState();
       updateLoginUI();
       renderRoster();
       alert('로그아웃되었습니다.');
@@ -1627,40 +1744,32 @@ function setupEventListeners() {
   });
 
   // Edit Manager Form submission
-  document.getElementById('edit-manager-form').addEventListener('submit', (e) => {
+  document.getElementById('edit-manager-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('edit-mgr-id').value;
     const name = document.getElementById('edit-mgr-name').value.trim();
-    const username = document.getElementById('edit-mgr-username').value.trim();
-    const password = document.getElementById('edit-mgr-password').value.trim();
     const hall = document.getElementById('edit-mgr-hall').value;
-
-    // Verify username is unique among other managers
-    const duplicated = employees.some(emp => emp.id !== id && emp.role === 'manager' && emp.username === username);
-    if (duplicated) {
-      alert('이미 사용 중인 로그인 ID입니다. 다른 ID를 입력해 주세요.');
-      return;
-    }
 
     const mgr = employees.find(e => e.id === id);
     if (mgr) {
+      try {
+        await updateManagerProfile(id, { name, hall });
+      } catch (error) {
+        alert('관리자 정보를 수정하지 못했습니다: ' + (error.message || error));
+        return;
+      }
       mgr.name = name;
-      mgr.username = username;
-      mgr.password = password;
       mgr.hall = hall;
-      
-      saveState();
       
       document.getElementById('edit-manager-overlay').classList.remove('active');
       renderAdminManagers();
       
       if (currentUser && currentUser.id === id) {
         currentUser = mgr;
-        saveState();
         updateLoginUI();
       }
       
-      alert('관리자 계정 및 비밀번호 정보가 정상적으로 수정/인계되었습니다.');
+      alert('관리자 기본 정보가 수정되었습니다. 로그인 계정 인계는 권한 양도 버튼을 사용하세요.');
     }
   });
 
@@ -1676,6 +1785,42 @@ function setupEventListeners() {
       document.getElementById('edit-manager-overlay').classList.remove('active');
     });
   }
+
+  const transferOverlay = document.getElementById('transfer-manager-overlay');
+  const closeTransfer = () => {
+    transferOverlay.classList.remove('active');
+    document.getElementById('transfer-manager-form').reset();
+  };
+  document.getElementById('transfer-manager-close').addEventListener('click', closeTransfer);
+  document.getElementById('transfer-manager-cancel').addEventListener('click', closeTransfer);
+  document.getElementById('transfer-manager-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser || currentUser.hall !== 'all') return;
+    if (!confirm('기존 관리자 계정 연결을 해제하고 후임자에게 권한을 넘기시겠습니까?')) return;
+
+    const payload = {
+      managerEmployeeId: document.getElementById('transfer-manager-id').value,
+      newManagerName: document.getElementById('transfer-manager-name').value.trim(),
+      newLoginId: document.getElementById('transfer-manager-login-id').value.trim().toLowerCase(),
+      newPassword: document.getElementById('transfer-manager-password').value,
+      transferNote: document.getElementById('transfer-manager-note').value.trim()
+    };
+    const submitButton = e.submitter;
+    if (submitButton) submitButton.disabled = true;
+    try {
+      const { data, error } = await getDB().functions.invoke('transfer-manager', { body: payload });
+      if (error) throw error;
+      if (!data || !data.ok) throw new Error(data?.error || '권한 양도에 실패했습니다.');
+      closeTransfer();
+      await loadStateFromServer();
+      renderAdminDashboard();
+      alert(`권한 양도가 완료되었습니다. 후임자 로그인 ID: ${data.loginId}`);
+    } catch (error) {
+      alert('권한 양도에 실패했습니다: ' + (error.message || error));
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
 }
 
 // Recalculate remaining & used leaves based on approved leave requests and manual overrides
@@ -2092,6 +2237,47 @@ function renderMyCalendar() {
 }
 
 // Update UI based on Current User login state
+function setMobileStaffScreen(screen) {
+  const allowed = ['mine', 'all', 'request'];
+  const nextScreen = allowed.includes(screen) ? screen : 'mine';
+  document.body.dataset.mobileScreen = nextScreen;
+  document.querySelectorAll('.mobile-bottom-nav-btn').forEach((button) => {
+    button.classList.toggle('active', button.dataset.mobileScreen === nextScreen);
+  });
+
+  if (nextScreen === 'request') {
+    const historyTarget = document.getElementById('mobile-request-history');
+    const historySource = document.querySelector('.leave-requests-table');
+    if (historyTarget && historySource) {
+      historyTarget.innerHTML = historySource.outerHTML;
+    }
+  }
+}
+
+function setupMobileStaffNavigation() {
+  document.querySelectorAll('.mobile-bottom-nav-btn').forEach((button) => {
+    button.addEventListener('click', () => setMobileStaffScreen(button.dataset.mobileScreen));
+  });
+
+  const dateInput = document.getElementById('mobile-request-date');
+  if (dateInput && !dateInput.value) dateInput.value = formatDateString(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+
+  const openButton = document.getElementById('mobile-request-open');
+  if (openButton) {
+    openButton.addEventListener('click', () => {
+      if (!currentUser || currentUser.role !== 'staff') return;
+      const employee = employees.find((item) => item.id === currentUser.id);
+      const dateStr = dateInput && dateInput.value;
+      if (!employee || !dateStr) {
+        alert('신청할 날짜를 선택해 주세요.');
+        return;
+      }
+      openStaffRequestModal(employee, dateStr, calculateShift(employee, dateStr));
+    });
+  }
+}
+
+// Update UI based on Current User login state
 function updateLoginUI() {
   const mypageSection = document.getElementById('mypage-section');
   const adminSection = document.getElementById('admin-section');
@@ -2099,7 +2285,8 @@ function updateLoginUI() {
   const headerUserInfo = document.getElementById('header-user-info');
 
   // Reset inputs in modal
-  document.getElementById('staff-phone').value = '';
+  document.getElementById('staff-login-id').value = '';
+  document.getElementById('staff-password').value = '';
   document.getElementById('manager-id').value = '';
   document.getElementById('manager-pw').value = '';
 
@@ -2115,14 +2302,15 @@ function updateLoginUI() {
       let roleText = `${currentUser.hall === 'girincho' ? '기린초생활관' : '물봉선생활관'}`;
       if (currentUser.role === 'manager') {
         roleText = currentUser.hall === 'all'
-          ? '전체생활관'
-          : `${currentUser.hall === 'girincho' ? '기린초생활관' : '물봉선생활관'}`;
+          ? '전체 관리자'
+          : '전체 생활관 팀장';
       }
       document.getElementById('header-role-text').textContent = roleText;
     }
 
     const isAdmin = isUserAdmin();
     if (isAdmin) {
+      document.body.classList.remove('staff-mobile-mode');
       mypageSection.style.display = 'none';
       adminSection.style.display = 'block';
       
@@ -2132,11 +2320,14 @@ function updateLoginUI() {
 
       renderAdminDashboard();
     } else {
+      document.body.classList.add('staff-mobile-mode');
+      setMobileStaffScreen(document.body.dataset.mobileScreen || 'mine');
       mypageSection.style.display = 'block';
       adminSection.style.display = 'none';
       renderMyPage();
     }
   } else {
+    document.body.classList.remove('staff-mobile-mode');
     // Guest Mode
     btnLoginTrigger.style.display = 'inline-flex';
     mypageSection.style.display = 'none';
@@ -2798,7 +2989,7 @@ function populateMasterPrintTable() {
           groupTd.style.backgroundColor = bgColor;
           tr.appendChild(groupTd);
         }
-        // Skip index === 1 (송주애)
+        // Skip index === 1 (the second staff row)
       } else {
         const groupTd = document.createElement('td');
         groupTd.className = 'print-group-col';
@@ -3350,10 +3541,13 @@ function renderAdminManagers() {
     tr.innerHTML = `
       <td><span class="badge" style="background-color:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color); border-radius:0.375rem; width:auto; height:auto; padding:0.25rem 0.5rem; font-size:0.85rem; font-weight:600;">${roleLabel}</span></td>
       <td><strong>${mgr.name}</strong></td>
-      <td><code>${mgr.username}</code></td>
-      <td><code>••••••••</code></td>
+      <td><code>${mgr.loginId || mgr.username || '미연결'}</code></td>
+      <td><span class="badge" style="width:auto;height:auto;padding:0.2rem 0.45rem;">${mgr.loginId ? '연결됨' : '미연결'}</span></td>
       <td>
-        <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="openEditManagerModal('${mgr.id}')">🔑 계정/비번 수정</button>
+        ${currentUser.hall === 'all' ? `
+          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
+          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
+        ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
     `;
     tbody.appendChild(tr);
@@ -3363,21 +3557,30 @@ window.renderAdminManagers = renderAdminManagers;
 
 // Open modal to edit manager details
 window.openEditManagerModal = function(managerId) {
+  if (!currentUser || currentUser.hall !== 'all') return;
   const mgr = employees.find(e => e.id === managerId);
   if (!mgr) return;
 
   document.getElementById('edit-mgr-id').value = mgr.id;
   document.getElementById('edit-mgr-name').value = mgr.name;
-  document.getElementById('edit-mgr-username').value = mgr.username;
-  document.getElementById('edit-mgr-password').value = mgr.password;
+  document.getElementById('edit-mgr-username').value = mgr.loginId || mgr.username || '';
   document.getElementById('edit-mgr-hall').value = mgr.hall || 'girincho';
 
   document.getElementById('edit-manager-overlay').classList.add('active');
 };
 
+window.openManagerTransferModal = function(managerId) {
+  if (!currentUser || currentUser.hall !== 'all') return;
+  const mgr = employees.find(e => e.id === managerId && e.role === 'manager');
+  if (!mgr) return;
+  document.getElementById('transfer-manager-id').value = mgr.id;
+  document.getElementById('transfer-manager-current').textContent = `현재 담당자: ${mgr.name} / 로그인 ID: ${mgr.loginId || mgr.username || '미연결'}`;
+  document.getElementById('transfer-manager-overlay').classList.add('active');
+};
+
 
 // Approve Leave handler
-window.approveLeave = function(requestId) {
+window.approveLeave = async function(requestId) {
   const req = leaveRequests.find(r => r.id === requestId);
   if (!req) return;
 
@@ -3389,9 +3592,15 @@ window.approveLeave = function(requestId) {
     return;
   }
 
-  req.status = 'approved';
-  recalculateEmployeeLeaveCounts();
-  saveState();
+  try {
+    await updateRequestStatus('leave_requests', requestId, 'approved');
+    req.status = 'approved';
+    recalculateEmployeeLeaveCounts();
+    await saveEmployeeLeaveCounts(emp);
+  } catch (error) {
+    alert('연가 승인에 실패했습니다: ' + (error.message || error));
+    return;
+  }
 
   alert(`${emp.name} 선생님의 ${req.date} 연가가 정상 승인되었습니다. 즐거운 휴가 되세요! 🌴`);
   renderAdminDashboard();
@@ -3399,13 +3608,20 @@ window.approveLeave = function(requestId) {
 };
 
 // Reject Leave handler
-window.rejectLeave = function(requestId) {
+window.rejectLeave = async function(requestId) {
   const req = leaveRequests.find(r => r.id === requestId);
   if (!req) return;
 
-  req.status = 'rejected';
-  recalculateEmployeeLeaveCounts();
-  saveState();
+  try {
+    await updateRequestStatus('leave_requests', requestId, 'rejected');
+    req.status = 'rejected';
+    recalculateEmployeeLeaveCounts();
+    const emp = employees.find(e => e.id === req.employeeId);
+    if (emp) await saveEmployeeLeaveCounts(emp);
+  } catch (error) {
+    alert('연가 반려에 실패했습니다: ' + (error.message || error));
+    return;
+  }
 
   alert('연가 신청이 반려 처리되었습니다.');
   renderAdminDashboard();
@@ -3413,7 +3629,7 @@ window.rejectLeave = function(requestId) {
 };
 
 // Approve Overtime handler
-window.approveOvertime = function(requestId) {
+window.approveOvertime = async function(requestId) {
   const req = overtimeRequests.find(r => r.id === requestId);
   if (!req) return;
 
@@ -3459,8 +3675,13 @@ window.approveOvertime = function(requestId) {
     return;
   }
 
-  req.status = 'approved';
-  saveState();
+  try {
+    await updateRequestStatus('overtime_requests', requestId, 'approved');
+    req.status = 'approved';
+  } catch (error) {
+    alert('시간외 승인에 실패했습니다: ' + (error.message || error));
+    return;
+  }
 
   alert(`${req.employeeName} 선생님의 ${req.date} 시간외 근무(${req.hours}시간)가 승인되었습니다.`);
   renderAdminDashboard();
@@ -3468,12 +3689,17 @@ window.approveOvertime = function(requestId) {
 };
 
 // Reject Overtime handler
-window.rejectOvertime = function(requestId) {
+window.rejectOvertime = async function(requestId) {
   const req = overtimeRequests.find(r => r.id === requestId);
   if (!req) return;
 
-  req.status = 'rejected';
-  saveState();
+  try {
+    await updateRequestStatus('overtime_requests', requestId, 'rejected');
+    req.status = 'rejected';
+  } catch (error) {
+    alert('시간외 반려에 실패했습니다: ' + (error.message || error));
+    return;
+  }
 
   alert('시간외 근무 신청이 반려 처리되었습니다.');
   renderAdminDashboard();
@@ -3481,23 +3707,35 @@ window.rejectOvertime = function(requestId) {
 };
 
 // Revert/Cancel Approval handler
-window.cancelApproval = function(requestId, type) {
+window.cancelApproval = async function(requestId, type) {
   if (!currentUser || !isUserAdmin()) return;
   if (!confirm('이 신청 건의 결재 처리를 취소하고 다시 대기 상태로 되돌리시겠습니까?')) return;
 
   if (type === 'leave') {
     const req = leaveRequests.find(r => r.id === requestId);
     if (req) {
-      req.status = 'pending';
-      recalculateEmployeeLeaveCounts();
-      saveState();
+      try {
+        await updateRequestStatus('leave_requests', requestId, 'pending');
+        req.status = 'pending';
+        recalculateEmployeeLeaveCounts();
+        const emp = employees.find(e => e.id === req.employeeId);
+        if (emp) await saveEmployeeLeaveCounts(emp);
+      } catch (error) {
+        alert('결재 취소에 실패했습니다: ' + (error.message || error));
+        return;
+      }
       alert('연가 결재 처리가 취소되어 대기 상태로 변경되었습니다.');
     }
   } else {
     const req = overtimeRequests.find(r => r.id === requestId);
     if (req) {
-      req.status = 'pending';
-      saveState();
+      try {
+        await updateRequestStatus('overtime_requests', requestId, 'pending');
+        req.status = 'pending';
+      } catch (error) {
+        alert('결재 취소에 실패했습니다: ' + (error.message || error));
+        return;
+      }
       alert('시간외 결재 처리가 취소되어 대기 상태로 변경되었습니다.');
     }
   }
@@ -3510,9 +3748,16 @@ window.cancelApproval = function(requestId, type) {
 };
 
 // Revert/Cancel My own Request handler (for regular staff)
-window.cancelMyRequest = function(requestId, type) {
+window.cancelMyRequest = async function(requestId, type) {
   if (!currentUser) return;
   if (!confirm('이 신청 내역을 취소/철회하시겠습니까?')) return;
+
+  try {
+    await deleteOwnRequest(type === 'leave' ? 'leave_requests' : 'overtime_requests', requestId);
+  } catch (error) {
+    alert('신청을 취소하지 못했습니다: ' + (error.message || error));
+    return;
+  }
 
   if (type === 'leave') {
     leaveRequests = leaveRequests.filter(r => r.id !== requestId);
@@ -3521,24 +3766,28 @@ window.cancelMyRequest = function(requestId, type) {
     overtimeRequests = overtimeRequests.filter(r => r.id !== requestId);
   }
 
-  saveState();
   renderMyPage();
   renderRoster();
   alert('신청이 취소되었습니다.');
 };
 
 // Direct cancellation via calendar date click modal
-window.cancelMyRequestDirectly = function(requestId, type) {
+window.cancelMyRequestDirectly = async function(requestId, type) {
   if (!confirm('정말로 이 대기 중인 신청을 취소하시겠습니까?')) return;
   
+  try {
+    await deleteOwnRequest(type === 'leave' ? 'leave_requests' : 'overtime_requests', requestId);
+  } catch (error) {
+    alert('신청을 취소하지 못했습니다: ' + (error.message || error));
+    return;
+  }
+
   if (type === 'leave') {
     leaveRequests = leaveRequests.filter(r => r.id !== requestId);
     recalculateEmployeeLeaveCounts();
   } else {
     overtimeRequests = overtimeRequests.filter(r => r.id !== requestId);
   }
-  
-  saveState();
   
   // Close staff request modal
   document.getElementById('staff-request-overlay').classList.remove('active');

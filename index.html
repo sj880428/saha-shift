@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="사회복지 거주시설 생활지도원용 순환 근무표 및 연가 관리 웹 앱">
+  <meta name="theme-color" content="#13795b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
   <link rel="stylesheet" href="styles.css?v=20260812_2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -393,7 +399,7 @@
       <div style="margin-bottom: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
         <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
           <button class="collapse-trigger" data-target="admin-managers-container">
-            🔑 관리자 계정 및 비밀번호 관리 (ID/PW 변경 및 권한 인계)
+            🔑 관리자 계정 및 권한 인계
           </button>
         </div>
         <div id="admin-managers-container" class="collapse-content">
@@ -403,8 +409,8 @@
                 <tr>
                   <th style="text-align: left;">직책/권한</th>
                   <th style="text-align: left;">담당자 이름</th>
-                  <th style="text-align: left;">로그인 ID (username)</th>
-                  <th style="text-align: left;">비밀번호 (password)</th>
+                  <th style="text-align: left;">로그인 ID</th>
+                  <th style="text-align: left;">계정 상태</th>
                   <th style="text-align: left;">관리</th>
                 </tr>
               </thead>
@@ -477,7 +483,31 @@
         </p>
       </div>
     </section>
+    <!-- Staff mobile request hub -->
+    <section id="mobile-request-section" class="card mobile-staff-screen" style="display: none; margin-bottom: 6rem;">
+      <div class="card-header">
+        <h2 class="card-title">신청</h2>
+      </div>
+      <p class="mobile-request-help">신청할 날짜를 고른 뒤 버튼을 눌러 주세요. 연가·공가·시간외 신청 창이 열립니다.</p>
+      <div class="mobile-request-form">
+        <label for="mobile-request-date">신청 날짜</label>
+        <input id="mobile-request-date" type="date">
+        <button id="mobile-request-open" type="button" class="btn btn-primary">신청 내용 입력하기</button>
+      </div>
+      <div class="mobile-request-history-wrap">
+        <h3>내 신청 내역</h3>
+        <p>기존 마이페이지의 신청 이력과 같은 데이터를 사용합니다.</p>
+        <div id="mobile-request-history"></div>
+      </div>
+    </section>
   </main>
+
+  <!-- Logged-in staff only: app-like bottom navigation -->
+  <nav id="mobile-bottom-nav" class="mobile-bottom-nav no-print" aria-label="직원용 메뉴" style="display: none;">
+    <button type="button" class="mobile-bottom-nav-btn active" data-mobile-screen="mine">내 근무표</button>
+    <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="all">전체 근무표</button>
+    <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="request">신청</button>
+  </nav>
 
   <!-- Login Dialog Overlay -->
   <div class="dialog-overlay" id="login-overlay">
@@ -488,19 +518,23 @@
       </div>
       
       <div class="auth-tabs" style="margin-bottom: 1rem;">
-        <div class="auth-tab active" data-type="staff" style="padding: 0.5rem;">선생님 (번호 4자리)</div>
+        <div class="auth-tab active" data-type="staff" style="padding: 0.5rem;">직원</div>
         <div class="auth-tab" data-type="manager" style="padding: 0.5rem;">관리자 (ID/PW)</div>
       </div>
       
       <form id="login-form">
         <div class="dialog-body">
-          <!-- Staff Login (Phone last 4 digits only) -->
+          <!-- Staff Login -->
           <div id="staff-login-fields">
             <div class="auth-form-group">
-              <label for="staff-phone">핸드폰 번호 뒷 4자리</label>
-              <input type="password" id="staff-phone" placeholder="예: 1234" pattern="[0-9]{4}" maxlength="4" required>
+              <label for="staff-login-id">직원 아이디</label>
+              <input type="text" id="staff-login-id" placeholder="예: girin03" inputmode="text" autocomplete="username" minlength="4" maxlength="20" required>
+            </div>
+            <div class="auth-form-group">
+              <label for="staff-password">숫자 비밀번호 8자리</label>
+              <input type="password" id="staff-password" placeholder="숫자 8자리" inputmode="numeric" autocomplete="current-password" pattern="[0-9]{8}" maxlength="8" required>
               <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
-                등록된 본인의 휴대폰 번호 끝 4자리를 입력하세요.
+                개인 휴대전화에서는 한 번 로그인하면 로그인 상태가 유지됩니다.
               </p>
             </div>
           </div>
@@ -509,11 +543,11 @@
           <div id="manager-login-fields" style="display: none;">
             <div class="auth-form-group">
               <label for="manager-id">아이디</label>
-              <input type="text" id="manager-id" placeholder="관리자 아이디 (admin)">
+              <input type="text" id="manager-id" placeholder="관리자 아이디" autocomplete="username">
             </div>
             <div class="auth-form-group">
               <label for="manager-pw">비밀번호</label>
-              <input type="password" id="manager-pw" placeholder="비밀번호 (admin123)">
+              <input type="password" id="manager-pw" placeholder="비밀번호" autocomplete="current-password">
             </div>
           </div>
         </div>
@@ -713,7 +747,7 @@
           
           <div class="auth-form-group">
             <label for="edit-emp-name">이름 (성명)</label>
-            <input type="text" id="edit-emp-name" placeholder="예: 황정임" required>
+            <input type="text" id="edit-emp-name" placeholder="예: 직원 이름" required>
           </div>
           <div class="auth-form-group">
             <label for="edit-emp-hall">소속 생활관</label>
@@ -791,17 +825,53 @@
           
           <div class="auth-form-group">
             <label for="edit-mgr-username">로그인 ID (ID)</label>
-            <input type="text" id="edit-mgr-username" placeholder="예: admin_new" required>
-          </div>
-          
-          <div class="auth-form-group">
-            <label for="edit-mgr-password">로그인 비밀번호 (비밀번호)</label>
-            <input type="text" id="edit-mgr-password" placeholder="예: password123" required>
+            <input type="text" id="edit-mgr-username" disabled>
+            <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
+              ※ 로그인 ID와 비밀번호 변경은 수파베이스 인증 화면에서만 처리합니다.
+            </p>
           </div>
         </div>
         <div class="dialog-footer">
           <button type="button" class="btn btn-secondary" id="edit-manager-cancel">취소</button>
           <button type="submit" class="btn btn-primary">수정 완료</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manager Authority Transfer Dialog (System admin only) -->
+  <div class="dialog-overlay" id="transfer-manager-overlay">
+    <div class="dialog-content" style="max-width: 440px;">
+      <div class="dialog-header">
+        <h3 class="dialog-title">관리자 권한 양도</h3>
+        <button type="button" class="btn-icon" id="transfer-manager-close" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      <form id="transfer-manager-form">
+        <div class="dialog-body">
+          <input type="hidden" id="transfer-manager-id">
+          <p id="transfer-manager-current" style="margin-top:0; color:var(--text-muted);"></p>
+          <div class="auth-form-group">
+            <label for="transfer-manager-name">후임자 이름</label>
+            <input type="text" id="transfer-manager-name" required maxlength="30">
+          </div>
+          <div class="auth-form-group">
+            <label for="transfer-manager-login-id">후임자 로그인 ID</label>
+            <input type="text" id="transfer-manager-login-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="예: leader03">
+          </div>
+          <div class="auth-form-group">
+            <label for="transfer-manager-password">후임자 임시 비밀번호</label>
+            <input type="password" id="transfer-manager-password" required minlength="10" autocomplete="new-password">
+            <p style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem;">영문·숫자·기호를 포함해 10자리 이상 입력하세요.</p>
+          </div>
+          <div class="auth-form-group">
+            <label for="transfer-manager-note">인계 사유</label>
+            <input type="text" id="transfer-manager-note" maxlength="200" placeholder="예: 인사이동">
+          </div>
+          <p style="font-size:0.78rem; color:#b45309;">양도 후 기존 담당자 계정은 더 이상 관리자 자리에 연결되지 않습니다. 과거 승인 기록은 보존됩니다.</p>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" id="transfer-manager-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">권한 양도 실행</button>
         </div>
       </form>
     </div>
@@ -867,6 +937,8 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="app.js?v=20260811_8"></script>
+  <script src="auth-service.js?v=20260814_2"></script>
+  <script src="app.js?v=20260814_3"></script>
+  <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
