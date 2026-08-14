@@ -3659,7 +3659,7 @@ window.openManagerTransferModal = function(managerId) {
 window.openChangeLoginIdModal = function(employeeId) {
   if (!currentUser || currentUser.hall !== 'all') return;
   const employee = employees.find(e => e.id === employeeId);
-  if (!employee || !employee.authUserId) return alert('로그인 계정이 연결되지 않은 사용자입니다.');
+  if (!employee) return alert('사용자 정보를 찾지 못했습니다.');
   document.getElementById('change-login-employee-id').value = employee.id;
   document.getElementById('change-login-current').textContent = `${employee.name} / 현재 ID: ${employee.loginId || '미연결'}`;
   document.getElementById('change-login-new-id').value = employee.loginId || '';
