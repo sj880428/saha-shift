@@ -387,7 +387,7 @@
                   <th style="text-align: left;">소속</th>
                   <th style="text-align: left;">조(Group)</th>
                   <th style="text-align: left;">이름</th>
-                  <th style="text-align: left;">로그인 번호 (뒷 4자리)</th>
+                  <th style="text-align: left;">로그인 ID</th>
                   <th style="text-align: left;">입사년월</th>
                   <th style="text-align: left;">기본 연가 일수</th>
                   <th style="text-align: left;">남은 연가</th>
@@ -398,6 +398,7 @@
                 <!-- Populated via JS -->
               </tbody>
             </table>
+
           </div>
         </div>
       </div>
@@ -791,12 +792,14 @@
             </select>
           </div>
           <div class="auth-form-group">
-            <label for="edit-emp-phone">핸드폰 뒷 4자리 (로그인 번호)</label>
-            <input type="text" id="edit-emp-phone" placeholder="예: 1234" pattern="[0-9]{4}" maxlength="4" required>
+            <label for="edit-emp-login-id">로그인 ID</label>
+            <input type="text" id="edit-emp-login-id" readonly>
+            <p style="font-size:0.725rem;color:var(--text-muted);margin-top:0.25rem;">※ 로그인 ID는 직원 목록의 ‘아이디 변경’ 버튼에서 안전하게 변경합니다.</p>
           </div>
           <div class="auth-form-group">
             <label for="edit-emp-join">입사년월</label>
             <input type="month" id="edit-emp-join" required>
+
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
               ※ 입사년월 선택 시 아래 총 부여 연가 일수가 자동 계산됩니다.
             </p>
@@ -825,6 +828,31 @@
         <div class="dialog-footer">
           <button type="button" class="btn btn-secondary" id="edit-employee-cancel">취소</button>
           <button type="submit" class="btn btn-primary">저장 완료</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login ID Change Dialog (System admin only) -->
+  <div class="dialog-overlay" id="change-login-id-overlay">
+    <div class="dialog-content" style="max-width:400px;">
+      <div class="dialog-header">
+        <h3 class="dialog-title">로그인 ID 변경</h3>
+        <button type="button" class="btn-icon" id="change-login-id-close" style="border:none;font-size:1.25rem;">&times;</button>
+      </div>
+      <form id="change-login-id-form">
+        <div class="dialog-body">
+          <input type="hidden" id="change-login-employee-id">
+          <p id="change-login-current" style="margin-top:0;color:var(--text-muted);"></p>
+          <div class="auth-form-group">
+            <label for="change-login-new-id">새 로그인 ID</label>
+            <input type="text" id="change-login-new-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="영문 소문자와 숫자, 4~20자">
+          </div>
+          <p style="font-size:0.78rem;color:#b45309;">변경 후에는 새 ID로 로그인해야 합니다. 비밀번호와 근무·신청 이력은 그대로 유지됩니다.</p>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" id="change-login-id-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">아이디 변경</button>
         </div>
       </form>
     </div>
@@ -972,7 +1000,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260814_6"></script>
+  <script src="app.js?v=20260814_7"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
