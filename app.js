@@ -16,11 +16,11 @@ function getDB() {
 window.getDB = getDB;
 
 // State configuration
-const SHIFT_CYCLE = ['二쇨컙', '二쇨컙', '?뱀쭅', '?쇨컙', '?대Т', '?대Т'];
+const SHIFT_CYCLE = ['주간', '주간', '당직', '야간', '휴무', '휴무'];
 const ANCHOR_DATE = new Date(2026, 6, 1); // July 1, 2026 (local date)
 
 // Group to shift offset mapping on 2026-07-01 (Anchor Date)
-// 1議? 5 (?? | 2議? 2 (?? | 3議? 3 (?? | 4議? 0 (二? | 5議? 1 (二? | 6議? 4 (??
+// 1조: 5 (휴) | 2조: 2 (당) | 3조: 3 (야) | 4조: 0 (주) | 5조: 1 (주) | 6조: 4 (휴)
 const GROUP_OFFSETS = { 1: 5, 2: 2, 3: 3, 4: 0, 5: 1, 6: 4 };
 
 // Timezone and browser independent date parser/formatter
@@ -38,45 +38,45 @@ function formatLocalDate(dateObj) {
 
 // South Korea Solar Holidays Map (fixed day every year)
 const SOLAR_HOLIDAYS = {
-  '01-01': '?좎젙',
-  '03-01': '?쇱씪??,
-  '05-05': '?대┛?대궇',
-  '06-06': '?꾩땐??,
-  '08-15': '愿묐났??,
-  '10-03': '媛쒖쿇??,
-  '10-09': '?쒓???,
-  '12-25': '?깊깂??
+  '01-01': '신정',
+  '03-01': '삼일절',
+  '05-05': '어린이날',
+  '06-06': '현충일',
+  '08-15': '광복절',
+  '10-03': '개천절',
+  '10-09': '한글날',
+  '12-25': '성탄절'
 };
 
 // South Korea Lunar Holidays Map (2026-2030 seed data)
 const LUNAR_HOLIDAYS = {
   // 2026
-  '2026-02-16': '?ㅻ궇', '2026-02-17': '?ㅻ궇', '2026-02-18': '?ㅻ궇',
-  '2026-03-02': '?泥닿났?댁씪',
-  '2026-05-24': '遺泥섎떂?ㅼ떊??, '2026-05-25': '?泥닿났?댁씪',
-  '2026-08-17': '?泥닿났?댁씪',
-  '2026-09-24': '異붿꽍', '2026-09-25': '異붿꽍', '2026-09-26': '異붿꽍',
-  '2026-10-05': '?泥닿났?댁씪',
+  '2026-02-16': '설날', '2026-02-17': '설날', '2026-02-18': '설날',
+  '2026-03-02': '대체공휴일',
+  '2026-05-24': '부처님오신날', '2026-05-25': '대체공휴일',
+  '2026-08-17': '대체공휴일',
+  '2026-09-24': '추석', '2026-09-25': '추석', '2026-09-26': '추석',
+  '2026-10-05': '대체공휴일',
 
   // 2027
-  '2027-02-06': '?ㅻ궇', '2027-02-07': '?ㅻ궇', '2027-02-08': '?ㅻ궇', '2027-02-09': '?泥닿났?댁씪',
-  '2027-05-13': '遺泥섎떂?ㅼ떊??,
-  '2027-09-14': '異붿꽍', '2027-09-15': '異붿꽍', '2027-09-16': '異붿꽍',
+  '2027-02-06': '설날', '2027-02-07': '설날', '2027-02-08': '설날', '2027-02-09': '대체공휴일',
+  '2027-05-13': '부처님오신날',
+  '2027-09-14': '추석', '2027-09-15': '추석', '2027-09-16': '추석',
 
   // 2028
-  '2028-01-26': '?ㅻ궇', '2028-01-27': '?ㅻ궇', '2028-01-28': '?ㅻ궇',
-  '2028-05-02': '遺泥섎떂?ㅼ떊??,
-  '2028-10-02': '異붿꽍', '2028-10-03': '異붿꽍', '2028-10-04': '異붿꽍',
+  '2028-01-26': '설날', '2028-01-27': '설날', '2028-01-28': '설날',
+  '2028-05-02': '부처님오신날',
+  '2028-10-02': '추석', '2028-10-03': '추석', '2028-10-04': '추석',
 
   // 2029
-  '2029-02-12': '?ㅻ궇', '2029-02-13': '?ㅻ궇', '2029-02-14': '?ㅻ궇',
-  '2029-05-20': '遺泥섎떂?ㅼ떊??, '2029-05-21': '?泥닿났?댁씪',
-  '2029-09-21': '異붿꽍', '2029-09-22': '異붿꽍', '2029-09-23': '異붿꽍',
+  '2029-02-12': '설날', '2029-02-13': '설날', '2029-02-14': '설날',
+  '2029-05-20': '부처님오신날', '2029-05-21': '대체공휴일',
+  '2029-09-21': '추석', '2029-09-22': '추석', '2029-09-23': '추석',
 
   // 2030
-  '2030-02-02': '?ㅻ궇', '2030-02-03': '?ㅻ궇', '2030-02-04': '?ㅻ궇', '2030-02-05': '?泥닿났?댁씪',
-  '2030-05-09': '遺泥섎떂?ㅼ떊??,
-  '2030-09-11': '異붿꽍', '2030-09-12': '異붿꽍', '2030-09-13': '異붿꽍'
+  '2030-02-02': '설날', '2030-02-03': '설날', '2030-02-04': '설날', '2030-02-05': '대체공휴일',
+  '2030-05-09': '부처님오신날',
+  '2030-09-11': '추석', '2030-09-12': '추석', '2030-09-13': '추석'
 };
 
 function getHolidayName(year, month, day) {
@@ -116,26 +116,26 @@ function calculateTotalLeave(joinYearMonth) {
 // Development-only seed data. Real employee information must live only in the database.
 const INITIAL_EMPLOYEES = [
   // Girincho Living Hall (6 staff)
-  { id: 'emp_g1', name: '湲곕┛珥?', phoneLast4: '1001', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_g2', name: '湲곕┛珥?', phoneLast4: '1002', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_g3', name: '湲곕┛珥?', phoneLast4: '1003', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_g4', name: '湲곕┛珥?', phoneLast4: '1004', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_g5', name: '湲곕┛珥?', phoneLast4: '1005', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
-  { id: 'emp_g6', name: '湲곕┛珥?', phoneLast4: '1006', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_g1', name: '기린초1', phoneLast4: '1001', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g2', name: '기린초2', phoneLast4: '1002', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g3', name: '기린초3', phoneLast4: '1003', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g4', name: '기린초4', phoneLast4: '1004', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g5', name: '기린초5', phoneLast4: '1005', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_g6', name: '기린초6', phoneLast4: '1006', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Mulbongseon Living Hall (7 staff)
-  { id: 'emp_m1', name: '臾쇰큺??', phoneLast4: '2001', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
-  { id: 'emp_m2', name: '臾쇰큺??', phoneLast4: '2002', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-04', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_m3', name: '臾쇰큺??', phoneLast4: '2003', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_m4', name: '臾쇰큺??', phoneLast4: '2004', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_m5', name: '臾쇰큺??', phoneLast4: '2005', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_m6', name: '臾쇰큺??', phoneLast4: '2006', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
-  { id: 'emp_m7', name: '臾쇰큺??', phoneLast4: '2007', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_m1', name: '물봉선1', phoneLast4: '2001', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'emp_m2', name: '물봉선2', phoneLast4: '2002', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-04', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_m3', name: '물봉선3', phoneLast4: '2003', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_m4', name: '물봉선4', phoneLast4: '2004', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m5', name: '물봉선5', phoneLast4: '2005', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m6', name: '물봉선6', phoneLast4: '2006', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_m7', name: '물봉선7', phoneLast4: '2007', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Managers (2 Team Leaders + 1 System Admin)
-  { id: 'mgr_g', name: '湲곕┛珥덊???, username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'mgr_m', name: '臾쇰큺?좏???, username: null, hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
-  { id: 'mgr_admin', name: '?쒖뒪??愿由ъ옄', username: null, hall: 'all', role: 'manager' }
+  { id: 'mgr_g', name: '기린초팀장', username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'mgr_m', name: '물봉선팀장', username: null, hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'mgr_admin', name: '시스템 관리자', username: null, hall: 'all', role: 'manager' }
 ];
 
 const INITIAL_LEAVE_REQUESTS = [];
@@ -143,14 +143,14 @@ const INITIAL_LEAVE_REQUESTS = [];
 // Seed manual shift exceptions from screenshot
 const INITIAL_SHIFT_MODIFICATIONS = [
   // Girincho manager July 2026 exceptions
-  { employeeId: 'mgr_g', date: '2026-07-03', shift: '?쇨컙' },
-  { employeeId: 'mgr_g', date: '2026-07-24', shift: '?쇨컙' },
+  { employeeId: 'mgr_g', date: '2026-07-03', shift: '야간' },
+  { employeeId: 'mgr_g', date: '2026-07-24', shift: '야간' },
   
   // Mulbongseon manager July 2026 exceptions
-  { employeeId: 'mgr_m', date: '2026-07-10', shift: '?쇨컙' },
-  { employeeId: 'mgr_m', date: '2026-07-25', shift: '二쇨컙' },
-  { employeeId: 'mgr_m', date: '2026-07-27', shift: '?대Т' },
-  { employeeId: 'mgr_m', date: '2026-07-31', shift: '?쇨컙' }
+  { employeeId: 'mgr_m', date: '2026-07-10', shift: '야간' },
+  { employeeId: 'mgr_m', date: '2026-07-25', shift: '주간' },
+  { employeeId: 'mgr_m', date: '2026-07-27', shift: '휴무' },
+  { employeeId: 'mgr_m', date: '2026-07-31', shift: '야간' }
 ];
 
 // LocalStorage self-healing loaders
@@ -250,10 +250,10 @@ async function loadStateFromServer() {
     // If database is completely empty, initialize it with seed data
 
     if (!empData || empData.length === 0) {
-      const confirmInit = confirm("Supabase ?곗씠?곕쿋?댁뒪???깅줉??洹쇰Т???곗씠?곌? ?놁뒿?덈떎.\n湲곕낯 珥덇린 ?곗씠?곕? ?쒕쾭???먮룞 ?깅줉?섏떆寃좎뒿?덇퉴?");
+      const confirmInit = confirm("Supabase 데이터베이스에 등록된 근무자 데이터가 없습니다.\n기본 초기 데이터를 서버에 자동 등록하시겠습니까?");
       if (confirmInit) {
         await initializeDatabaseIfEmpty();
-        alert("珥덇린 ?곗씠???깅줉???꾨즺?섏뿀?듬땲?? ?섏씠吏媛 ?덈줈怨좎묠?⑸땲??");
+        alert("초기 데이터 등록이 완료되었습니다. 페이지가 새로고침됩니다.");
         location.reload();
       }
       return;
@@ -349,7 +349,7 @@ async function loadStateFromServer() {
     updateNoticeBanner();
   } catch (err) {
     console.error("Failed to load state from Supabase:", err);
-    alert("?곗씠?곕쿋?댁뒪 濡쒕뵫 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎:\n" + (err.message || err));
+    alert("데이터베이스 로딩 중 오류가 발생했습니다:\n" + (err.message || err));
   }
 }
 
@@ -382,8 +382,8 @@ async function initializeDatabaseIfEmpty() {
       employee_name: l.employeeName,
       hall: l.hall,
       date: l.date,
-      leave_type: l.reason || '?곌?',
-      reason: l.reason || '?곌? ?좎껌',
+      leave_type: l.reason || '연가',
+      reason: l.reason || '연가 신청',
       status: l.status || 'approved'
     }));
     const { error: leaveErr } = await getDB().from('leave_requests').insert(dbLeaves);
@@ -405,7 +405,7 @@ async function initializeDatabaseIfEmpty() {
     await loadStateFromServer();
   } catch (err) {
     console.error("Failed to initialize database:", err);
-    alert("?쒕쾭 ?곗씠?곕쿋?댁뒪 珥덇린??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎:\n" + (err.message || err.details || JSON.stringify(err)));
+    alert("서버 데이터베이스 초기화 중 오류가 발생했습니다:\n" + (err.message || err.details || JSON.stringify(err)));
     throw err;
   }
 }
@@ -452,7 +452,7 @@ async function saveState() {
       employee_name: l.employeeName,
       hall: l.hall,
       date: l.date,
-      leave_type: l.leaveType || '?곌?',
+      leave_type: l.leaveType || '연가',
       reason: l.reason,
       status: l.status
     }));
@@ -571,7 +571,7 @@ async function updateOwnOvertimeRequest(requestId, changes) {
 }
 
 async function updateRequestStatus(table, requestId, status) {
-  if (!currentUser || currentUser.role !== 'manager') throw new Error('愿由ъ옄 沅뚰븳???꾩슂?⑸땲??');
+  if (!currentUser || currentUser.role !== 'manager') throw new Error('관리자 권한이 필요합니다.');
   const { error } = await getDB().from(table).update({ status }).eq('id', requestId);
   if (error) throw error;
 }
@@ -584,7 +584,7 @@ async function deleteOwnRequest(table, requestId) {
     .eq('employee_id', currentUser.id)
     .select('id');
   if (error) throw error;
-  if (!data || data.length === 0) throw new Error('痍⑥냼???좎껌???쒕쾭?먯꽌 李얠? 紐삵뻽?듬땲?? ?덈줈怨좎묠 ???ㅼ떆 ?쒕룄??二쇱꽭??');
+  if (!data || data.length === 0) throw new Error('취소할 신청을 서버에서 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.');
 }
 
 async function saveEmployeeLeaveCounts(employee) {
@@ -597,7 +597,7 @@ async function saveEmployeeLeaveCounts(employee) {
 }
 
 async function updateManagerProfile(managerId, changes) {
-  if (!currentUser || currentUser.hall !== 'all') throw new Error('?꾩껜 愿由ъ옄 沅뚰븳???꾩슂?⑸땲??');
+  if (!currentUser || currentUser.hall !== 'all') throw new Error('전체 관리자 권한이 필요합니다.');
   const { error } = await getDB().from('employees').update({ name: changes.name, hall: changes.hall }).eq('id', managerId).eq('role', 'manager');
   if (error) throw error;
 }
@@ -666,9 +666,9 @@ function getOvertimeCellHtml(employee, dateStr, type) {
   if (leaveReq) return '';
 
   const shift = calculateShift(employee, dateStr);
-  const isOffDay = (shift === '?대Т' || shift === '?? || shift === '?대Т(?湲?');
+  const isOffDay = (shift === '휴무' || shift === '휴' || shift === '휴무(대기)');
 
-  // If it is an off-day (?대Т), regardless of morning/afternoon, we sum all hours and display them on the right (afternoon).
+  // If it is an off-day (휴무), regardless of morning/afternoon, we sum all hours and display them on the right (afternoon).
   if (isOffDay) {
     if (type === 'morning') return ''; // Render nothing on the left
     
@@ -710,7 +710,7 @@ function getOvertimeCellHtml(employee, dateStr, type) {
 
   if (modification) {
     isOverridden = true;
-    if (modification.shift && modification.shift.startsWith('蹂댁긽?닿? (')) {
+    if (modification.shift && modification.shift.startsWith('보상휴가 (')) {
       const match = modification.shift.match(/\d+/);
       const hours = match ? parseInt(match[0]) : 1;
       displayHours = type === 'afternoon' ? -hours : 0;
@@ -724,8 +724,8 @@ function getOvertimeCellHtml(employee, dateStr, type) {
   } else {
     // Calculate base shift overtime for afternoon
     if (type === 'afternoon') {
-      if (shift === '?뱀쭅') displayHours = 3;
-      else if (shift === '?쇨컙') displayHours = 4;
+      if (shift === '당직') displayHours = 3;
+      else if (shift === '야간') displayHours = 4;
     }
     
     // Add approved extra overtime
@@ -744,7 +744,7 @@ function getOvertimeCellHtml(employee, dateStr, type) {
     let showSolid = true;
     if (type === 'afternoon' && !isOverridden) {
       const shift = calculateShift(employee, dateStr);
-      let baseOt = (shift === '?뱀쭅') ? 3 : (shift === '?쇨컙' ? 4 : 0);
+      let baseOt = (shift === '당직') ? 3 : (shift === '야간' ? 4 : 0);
       if (displayHours === baseOt) showSolid = false;
     }
     if (showSolid) {
@@ -781,7 +781,7 @@ function getOvertimeHoursWithMods(employee, dateStr, mods, excludeRequestId = nu
   // Morning overtime
   let morningOt = 0;
   if (modification) {
-    if (modification.shift && modification.shift.startsWith('蹂댁긽?닿? (')) {
+    if (modification.shift && modification.shift.startsWith('보상휴가 (')) {
       morningOt = 0;
     } else if (modification.otMorning !== undefined && modification.otMorning !== null && modification.otMorning !== '') {
       morningOt = parseInt(modification.otMorning || 0);
@@ -801,21 +801,21 @@ function getOvertimeHoursWithMods(employee, dateStr, mods, excludeRequestId = nu
   // Afternoon overtime
   let afternoonOt = 0;
   if (modification) {
-    if (modification.shift && modification.shift.startsWith('蹂댁긽?닿? (')) {
+    if (modification.shift && modification.shift.startsWith('보상휴가 (')) {
       afternoonOt = 0;
     } else if (modification.otAfternoon !== undefined && modification.otAfternoon !== null && modification.otAfternoon !== '') {
       afternoonOt = parseInt(modification.otAfternoon || 0);
     } else {
       // Default to base overtime of the modified shift!
       const modifiedShift = modification.shift || calculateShift(employee, dateStr);
-      if (modifiedShift === '?뱀쭅') afternoonOt = 3;
-      else if (modifiedShift === '?쇨컙') afternoonOt = 4;
+      if (modifiedShift === '당직') afternoonOt = 3;
+      else if (modifiedShift === '야간') afternoonOt = 4;
     }
   } else {
     const shift = calculateShift(employee, dateStr);
     let baseOt = 0;
-    if (shift === '?뱀쭅') baseOt = 3;
-    else if (shift === '?쇨컙') baseOt = 4;
+    if (shift === '당직') baseOt = 3;
+    else if (shift === '야간') baseOt = 4;
     
     const approvedOtAfternoon = overtimeRequests.filter(req => 
       req && 
@@ -831,12 +831,12 @@ function getOvertimeHoursWithMods(employee, dateStr, mods, excludeRequestId = nu
   return morningOt + afternoonOt;
 }
 
-// Calculate individual day overtime hours (includes base shifts: ?뱀쭅=3, ?쇨컙=4)
+// Calculate individual day overtime hours (includes base shifts: 당직=3, 야간=4)
 function getOvertimeHours(employee, dateStr) {
   return getOvertimeHoursWithMods(employee, dateStr, shiftModifications);
 }
 
-// Custom approved display hours on calendar cells (Excludes standard ?뱀쭅 3h / ?쇨컙 4h)
+// Custom approved display hours on calendar cells (Excludes standard 당직 3h / 야간 4h)
 function getDisplayOvertimeMorning(employee, dateStr) {
   if (employee.id === 'mgr_admin') return 0;
   
@@ -864,8 +864,8 @@ function getDisplayOvertimeAfternoon(employee, dateStr) {
   if (modification && modification.otAfternoon !== undefined && modification.otAfternoon !== null && modification.otAfternoon !== '') {
     const shift = modification.shift;
     let baseOt = 0;
-    if (shift === '?뱀쭅') baseOt = 3;
-    else if (shift === '?쇨컙') baseOt = 4;
+    if (shift === '당직') baseOt = 3;
+    else if (shift === '야간') baseOt = 4;
     
     const manualVal = parseInt(modification.otAfternoon || 0);
     return manualVal !== baseOt ? manualVal : 0;
@@ -887,15 +887,15 @@ function calculateShift(employee, dateStr) {
     req.status !== 'rejected'
   );
   if (leaveReq) {
-    const lType = leaveReq.leaveType || '?곌?';
-    if (lType === '怨듦?') {
-      return leaveReq.status === 'approved' ? '怨듦?' : '怨듦?(?湲?';
-    } else if (lType === '蹂묎?') {
-      return leaveReq.status === 'approved' ? '蹂묎?' : '蹂묎?(?湲?';
-    } else if (lType === '?덉떇??) {
-      return leaveReq.status === 'approved' ? '?덉떇?? : '?덉떇???湲?';
+    const lType = leaveReq.leaveType || '연가';
+    if (lType === '공가') {
+      return leaveReq.status === 'approved' ? '공가' : '공가(대기)';
+    } else if (lType === '병가') {
+      return leaveReq.status === 'approved' ? '병가' : '병가(대기)';
+    } else if (lType === '안식년') {
+      return leaveReq.status === 'approved' ? '안식년' : '안식년(대기)';
     }
-    return leaveReq.status === 'approved' ? '?곌?' : '?곌?(?湲?';
+    return leaveReq.status === 'approved' ? '연가' : '연가(대기)';
   }
 
   // 2. Check if there's a manual shift modification
@@ -909,11 +909,11 @@ function calculateShift(employee, dateStr) {
   if (employee.role === 'manager') {
     const d = parseLocalDate(dateStr);
     const day = d.getDay();
-    // Default Weekdays: 二쇨컙, Weekends: ?대Т
-    return (day === 0 || day === 6) ? '?대Т' : '二쇨컙';
+    // Default Weekdays: 주간, Weekends: 휴무
+    return (day === 0 || day === 6) ? '휴무' : '주간';
   }
 
-  // 4. Calculate staff rotational shift based on shiftGroup (1議?~ 6議?
+  // 4. Calculate staff rotational shift based on shiftGroup (1조 ~ 6조)
   const dateObj = parseLocalDate(dateStr);
   const timeDiff = dateObj.getTime() - ANCHOR_DATE.getTime();
   const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
@@ -935,7 +935,7 @@ function calculateDefaultCycleShift(employee, dateStr) {
   if (employee.role === 'manager') {
     const d = parseLocalDate(dateStr);
     const day = d.getDay();
-    return (day === 0 || day === 6) ? '?대Т' : '二쇨컙';
+    return (day === 0 || day === 6) ? '휴무' : '주간';
   }
 
   const dateObj = parseLocalDate(dateStr);
@@ -961,7 +961,7 @@ function formatDateString(year, month, day) {
 // Get Korean weekday text
 function getKoranWeekday(year, month, day) {
   const d = new Date(year, month, day);
-  const weekdays = ['??, '??, '??, '??, '紐?, '湲?, '??];
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   return weekdays[d.getDay()];
 }
 
@@ -1266,11 +1266,11 @@ function setupEventListeners() {
     
     // Reset button texts
     const leaveSubmit = document.querySelector('#staff-leave-form button[type="submit"]');
-    if (leaveSubmit) leaveSubmit.textContent = '?곌? ?좎껌 ?쒖텧';
+    if (leaveSubmit) leaveSubmit.textContent = '연가 신청 제출';
     const officialLeaveSubmit = document.querySelector('#staff-official-leave-form button[type="submit"]');
-    if (officialLeaveSubmit) officialLeaveSubmit.textContent = '怨듦? ?좎껌 ?쒖텧';
+    if (officialLeaveSubmit) officialLeaveSubmit.textContent = '공가 신청 제출';
     const otSubmit = document.querySelector('#staff-ot-form button[type="submit"]');
-    if (otSubmit) otSubmit.textContent = '?쒓컙???좎껌 ?쒖텧';
+    if (otSubmit) otSubmit.textContent = '시간외 신청 제출';
 
     editingRequestId = null;
     editingRequestType = null;
@@ -1291,7 +1291,7 @@ function setupEventListeners() {
 
     const empData = employees.find(emp => emp.id === employee.id);
     if (!editingRequestId && empData.remainingLeave <= 0) {
-      alert('?ъ슜 媛?ν븳 ?붿뿬 ?곌?媛 ?놁뒿?덈떎.');
+      alert('사용 가능한 잔여 연가가 없습니다.');
       return;
     }
 
@@ -1299,15 +1299,15 @@ function setupEventListeners() {
       const req = leaveRequests.find(r => r.id === editingRequestId);
       if (req) {
         try {
-          await updateOwnLeaveRequest(req.id, { reason: reason || '媛쒖씤 ?ъ젙', leaveType: '?곌?' });
+          await updateOwnLeaveRequest(req.id, { reason: reason || '개인 사정', leaveType: '연가' });
         } catch (error) {
-          alert('?곌? ?좎껌???섏젙?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+          alert('연가 신청을 수정하지 못했습니다: ' + (error.message || error));
           return;
         }
-        req.reason = reason || '媛쒖씤 ?ъ젙';
-        req.leaveType = '?곌?';
+        req.reason = reason || '개인 사정';
+        req.leaveType = '연가';
         closeStaffModal();
-        alert('?곌? ?좎껌???섏젙?섏뿀?듬땲??');
+        alert('연가 신청이 수정되었습니다.');
         renderMyPage();
         renderRoster();
         return;
@@ -1316,7 +1316,7 @@ function setupEventListeners() {
 
     const duplicated = leaveRequests.some(req => req.employeeId === employee.id && req.date === dateStr && req.status !== 'rejected');
     if (duplicated) {
-      alert('?대떦 ?좎쭨???대? ?좎껌???곌?媛 ?덉뒿?덈떎.');
+      alert('해당 날짜에 이미 신청된 연가가 있습니다.');
       return;
     }
 
@@ -1326,12 +1326,12 @@ function setupEventListeners() {
       if (r && r.employeeId === employee.id && r.date >= startStr && r.date <= endStr && r.status !== 'rejected') {
         const tempEmp = employees.find(e => e.id === employee.id);
         const shift = calculateShift(tempEmp, r.date);
-        return (shift === '?대Т' || shift === '?? || shift === '?대Т(?湲?');
+        return (shift === '휴무' || shift === '휴' || shift === '휴무(대기)');
       }
       return false;
     });
     if (hasOtInWeek) {
-      alert('?대쾲 二??대Т?쇱뿉 ?쒓컙??洹쇰Т ?좎껌 ?댁뿭???덉뼱 ?곌?瑜??좎껌?????놁뒿?덈떎.');
+      alert('이번 주 휴무일에 시간외 근무 신청 내역이 있어 연가를 신청할 수 없습니다.');
       return;
     }
 
@@ -1341,19 +1341,19 @@ function setupEventListeners() {
       employeeName: employee.name,
       hall: employee.hall,
       date: dateStr,
-      leaveType: '?곌?',
-      reason: reason || '媛쒖씤 ?ъ젙',
+      leaveType: '연가',
+      reason: reason || '개인 사정',
       status: 'pending'
     };
 
     try {
       await createLeaveRequest(newRequest);
     } catch (error) {
-      alert('?곌? ?좎껌????ν븯吏 紐삵뻽?듬땲?? ' + (error.message || error));
+      alert('연가 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
     }
     closeStaffModal();
-    alert('?곌?媛 ?좎껌?섏뼱 洹쇰Т?쒖뿉 諛섏쁺 ?湲?以묒엯?덈떎.');
+    alert('연가가 신청되어 근무표에 반영 대기 중입니다.');
     renderMyPage();
     renderRoster();
   });
@@ -1372,15 +1372,15 @@ function setupEventListeners() {
         const req = leaveRequests.find(r => r.id === editingRequestId);
         if (req) {
           try {
-            await updateOwnLeaveRequest(req.id, { reason: reason || '怨듬Т ?섑뻾', leaveType: '怨듦?' });
+            await updateOwnLeaveRequest(req.id, { reason: reason || '공무 수행', leaveType: '공가' });
           } catch (error) {
-            alert('怨듦? ?좎껌???섏젙?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+            alert('공가 신청을 수정하지 못했습니다: ' + (error.message || error));
             return;
           }
-          req.reason = reason || '怨듬Т ?섑뻾';
-          req.leaveType = '怨듦?';
+          req.reason = reason || '공무 수행';
+          req.leaveType = '공가';
           closeStaffModal();
-          alert('怨듦? ?좎껌???섏젙?섏뿀?듬땲??');
+          alert('공가 신청이 수정되었습니다.');
           renderMyPage();
           renderRoster();
           return;
@@ -1389,7 +1389,7 @@ function setupEventListeners() {
 
       const duplicated = leaveRequests.some(req => req.employeeId === employee.id && req.date === dateStr && req.status !== 'rejected');
       if (duplicated) {
-        alert('?대떦 ?좎쭨???대? ?좎껌??怨듦?媛 ?덉뒿?덈떎.');
+        alert('해당 날짜에 이미 신청된 공가가 있습니다.');
         return;
       }
 
@@ -1399,12 +1399,12 @@ function setupEventListeners() {
         if (r && r.employeeId === employee.id && r.date >= startStr && r.date <= endStr && r.status !== 'rejected') {
           const tempEmp = employees.find(e => e.id === employee.id);
           const shift = calculateShift(tempEmp, r.date);
-          return (shift === '?대Т' || shift === '?? || shift === '?대Т(?湲?');
+          return (shift === '휴무' || shift === '휴' || shift === '휴무(대기)');
         }
         return false;
       });
       if (hasOtInWeek) {
-        alert('?대쾲 二??대Т?쇱뿉 ?쒓컙??洹쇰Т ?좎껌 ?댁뿭???덉뼱 怨듦?瑜??좎껌?????놁뒿?덈떎.');
+        alert('이번 주 휴무일에 시간외 근무 신청 내역이 있어 공가를 신청할 수 없습니다.');
         return;
       }
 
@@ -1414,19 +1414,19 @@ function setupEventListeners() {
         employeeName: employee.name,
         hall: employee.hall,
         date: dateStr,
-        leaveType: '怨듦?',
-        reason: reason || '怨듬Т ?섑뻾',
+        leaveType: '공가',
+        reason: reason || '공무 수행',
         status: 'pending'
       };
 
       try {
         await createLeaveRequest(newRequest);
       } catch (error) {
-        alert('怨듦? ?좎껌????ν븯吏 紐삵뻽?듬땲?? ' + (error.message || error));
+        alert('공가 신청을 저장하지 못했습니다: ' + (error.message || error));
         return;
       }
       closeStaffModal();
-      alert('怨듦?媛 ?좎껌?섏뼱 洹쇰Т?쒖뿉 諛섏쁺 ?湲?以묒엯?덈떎.');
+      alert('공가가 신청되어 근무표에 반영 대기 중입니다.');
       renderMyPage();
       renderRoster();
     });
@@ -1444,21 +1444,21 @@ function setupEventListeners() {
 
     // 1. Daily Overtime limit check (Max 4 hours total per day including automatic shifts)
     const shift = calculateShift(employee, dateStr);
-    const baseOt = (shift === '?뱀쭅') ? 3 : (shift === '?쇨컙' ? 4 : 0);
+    const baseOt = (shift === '당직') ? 3 : (shift === '야간' ? 4 : 0);
     
     // Sum existing approved extra overtime on that day
     const approvedOtReq = overtimeRequests.filter(r => r.employeeId === employee.id && r.date === dateStr && r.status === 'approved' && r.id !== editingRequestId);
     const approvedOtHours = approvedOtReq.reduce((sum, r) => sum + parseInt(r.hours || 0), 0);
     
     if (baseOt + approvedOtHours + hours > 4) {
-      alert(`?섎（ 理쒕? ?쒓컙??洹쇰Т ?섎떦 ?쒕룄(4?쒓컙)瑜?珥덇낵?⑸땲?? (?뱀씪 ?대? 諛곗젙???쒓컙?? ${baseOt + approvedOtHours}?쒓컙, 異붽? ?좎껌: ${hours}?쒓컙)`);
+      alert(`하루 최대 시간외 근무 수당 한도(4시간)를 초과합니다. (당일 이미 배정된 시간외: ${baseOt + approvedOtHours}시간, 추가 신청: ${hours}시간)`);
       return;
     }
 
     // 2. Weekly Overtime limit check (Max 12 hours total per week including automatic shifts)
     const currentWeeklyTotal = getWeeklyOvertimeTotal(employee.id, dateStr, editingRequestId);
     if (currentWeeklyTotal + hours > 12) {
-      alert(`?쇱＜??理쒕? ?쒓컙??洹쇰Т ?쒕룄(12?쒓컙)瑜?珥덇낵?⑸땲?? (?꾩옱 二쇨컙 ?꾩쟻: ${currentWeeklyTotal}?쒓컙, 異붽? ?좎껌: ${hours}?쒓컙)`);
+      alert(`일주일 최대 시간외 근무 한도(12시간)를 초과합니다. (현재 주간 누적: ${currentWeeklyTotal}시간, 추가 신청: ${hours}시간)`);
       return;
     }
 
@@ -1468,37 +1468,37 @@ function setupEventListeners() {
     const rMonth = reqDate.getMonth();
     const currentMonthlyTotal = getMonthlyOvertimeTotal(employee.id, rYear, rMonth, editingRequestId);
     if (currentMonthlyTotal + hours > 40) {
-      alert(`????理쒕? ?쒓컙??洹쇰Т ?쒕룄(40?쒓컙)瑜?珥덇낵?⑸땲?? (?꾩옱 ?붽컙 ?꾩쟻: ${currentMonthlyTotal}?쒓컙, 異붽? ?좎껌: ${hours}?쒓컙)`);
+      alert(`한 달 최대 시간외 근무 한도(40시간)를 초과합니다. (현재 월간 누적: ${currentMonthlyTotal}시간, 추가 신청: ${hours}시간)`);
       return;
     }
 
     // 4. Overtime on off day check (Leave/Compensatory leave users cannot request overtime on off days in that week)
-    if (shift === '?대Т' || shift === '?? || shift === '?대Т(?湲?') {
+    if (shift === '휴무' || shift === '휴' || shift === '휴무(대기)') {
       const { startStr, endStr } = getWeekRange(dateStr);
       
-      // Check for ?곌?/怨듦? (Leave requests)
+      // Check for 연가/공가 (Leave requests)
       const hasLeaveInWeek = leaveRequests.some(r => r && r.employeeId === employee.id && r.date >= startStr && r.date <= endStr && r.status !== 'rejected' && r.id !== editingRequestId);
       if (hasLeaveInWeek) {
         const foundReq = leaveRequests.find(r => r && r.employeeId === employee.id && r.date >= startStr && r.date <= endStr && r.status !== 'rejected' && r.id !== editingRequestId);
-        const typeLabel = foundReq ? (foundReq.leaveType || '?곌?') : '?곌?';
-        alert(`?대쾲 二쇱뿉 ${typeLabel} ?좎껌 ?댁뿭???덉뼱 ?대Т?쇱뿉 ?쒓컙??洹쇰Т瑜??좎껌?????놁뒿?덈떎.`);
+        const typeLabel = foundReq ? (foundReq.leaveType || '연가') : '연가';
+        alert(`이번 주에 ${typeLabel} 신청 내역이 있어 휴무일에 시간외 근무를 신청할 수 없습니다.`);
         return;
       }
 
-      // Check for 蹂댁긽?닿? (Compensatory leave overrides)
+      // Check for 보상휴가 (Compensatory leave overrides)
       const hasCompLeaveInWeek = shiftModifications.some(mod => {
         return mod && 
                mod.employeeId === employee.id && 
                mod.date >= startStr && 
                mod.date <= endStr && 
-               (mod.shift === '蹂댁긽?닿?' || (mod.shift && mod.shift.startsWith('蹂댁긽?닿? (')));
+               (mod.shift === '보상휴가' || (mod.shift && mod.shift.startsWith('보상휴가 (')));
       });
       if (hasCompLeaveInWeek) {
-        alert('?대쾲 二쇱뿉 蹂댁긽?닿? 遺???댁뿭???덉뼱 ?대Т?쇱뿉 ?쒓컙??洹쇰Т瑜??좎껌?????놁뒿?덈떎.');
+        alert('이번 주에 보상휴가 부여 내역이 있어 휴무일에 시간외 근무를 신청할 수 없습니다.');
         return;
       }
       
-      const proceed = confirm('?대Т?쇱뿉 ?쒓컙??洹쇰Т瑜??좎껌?섏떆硫??대쾲 二쇱뿉???곌???蹂댁긽?닿?瑜??ъ슜?섏떎 ???놁뒿?덈떎. 怨꾩냽 ?좎껌?섏떆寃좎뒿?덇퉴?');
+      const proceed = confirm('휴무일에 시간외 근무를 신청하시면 이번 주에는 연가나 보상휴가를 사용하실 수 없습니다. 계속 신청하시겠습니까?');
       if (!proceed) return;
     }
 
@@ -1507,16 +1507,16 @@ function setupEventListeners() {
       const req = overtimeRequests.find(r => r.id === editingRequestId);
       if (req) {
         try {
-          await updateOwnOvertimeRequest(req.id, { timeOfDay, hours, reason: reason || '?쒓컙??洹쇰Т' });
+          await updateOwnOvertimeRequest(req.id, { timeOfDay, hours, reason: reason || '시간외 근무' });
         } catch (error) {
-          alert('?쒓컙???좎껌???섏젙?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+          alert('시간외 신청을 수정하지 못했습니다: ' + (error.message || error));
           return;
         }
         req.timeOfDay = timeOfDay;
         req.hours = hours;
-        req.reason = reason || '?쒓컙??洹쇰Т';
+        req.reason = reason || '시간외 근무';
         closeStaffModal();
-        alert('?쒓컙??洹쇰Т ?좎껌???섏젙?섏뿀?듬땲??');
+        alert('시간외 근무 신청이 수정되었습니다.');
         renderMyPage();
         renderRoster();
         return;
@@ -1526,7 +1526,7 @@ function setupEventListeners() {
     // Check if already requested for this date & timeOfDay
     const duplicated = overtimeRequests.some(req => req.employeeId === employee.id && req.date === dateStr && req.timeOfDay === timeOfDay && req.status !== 'rejected');
     if (duplicated) {
-      alert(`?대떦 ?좎쭨??${timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑'}???대? ?좎껌???쒓컙??洹쇰Т媛 ?덉뒿?덈떎.`);
+      alert(`해당 날짜의 ${timeOfDay === 'morning' ? '오전' : '오후'}에 이미 신청된 시간외 근무가 있습니다.`);
       return;
     }
 
@@ -1538,18 +1538,18 @@ function setupEventListeners() {
       date: dateStr,
       timeOfDay: timeOfDay,
       hours: hours,
-      reason: reason || '?쒓컙??洹쇰Т',
+      reason: reason || '시간외 근무',
       status: 'pending'
     };
 
     try {
       await createOvertimeRequest(newRequest);
     } catch (error) {
-      alert('?쒓컙???좎껌????ν븯吏 紐삵뻽?듬땲?? ' + (error.message || error));
+      alert('시간외 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
     }
     closeStaffModal();
-    alert('?쒓컙??洹쇰Т媛 ?좎껌?섏뼱 寃곗옱 ?湲??곹깭濡??깅줉?섏뿀?듬땲??');
+    alert('시간외 근무가 신청되어 결재 대기 상태로 등록되었습니다.');
     renderMyPage();
     renderRoster();
   });
@@ -1566,7 +1566,7 @@ function setupEventListeners() {
       : document.getElementById('manager-pw').value;
 
     if (activeTab === 'staff' && !/^\d{8}$/.test(password)) {
-      alert('吏곸썝 鍮꾨?踰덊샇???レ옄 8?먮━濡??낅젰??二쇱꽭??');
+      alert('직원 비밀번호는 숫자 8자리로 입력해 주세요.');
       return;
     }
 
@@ -1578,7 +1578,7 @@ function setupEventListeners() {
       if (!found || (activeTab === 'staff' && found.role !== 'staff') || (activeTab === 'manager' && found.role !== 'manager')) {
         await window.SahaAuth.signOut();
         clearPrivateState();
-        alert('??怨꾩젙? ?좏깮??濡쒓렇??醫낅쪟? 留욎? ?딆뒿?덈떎. 愿由ъ옄?먭쾶 ?뺤씤??二쇱꽭??');
+        alert('이 계정은 선택한 로그인 종류와 맞지 않습니다. 관리자에게 확인해 주세요.');
         return;
       }
 
@@ -1588,10 +1588,10 @@ function setupEventListeners() {
       renderRoster();
       if (found.role === 'manager') renderAdminDashboard();
       else renderMyPage();
-      alert(`${found.name}?? 濡쒓렇?몃릺?덉뒿?덈떎.`);
+      alert(`${found.name}님, 로그인되었습니다.`);
     } catch (error) {
       console.error('Login failed:', error);
-      alert('?꾩씠???먮뒗 鍮꾨?踰덊샇媛 留욎? ?딆뒿?덈떎. ?ㅼ떆 ?뺤씤??二쇱꽭??');
+      alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 확인해 주세요.');
     }
   });
 
@@ -1604,7 +1604,7 @@ function setupEventListeners() {
       clearPrivateState();
       updateLoginUI();
       renderRoster();
-      alert('濡쒓렇?꾩썐?섏뿀?듬땲??');
+      alert('로그아웃되었습니다.');
     });
   }
 
@@ -1627,20 +1627,20 @@ function setupEventListeners() {
     const password = document.getElementById('new-password').value;
     const confirmation = document.getElementById('new-password-confirm').value;
     if (!/^\d{8}$/.test(password)) {
-      alert('??鍮꾨?踰덊샇???レ옄 8?먮━濡??낅젰??二쇱꽭??');
+      alert('새 비밀번호는 숫자 8자리로 입력해 주세요.');
       return;
     }
     if (password !== confirmation) {
-      alert('??鍮꾨?踰덊샇 ??移몄씠 ?쒕줈 ?ㅻ쫭?덈떎.');
+      alert('새 비밀번호 두 칸이 서로 다릅니다.');
       return;
     }
     try {
       await window.SahaAuth.changePassword(password);
       closePasswordDialog();
-      alert('鍮꾨?踰덊샇媛 蹂寃쎈릺?덉뒿?덈떎. ?ㅼ쓬 濡쒓렇?몃?????鍮꾨?踰덊샇瑜??ъ슜??二쇱꽭??');
+      alert('비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용해 주세요.');
     } catch (error) {
       console.error('Password change failed:', error);
-      alert('鍮꾨?踰덊샇瑜?蹂寃쏀븯吏 紐삵뻽?듬땲?? ?좎떆 ???ㅼ떆 ?쒕룄??二쇱꽭??');
+      alert('비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
   });
 
@@ -1664,12 +1664,12 @@ function setupEventListeners() {
 
     const mHours = otMorningVal !== '' ? parseInt(otMorningVal) : 0;
     
-    const shiftDefaultAfternoon = (selectedShift === '?뱀쭅') ? 3 : (selectedShift === '?쇨컙' ? 4 : 0);
+    const shiftDefaultAfternoon = (selectedShift === '당직') ? 3 : (selectedShift === '야간' ? 4 : 0);
     const aHours = otAfternoonVal !== '' ? parseInt(otAfternoonVal) : shiftDefaultAfternoon;
 
     // 1. Daily Limit validation check: warns but allows manager bypass
     if (mHours + aHours > 4) {
-      const proceed = confirm(`?섎（ 理쒕? ?쒓컙???쒕룄(4?쒓컙)瑜?珥덇낵?⑸땲?? (吏???쒓컙: ${mHours + aHours}?쒓컙)\n洹몃옒???섎룞 蹂寃쏀븯?쒓쿋?듬땲源?`);
+      const proceed = confirm(`하루 최대 시간외 한도(4시간)를 초과합니다. (지정 시간: ${mHours + aHours}시간)\n그래도 수동 변경하시겠습니까?`);
       if (!proceed) return;
     }
 
@@ -1686,7 +1686,7 @@ function setupEventListeners() {
 
     const weeklyOtTotal = getWeeklyOvertimeTotal(employeeId, dateStr, null, tempModifications);
     if (weeklyOtTotal > 12) {
-      const proceed = confirm(`?쇱＜??理쒕? ?쒓컙???쒕룄(12?쒓컙)瑜?珥덇낵?⑸땲?? (二쇨컙 珥앷퀎: ${weeklyOtTotal}?쒓컙)\n洹몃옒???섎룞 蹂寃쏀븯?쒓쿋?듬땲源?`);
+      const proceed = confirm(`일주일 최대 시간외 한도(12시간)를 초과합니다. (주간 총계: ${weeklyOtTotal}시간)\n그래도 수동 변경하시겠습니까?`);
       if (!proceed) return;
     }
 
@@ -1696,16 +1696,16 @@ function setupEventListeners() {
     const rMonth = reqDate.getMonth();
     const monthlyOtTotal = getMonthlyOvertimeTotal(employeeId, rYear, rMonth, null, tempModifications);
     if (monthlyOtTotal > 40) {
-      const proceed = confirm(`????理쒕? ?쒓컙???쒕룄(40?쒓컙)瑜?珥덇낵?⑸땲?? (?붽컙 珥앷퀎: ${monthlyOtTotal}?쒓컙)\n洹몃옒???섎룞 蹂寃쏀븯?쒓쿋?듬땲源?`);
+      const proceed = confirm(`한 달 최대 시간외 한도(40시간)를 초과합니다. (월간 총계: ${monthlyOtTotal}시간)\n그래도 수동 변경하시겠습니까?`);
       if (!proceed) return;
     }
 
     // 4. Overtime on off day validation check: warns manager if there is a leave in that week
-    if ((selectedShift === '?대Т' || selectedShift === '??) && (mHours > 0 || aHours > 0)) {
+    if ((selectedShift === '휴무' || selectedShift === '휴') && (mHours > 0 || aHours > 0)) {
       const { startStr, endStr } = getWeekRange(dateStr);
       const hasLeaveInWeek = leaveRequests.some(r => r && r.employeeId === employeeId && r.date >= startStr && r.date <= endStr && r.status !== 'rejected');
       if (hasLeaveInWeek) {
-        const proceed = confirm('?대쾲 二쇱뿉 ?대떦 吏곸썝???곌? ?댁뿭???덉뼱 ?대Т?쇱뿉 ?쒓컙??洹쇰Т瑜??좎껌?????녿뒗 二쇨컙?낅땲??\n洹몃옒???섎룞 吏?뺥븯?쒓쿋?듬땲源?');
+        const proceed = confirm('이번 주에 해당 직원의 연가 내역이 있어 휴무일에 시간외 근무를 신청할 수 없는 주간입니다.\n그래도 수동 지정하시겠습니까?');
         if (!proceed) return;
       }
     }
@@ -1729,7 +1729,7 @@ function setupEventListeners() {
     saveState();
 
     renderRoster();
-    alert('洹쇰Т 諛??쒓컙???ㅼ젙???섎룞 蹂寃쎈릺?덉뒿?덈떎.');
+    alert('근무 및 시간외 설정이 수동 변경되었습니다.');
   });
 
   // Edit Employee Form Dialog handlers
@@ -1772,7 +1772,7 @@ function setupEventListeners() {
         updateLoginUI();
       }
       
-      alert('吏곸썝 ?뚯냽 ?앺솢愿 諛??좎긽 ?뺣낫媛 ?섏젙?섏뿀?듬땲??');
+      alert('직원 소속 생활관 및 신상 정보가 수정되었습니다.');
     }
   });
 
@@ -1788,7 +1788,7 @@ function setupEventListeners() {
       try {
         await updateManagerProfile(id, { name, hall });
       } catch (error) {
-        alert('愿由ъ옄 ?뺣낫瑜??섏젙?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+        alert('관리자 정보를 수정하지 못했습니다: ' + (error.message || error));
         return;
       }
       mgr.name = name;
@@ -1802,7 +1802,7 @@ function setupEventListeners() {
         updateLoginUI();
       }
       
-      alert('愿由ъ옄 湲곕낯 ?뺣낫媛 ?섏젙?섏뿀?듬땲?? 濡쒓렇??怨꾩젙 ?멸퀎??沅뚰븳 ?묐룄 踰꾪듉???ъ슜?섏꽭??');
+      alert('관리자 기본 정보가 수정되었습니다. 로그인 계정 인계는 권한 양도 버튼을 사용하세요.');
     }
   });
 
@@ -1829,7 +1829,7 @@ function setupEventListeners() {
   document.getElementById('transfer-manager-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentUser || currentUser.hall !== 'all') return;
-    if (!confirm('湲곗〈 愿由ъ옄 怨꾩젙 ?곌껐???댁젣?섍퀬 ?꾩엫?먯뿉寃?沅뚰븳???섍린?쒓쿋?듬땲源?')) return;
+    if (!confirm('기존 관리자 계정 연결을 해제하고 후임자에게 권한을 넘기시겠습니까?')) return;
 
     const payload = {
       managerEmployeeId: document.getElementById('transfer-manager-id').value,
@@ -1842,23 +1842,14 @@ function setupEventListeners() {
     if (submitButton) submitButton.disabled = true;
     try {
       const { data, error } = await getDB().functions.invoke('transfer-manager', { body: payload });
-      if (error) {
-        let serverMessage = error.message || String(error);
-        try {
-          const errorBody = await error.context?.json();
-          serverMessage = errorBody?.error || errorBody?.message || serverMessage;
-        } catch (_) {
-          // Keep the original message when the server did not return JSON.
-        }
-        throw new Error(serverMessage);
-      }
-      if (!data || !data.ok) throw new Error(data?.error || '沅뚰븳 ?묐룄???ㅽ뙣?덉뒿?덈떎.');
+      if (error) throw error;
+      if (!data || !data.ok) throw new Error(data?.error || '권한 양도에 실패했습니다.');
       closeTransfer();
       await loadStateFromServer();
       renderAdminDashboard();
-      alert(`沅뚰븳 ?묐룄媛 ?꾨즺?섏뿀?듬땲?? ?꾩엫??濡쒓렇??ID: ${data.loginId}`);
+      alert(`권한 양도가 완료되었습니다. 후임자 로그인 ID: ${data.loginId}`);
     } catch (error) {
-      alert('沅뚰븳 ?묐룄???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+      alert('권한 양도에 실패했습니다: ' + (error.message || error));
     } finally {
       if (submitButton) submitButton.disabled = false;
     }
@@ -1876,7 +1867,7 @@ function setupEventListeners() {
     if (!currentUser || currentUser.hall !== 'all') return;
     const employeeId = document.getElementById('change-login-employee-id').value;
     const newLoginId = document.getElementById('change-login-new-id').value.trim().toLowerCase();
-    if (!confirm(`濡쒓렇??ID瑜?'${newLoginId}'(??濡?蹂寃쏀븯?쒓쿋?듬땲源?`)) return;
+    if (!confirm(`로그인 ID를 '${newLoginId}'(으)로 변경하시겠습니까?`)) return;
     const submitButton = e.submitter;
     if (submitButton) submitButton.disabled = true;
     try {
@@ -1891,13 +1882,13 @@ function setupEventListeners() {
         }
         throw new Error(serverMessage);
       }
-      if (!data?.ok) throw new Error(data?.error || '濡쒓렇??ID 蹂寃쎌뿉 ?ㅽ뙣?덉뒿?덈떎.');
+      if (!data?.ok) throw new Error(data?.error || '로그인 ID 변경에 실패했습니다.');
       closeLoginIdChange();
       await loadStateFromServer();
       renderAdminDashboard();
-      alert(`濡쒓렇??ID媛 '${data.loginId}'(??濡?蹂寃쎈릺?덉뒿?덈떎.`);
+      alert(`로그인 ID가 '${data.loginId}'(으)로 변경되었습니다.`);
     } catch (error) {
-      alert('濡쒓렇??ID瑜?蹂寃쏀븯吏 紐삵뻽?듬땲?? ' + (error.message || error));
+      alert('로그인 ID를 변경하지 못했습니다: ' + (error.message || error));
     } finally {
       if (submitButton) submitButton.disabled = false;
     }
@@ -1908,8 +1899,8 @@ function setupEventListeners() {
 function recalculateEmployeeLeaveCounts() {
   employees.forEach(emp => {
     if (emp.role === 'staff' || (emp.role === 'manager' && emp.id !== 'mgr_admin')) {
-      const approvedCount = leaveRequests.filter(req => req.employeeId === emp.id && req.status === 'approved' && req.leaveType !== '怨듦?').length;
-      const manualLeaveCount = shiftModifications.filter(mod => mod && mod.employeeId === emp.id && mod.shift === '?곌?').length;
+      const approvedCount = leaveRequests.filter(req => req.employeeId === emp.id && req.status === 'approved' && req.leaveType !== '공가').length;
+      const manualLeaveCount = shiftModifications.filter(mod => mod && mod.employeeId === emp.id && mod.shift === '연가').length;
       const totalUsed = approvedCount + manualLeaveCount;
       emp.usedLeave = totalUsed;
       emp.remainingLeave = Math.max(0, emp.totalLeave - totalUsed);
@@ -1930,7 +1921,7 @@ function openEditShiftModal(employee, dateStr, currentShift) {
   
   const select = document.getElementById('edit-shift-select');
   const selectOptions = Array.from(select.options).map(opt => opt.value);
-  select.value = selectOptions.includes(currentShift) ? currentShift : '二쇨컙';
+  select.value = selectOptions.includes(currentShift) ? currentShift : '주간';
 
   // Load existing override values
   const modification = shiftModifications.find(mod => mod.employeeId === employee.id && mod.date === dateStr);
@@ -1973,11 +1964,11 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
   
   if (pendingLeave) {
     leaveSection.style.display = 'block';
-    const isOfficial = pendingLeave.leaveType === '怨듦?';
-    const typeLabel = isOfficial ? '怨듦?' : '?곌?';
+    const isOfficial = pendingLeave.leaveType === '공가';
+    const typeLabel = isOfficial ? '공가' : '연가';
     leaveText.innerHTML = `
-      <strong>?좎껌 醫낅쪟:</strong> <span style="color: #dc2626; font-weight: bold;">${typeLabel}?湲?/span><br>
-      <strong>?좎껌 ?ъ쑀:</strong> ${escapeHtml(pendingLeave.reason || '?놁쓬')}
+      <strong>신청 종류:</strong> <span style="color: #dc2626; font-weight: bold;">${typeLabel}대기</span><br>
+      <strong>신청 사유:</strong> ${escapeHtml(pendingLeave.reason || '없음')}
     `;
     
     document.getElementById('btn-admin-cell-approve-leave').onclick = () => {
@@ -2004,17 +1995,16 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
       item.style.marginBottom = '0.75rem';
       item.style.paddingBottom = '0.75rem';
       item.style.borderBottom = '1px dashed var(--border-color)';
-      const timeOfDayText = req.timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑';
-
+      const timeOfDayText = req.timeOfDay === 'morning' ? '오전' : '오후';
       item.innerHTML = `
         <p style="font-size: 0.8rem; margin-bottom: 0.4rem;">
-          <strong>援щ텇:</strong> ${timeOfDayText}<br>
-          <strong>?좎껌 ?쒓컙:</strong> ${req.hours}?쒓컙<br>
-          <strong>?ъ쑀:</strong> ${escapeHtml(req.reason || '?놁쓬')}
+          <strong>구분:</strong> ${timeOfDayText}<br>
+          <strong>신청 시간:</strong> ${req.hours}시간<br>
+          <strong>사유:</strong> ${escapeHtml(req.reason || '없음')}
         </p>
         <div style="display: flex; gap: 0.25rem;">
-          <button type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="approve-ot-${req.id}">?뱀씤</button>
-          <button type="button" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="reject-ot-${req.id}">諛섎젮</button>
+          <button type="button" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="approve-ot-${req.id}">승인</button>
+          <button type="button" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" id="reject-ot-${req.id}">반려</button>
         </div>
       `;
       otList.appendChild(item);
@@ -2024,6 +2014,7 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
       document.getElementById(`reject-ot-${req.id}`).onclick = () => {
+
         window.rejectOvertime(req.id);
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
@@ -2076,14 +2067,14 @@ function openStaffRequestModal(employee, dateStr, currentShift) {
         div.style.borderBottom = '1px dashed #fde68a';
         div.style.paddingBottom = '0.25rem';
         
-        const isOfficial = pendingLeave.leaveType === '怨듦?';
-        const typeIcon = isOfficial ? '?룢截??湲곗쨷 怨듦?' : '?뙱 ?湲곗쨷 ?곌?';
+        const isOfficial = pendingLeave.leaveType === '공가';
+        const typeIcon = isOfficial ? '🏛️ 대기중 공가' : '🌴 대기중 연가';
         
         div.innerHTML = `
-          <span>${typeIcon} (?ъ쑀: ${escapeHtml(pendingLeave.reason)})</span>
+          <span>${typeIcon} (사유: ${escapeHtml(pendingLeave.reason)})</span>
           <div style="display: inline-flex; gap: 0.25rem;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="editMyRequest('${pendingLeave.id}', 'leave')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">?섏젙</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelMyRequestDirectly('${pendingLeave.id}', 'leave')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #fee2e2; border-color: #fca5a5; color: #dc2626; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">?좎껌痍⑥냼</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="editMyRequest('${pendingLeave.id}', 'leave')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">수정</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelMyRequestDirectly('${pendingLeave.id}', 'leave')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #fee2e2; border-color: #fca5a5; color: #dc2626; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">신청취소</button>
           </div>
         `;
         cancelList.appendChild(div);
@@ -2099,12 +2090,12 @@ function openStaffRequestModal(employee, dateStr, currentShift) {
         div.style.borderBottom = '1px dashed #fde68a';
         div.style.paddingBottom = '0.25rem';
         
-        const timeLabel = ot.timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑';
+        const timeLabel = ot.timeOfDay === 'morning' ? '오전' : '오후';
         div.innerHTML = `
-          <span>???湲곗쨷 ?쒓컙??[${timeLabel}] ${ot.hours}?쒓컙 (?ъ쑀: ${escapeHtml(ot.reason)})</span>
+          <span>⏰ 대기중 시간외 [${timeLabel}] ${ot.hours}시간 (사유: ${escapeHtml(ot.reason)})</span>
           <div style="display: inline-flex; gap: 0.25rem;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="editMyRequest('${ot.id}', 'overtime')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">?섏젙</button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelMyRequestDirectly('${ot.id}', 'overtime')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #fee2e2; border-color: #fca5a5; color: #dc2626; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">?좎껌痍⑥냼</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="editMyRequest('${ot.id}', 'overtime')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #e0f2fe; border-color: #bae6fd; color: #0369a1; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">수정</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelMyRequestDirectly('${ot.id}', 'overtime')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold; background-color: #fee2e2; border-color: #fca5a5; color: #dc2626; border-radius: 0.25rem; border: 1px solid; cursor: pointer;">신청취소</button>
           </div>
         `;
         cancelList.appendChild(div);
@@ -2154,7 +2145,7 @@ function openStaffRequestModal(employee, dateStr, currentShift) {
     warningDiv.style.fontSize = '0.85rem';
     warningDiv.style.fontWeight = 'bold';
     warningDiv.style.lineHeight = '1.4';
-    warningDiv.innerHTML = `?좑툘 ?대쾲 二쇰뒗 ?대? 理쒕? ?쒓컙???쒕룄(12?쒓컙)???꾨떖/珥덇낵?섏뿬 異붽? ?좎껌??遺덇??ν빀?덈떎.<br>(?꾩옱 二쇨컙 ?꾩쟻: ${weeklyOt}?쒓컙)`;
+    warningDiv.innerHTML = `⚠️ 이번 주는 이미 최대 시간외 한도(12시간)에 도달/초과하여 추가 신청이 불가능합니다.<br>(현재 주간 누적: ${weeklyOt}시간)`;
     
     otForm.insertBefore(warningDiv, otForm.firstChild);
     
@@ -2179,14 +2170,14 @@ function renderMyPage() {
 
   // Render stats
   document.getElementById('my-join-year').textContent = empData.joinYearMonth || '-';
-  document.getElementById('my-total-leave').textContent = `${empData.totalLeave}??;
-  document.getElementById('my-used-leave').textContent = `${empData.usedLeave}??;
-  document.getElementById('my-remaining-leave').textContent = `${empData.remainingLeave}??;
+  document.getElementById('my-total-leave').textContent = `${empData.totalLeave}일`;
+  document.getElementById('my-used-leave').textContent = `${empData.usedLeave}일`;
+  document.getElementById('my-remaining-leave').textContent = `${empData.remainingLeave}일`;
 
   // Calculate current week overtime total (using today's date for current week)
   const todayStr = new Date().toISOString().split('T')[0];
   const weeklyOt = getWeeklyOvertimeTotal(currentUser.id, todayStr);
-  document.getElementById('my-weekly-overtime').textContent = `${weeklyOt}?쒓컙 / 12?쒓컙`;
+  document.getElementById('my-weekly-overtime').textContent = `${weeklyOt}시간 / 12시간`;
 
   // Render personal calendar
   renderMyCalendar();
@@ -2202,31 +2193,31 @@ function renderMyPage() {
   const combined = [...myLeaves, ...myOts].sort((a, b) => b.date.localeCompare(a.date));
 
   if (combined.length === 0) {
-    historyTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">?좏깮???붿뿉 ?좎껌 ?댁뿭???놁뒿?덈떎.</td></tr>`;
+    historyTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">선택한 월에 신청 내역이 없습니다.</td></tr>`;
   } else {
     combined.forEach(req => {
       const tr = document.createElement('tr');
       
-      let typeText = req.type === 'leave' ? (req.leaveType === '怨듦?' ? '?룢截?怨듦?' : '?뙱 ?곌?') : '???쒓컙??;
-      let timeLabel = req.type === 'overtime' ? (req.timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑') : '';
+      let typeText = req.type === 'leave' ? (req.leaveType === '공가' ? '🏛️ 공가' : '🌴 연가') : '⏰ 시간외';
+      let timeLabel = req.type === 'overtime' ? (req.timeOfDay === 'morning' ? '오전' : '오후') : '';
       let detailText = req.type === 'leave' 
         ? escapeHtml(req.reason) 
-        : `[${timeLabel}] ${req.hours}?쒓컙 (${escapeHtml(req.reason)})`;
+        : `[${timeLabel}] ${req.hours}시간 (${escapeHtml(req.reason)})`;
       
       let statusBadgeClass = 'badge-pending';
-      let statusText = '?湲곗쨷';
+      let statusText = '대기중';
       if (req.status === 'approved') {
         statusBadgeClass = 'badge-approved';
-        statusText = '?뱀씤??;
+        statusText = '승인됨';
       } else if (req.status === 'rejected') {
         statusBadgeClass = 'badge-rejected';
-        statusText = '諛섎젮??;
+        statusText = '반려됨';
       }
 
       // Add cancel button for regular staff
       let cancelBtn = '';
       if (req.status === 'pending') {
-        cancelBtn = `<button class="btn btn-secondary btn-sm" onclick="cancelMyRequest('${req.id}', '${req.type}')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;">?좎껌痍⑥냼</button>`;
+        cancelBtn = `<button class="btn btn-secondary btn-sm" onclick="cancelMyRequest('${req.id}', '${req.type}')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;">신청취소</button>`;
       } else {
         cancelBtn = `<span style="font-size: 0.75rem; color: var(--text-muted);">-</span>`;
       }
@@ -2252,14 +2243,13 @@ function renderMyCalendar() {
   const empData = employees.find(emp => emp.id === currentUser.id);
   if (!empData) return;
 
-  document.getElementById('my-cal-label').textContent = `${year}??${month + 1}????洹쇰Т`;
+  document.getElementById('my-cal-label').textContent = `${year}년 ${month + 1}월 내 근무`;
 
   const container = document.getElementById('my-mini-calendar');
   container.innerHTML = '';
 
-
   // Add weekday header labels to mini-calendar
-  const weekdays = ['??, '??, '??, '??, '紐?, '湲?, '??];
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   weekdays.forEach((day, idx) => {
     const el = document.createElement('div');
     el.className = 'mini-cal-header';
@@ -2274,6 +2264,7 @@ function renderMyCalendar() {
 
   // Determine starting weekday of the month
   const startDayOfWeek = new Date(year, month, 1).getDay();
+
 
   // Populate trailing days of the previous month
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
@@ -2352,7 +2343,7 @@ function setupMobileStaffNavigation() {
       const employee = employees.find((item) => item.id === currentUser.id);
       const dateStr = dateInput && dateInput.value;
       if (!employee || !dateStr) {
-        alert('?좎껌???좎쭨瑜??좏깮??二쇱꽭??');
+        alert('신청할 날짜를 선택해 주세요.');
         return;
       }
       openStaffRequestModal(employee, dateStr, calculateShift(employee, dateStr));
@@ -2386,11 +2377,11 @@ function updateLoginUI() {
       document.getElementById('header-avatar-initial').textContent = currentUser.name[0];
       document.getElementById('header-username-text').textContent = currentUser.name;
       
-      let roleText = `${currentUser.hall === 'girincho' ? '湲곕┛珥덉깮?쒓?' : '臾쇰큺?좎깮?쒓?'}`;
+      let roleText = `${currentUser.hall === 'girincho' ? '기린초생활관' : '물봉선생활관'}`;
       if (currentUser.role === 'manager') {
         roleText = currentUser.hall === 'all'
-          ? '?꾩껜 愿由ъ옄'
-          : '?꾩껜 ?앺솢愿 ???;
+          ? '전체 관리자'
+          : '전체 생활관 팀장';
       }
       document.getElementById('header-role-text').textContent = roleText;
     }
@@ -2402,7 +2393,7 @@ function updateLoginUI() {
       adminSection.style.display = 'block';
       
       // Update Title of Admin Dashboard
-      const dashboardTitle = '?듯빀 ?쒖뒪??愿由ъ옄 ??쒕낫??;
+      const dashboardTitle = '통합 시스템 관리자 대시보드';
       document.getElementById('admin-dashboard-title').textContent = dashboardTitle;
 
       renderAdminDashboard();
@@ -2430,39 +2421,39 @@ function updateLoginUI() {
 // Get rich descriptive tooltip text on hover
 function getShiftTooltipText(shift, emp, dateStr) {
   let text = '';
-  if (shift === '二쇨컙' || shift === '二?) {
-    text = '二쇨컙 洹쇰Т: 09:00 ~ 18:00 (?닿쾶 1?쒓컙)';
-  } else if (shift === '?뱀쭅' || shift === '??) {
-    text = '?뱀쭅 洹쇰Т: 07:00 ~ 19:00 (?닿쾶 1?쒓컙, ?쒓컙??3?쒓컙 ?ы븿)';
-  } else if (shift === '?쇨컙' || shift === '??) {
-    text = '?쇨컙 洹쇰Т: 18:00 ~ ?듭씪 09:00 (?닿쾶 5?쒓컙, ?쒓컙??4?쒓컙 ?ы븿)';
-  } else if (shift === '?대Т' || shift === '??) {
-    text = '?대Т??;
-  } else if (shift === '?곌?' || shift === '??) {
-    text = '?곌? (?닿? ?뱀씤??';
-  } else if (shift === '怨듦?' || shift === '怨?) {
-    text = '怨듦? (怨듭쟻 ?닿? ?뱀씤??';
-  } else if (shift === '蹂댁긽?닿?') {
-    text = '蹂댁긽?닿?';
-  } else if (shift && shift.startsWith('蹂댁긽?닿?')) {
+  if (shift === '주간' || shift === '주') {
+    text = '주간 근무: 09:00 ~ 18:00 (휴게 1시간)';
+  } else if (shift === '당직' || shift === '당') {
+    text = '당직 근무: 07:00 ~ 19:00 (휴게 1시간, 시간외 3시간 포함)';
+  } else if (shift === '야간' || shift === '야') {
+    text = '야간 근무: 18:00 ~ 익일 09:00 (휴게 5시간, 시간외 4시간 포함)';
+  } else if (shift === '휴무' || shift === '휴') {
+    text = '휴무일';
+  } else if (shift === '연가' || shift === '연') {
+    text = '연가 (휴가 승인됨)';
+  } else if (shift === '공가' || shift === '공') {
+    text = '공가 (공적 휴가 승인됨)';
+  } else if (shift === '보상휴가') {
+    text = '보상휴가';
+  } else if (shift && shift.startsWith('보상휴가')) {
     text = shift;
-  } else if (shift === '?') {
-    text = '?湲?以묒씤 ?닿? ?좎껌';
+  } else if (shift === '대') {
+    text = '대기 중인 휴가 신청';
   } else {
-    text = `${shift || '?대Т'} 洹쇰Т`;
+    text = `${shift || '휴무'} 근무`;
   }
 
   // Check if there is overtime approved
   const ots = overtimeRequests.filter(req => req.employeeId === emp.id && req.date === dateStr && req.status === 'approved');
   if (ots.length > 0) {
     const otHours = ots.reduce((sum, r) => sum + parseFloat(r.hours), 0);
-    text += `\n[異붽? ?쒓컙???뱀씤: ${otHours}?쒓컙]`;
+    text += `\n[추가 시간외 승인: ${otHours}시간]`;
   }
 
   const pendingOts = overtimeRequests.filter(req => req.employeeId === emp.id && req.date === dateStr && req.status === 'pending');
   if (pendingOts.length > 0) {
     const pOtHours = pendingOts.reduce((sum, r) => sum + parseFloat(r.hours), 0);
-    text += `\n[?쒓컙???좎껌 ?湲곗쨷: ${pOtHours}?쒓컙]`;
+    text += `\n[시간외 신청 대기중: ${pOtHours}시간]`;
   }
 
   return text;
@@ -2483,22 +2474,22 @@ function updateStatsDashboard() {
   employees.forEach(emp => {
     if (emp.role === 'staff') {
       const shift = calculateShift(emp, todayStr);
-      if (shift === '二쇨컙') {
+      if (shift === '주간') {
         dayNames.push(emp.name);
-      } else if (shift === '?뱀쭅') {
+      } else if (shift === '당직') {
         dutyNames.push(emp.name);
-      } else if (shift === '?쇨컙') {
+      } else if (shift === '야간') {
         nightNames.push(emp.name);
       }
     }
   });
 
   const totalCount = dayNames.length + dutyNames.length + nightNames.length;
-  totalCountEl.textContent = `${totalCount}紐?;
+  totalCountEl.textContent = `${totalCount}명`;
 
-  document.getElementById('stat-names-day').textContent = dayNames.length > 0 ? `${dayNames.join(', ')} (${dayNames.length}紐?` : '?놁쓬 (0紐?';
-  document.getElementById('stat-names-duty').textContent = dutyNames.length > 0 ? `${dutyNames.join(', ')} (${dutyNames.length}紐?` : '?놁쓬 (0紐?';
-  document.getElementById('stat-names-night').textContent = nightNames.length > 0 ? `${nightNames.join(', ')} (${nightNames.length}紐?` : '?놁쓬 (0紐?';
+  document.getElementById('stat-names-day').textContent = dayNames.length > 0 ? `${dayNames.join(', ')} (${dayNames.length}명)` : '없음 (0명)';
+  document.getElementById('stat-names-duty').textContent = dutyNames.length > 0 ? `${dutyNames.join(', ')} (${dutyNames.length}명)` : '없음 (0명)';
+  document.getElementById('stat-names-night').textContent = nightNames.length > 0 ? `${nightNames.join(', ')} (${nightNames.length}명)` : '없음 (0명)';
 }
 
 // Render both Monthly Shift tables (Girincho and Mulbongseon) simultaneously
@@ -2507,7 +2498,6 @@ function renderRoster() {
   const month = currentMonth;
   
   // Sync selects
-
   const selectYear = document.getElementById('select-year');
   const selectMonth = document.getElementById('select-month');
   if (selectYear) selectYear.value = year;
@@ -2526,6 +2516,7 @@ function renderRoster() {
   renderRosterForManagers('roster-header-row-managers', 'roster-tbody-managers');
 
   // Update statistics
+
   updateStatsDashboard();
 }
 
@@ -2540,7 +2531,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
   const card = document.getElementById(hall === 'girincho' ? 'schedule-section-girincho' : 'schedule-section-mulbongseon');
   const printMonthLabel = card.querySelector('.print-month-name');
   if (printMonthLabel) {
-    printMonthLabel.textContent = `${year}??${month + 1}??洹쇰Т??;
+    printMonthLabel.textContent = `${year}년 ${month + 1}월 근무표`;
   }
 
   // Get total days in month
@@ -2555,19 +2546,19 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
   
   // Group col
   const groupTh = document.createElement('th');
-  groupTh.textContent = '議?;
+  groupTh.textContent = '조';
   groupTh.className = 'group-cell';
   headerRow.appendChild(groupTh);
 
   // Name col
   const nameTh = document.createElement('th');
-  nameTh.textContent = '?깅챸';
+  nameTh.textContent = '성명';
   nameTh.className = 'instructor-cell';
   headerRow.appendChild(nameTh);
   
   // Print-only Signature col
   const sigTh = document.createElement('th');
-  sigTh.textContent = '?쒕챸';
+  sigTh.textContent = '서명';
   sigTh.className = 'print-only-cell';
   headerRow.appendChild(sigTh);
   
@@ -2594,7 +2585,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
 
   // Monthly Overtime Sum Column
   const sumTh = document.createElement('th');
-  sumTh.textContent = '??;
+  sumTh.textContent = '합';
   sumTh.style.width = '3rem';
   sumTh.style.textAlign = 'center';
   headerRow.appendChild(sumTh);
@@ -2608,7 +2599,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
     const td = document.createElement('td');
     td.colSpan = totalDays + 3; // +3 for Group, Name and Sum
     td.className = 'text-center';
-    td.textContent = '?앺솢愿???깅줉??洹쇰Т?먭? ?놁뒿?덈떎.';
+    td.textContent = '생활관에 등록된 근무자가 없습니다.';
     tr.appendChild(td);
     tbody.appendChild(tr);
     return;
@@ -2631,7 +2622,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
     // Group cell
     const groupTd = document.createElement('td');
     groupTd.className = 'group-cell';
-    groupTd.innerHTML = `<strong>${emp.shiftGroup}議?/strong>`;
+    groupTd.innerHTML = `<strong>${emp.shiftGroup}조</strong>`;
     tr.appendChild(groupTd);
 
     // Employee Name cell
@@ -2654,8 +2645,8 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
       
-      // ?밸퀎 ?닿?(蹂묎?, ?덉떇?? ?곗냽 ?뚮뜑留?? 蹂묓빀 (?붾㈃ - ?쇰컲吏곸썝)
-      if (shift === '蹂묎?' || shift === '蹂묎?(?湲?' || shift === '?덉떇?? || shift === '?덉떇???湲?') {
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (화면 - 일반직원)
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
         let colspan = 1;
         let checkDay = day + 1;
         while (checkDay <= totalDays) {
@@ -2663,8 +2654,8 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
           const nextShift = calculateShift(emp, nextDateStr);
           
           const isSameType = (
-            ((shift === '蹂묎?' || shift === '蹂묎?(?湲?') && (nextShift === '蹂묎?' || nextShift === '蹂묎?(?湲?')) ||
-            ((shift === '?덉떇?? || shift === '?덉떇???湲?') && (nextShift === '?덉떇?? || nextShift === '?덉떇???湲?'))
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
           );
           if (isSameType) {
             colspan++;
@@ -2677,16 +2668,16 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
         const td = document.createElement('td');
         td.className = 'shift-cell special-leave-cell';
         td.setAttribute('colspan', colspan);
-        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}?쇨컙)`);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
         
-        const labelText = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? '?????? : '蹂?媛';
-        const cellBadgeClass = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
         td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
         
         if (currentUser && isUserAdmin()) {
           td.classList.add('admin-mode');
           td.addEventListener('click', () => {
-            alert('??湲곌컙? 愿由ъ옄 ??쒕낫????[?룯 蹂묎? / ?덌툘 ?덉떇???쇨큵 ?ㅼ젙] 紐⑸줉?먯꽌 吏곸젒 ??젣 諛?痍⑥냼?섏떆?????덉뒿?덈떎.');
+            alert('이 기간은 관리자 대시보드 내 [🏥 병가 / ✈️ 안식년 일괄 설정] 목록에서 직접 삭제 및 취소하시절 수 있습니다.');
           });
         }
         
@@ -2753,12 +2744,11 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   const card = document.getElementById('schedule-section-managers');
   const printMonthLabel = card.querySelector('.print-month-name');
   if (printMonthLabel) {
-    printMonthLabel.textContent = `${year}??${month + 1}??洹쇰Т??;
+    printMonthLabel.textContent = `${year}년 ${month + 1}월 근무표`;
   }
 
   // Get total days in month
   const totalDays = new Date(year, month + 1, 0).getDate();
-
   
   // Filter employees for managers (except mgr_admin)
   const filteredEmployees = employees.filter(emp => emp.role === 'manager' && emp.id !== 'mgr_admin');
@@ -2767,21 +2757,22 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   const headerRow = document.getElementById(headerRowId);
   headerRow.innerHTML = '';
   
-  // Group col (shows '??? for managers)
+  // Group col (shows '팀장' for managers)
   const groupTh = document.createElement('th');
-  groupTh.textContent = '援щ텇';
+  groupTh.textContent = '구분';
   groupTh.className = 'group-cell';
   headerRow.appendChild(groupTh);
 
   // Name col
   const nameTh = document.createElement('th');
-  nameTh.textContent = '?깅챸';
+  nameTh.textContent = '성명';
   nameTh.className = 'instructor-cell';
+
   headerRow.appendChild(nameTh);
   
   // Print-only Signature col
   const sigTh = document.createElement('th');
-  sigTh.textContent = '?쒕챸';
+  sigTh.textContent = '서명';
   sigTh.className = 'print-only-cell';
   headerRow.appendChild(sigTh);
   
@@ -2808,7 +2799,7 @@ function renderRosterForManagers(headerRowId, tbodyId) {
 
   // Sum Column
   const sumTh = document.createElement('th');
-  sumTh.textContent = '??;
+  sumTh.textContent = '합';
   sumTh.style.width = '3rem';
   sumTh.style.textAlign = 'center';
   headerRow.appendChild(sumTh);
@@ -2828,7 +2819,7 @@ function renderRosterForManagers(headerRowId, tbodyId) {
     // Group cell
     const groupTd = document.createElement('td');
     groupTd.className = 'group-cell';
-    groupTd.innerHTML = `<strong>???/strong>`;
+    groupTd.innerHTML = `<strong>팀장</strong>`;
     tr.appendChild(groupTd);
 
     // Employee Name cell
@@ -2851,8 +2842,8 @@ function renderRosterForManagers(headerRowId, tbodyId) {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
       
-      // ?밸퀎 ?닿?(蹂묎?, ?덉떇?? ?곗냽 ?뚮뜑留?? 蹂묓빀
-      if (shift === '蹂묎?' || shift === '蹂묎?(?湲?' || shift === '?덉떇?? || shift === '?덉떇???湲?') {
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
         let colspan = 1;
         let checkDay = day + 1;
         while (checkDay <= totalDays) {
@@ -2860,8 +2851,8 @@ function renderRosterForManagers(headerRowId, tbodyId) {
           const nextShift = calculateShift(emp, nextDateStr);
           
           const isSameType = (
-            ((shift === '蹂묎?' || shift === '蹂묎?(?湲?') && (nextShift === '蹂묎?' || nextShift === '蹂묎?(?湲?')) ||
-            ((shift === '?덉떇?? || shift === '?덉떇???湲?') && (nextShift === '?덉떇?? || nextShift === '?덉떇???湲?'))
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
           );
           if (isSameType) {
             colspan++;
@@ -2874,16 +2865,16 @@ function renderRosterForManagers(headerRowId, tbodyId) {
         const td = document.createElement('td');
         td.className = 'shift-cell special-leave-cell';
         td.setAttribute('colspan', colspan);
-        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}?쇨컙)`);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
         
-        const labelText = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? '?????? : '蹂?媛';
-        const cellBadgeClass = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
         td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
         
         if (currentUser && isUserAdmin()) {
           td.classList.add('admin-mode');
           td.addEventListener('click', () => {
-            alert('??湲곌컙? 愿由ъ옄 ??쒕낫????[?룯 蹂묎? / ?덌툘 ?덉떇???쇨큵 ?ㅼ젙] 紐⑸줉?먯꽌 吏곸젒 ??젣 諛?痍⑥냼?섏떎 ???덉뒿?덈떎.');
+            alert('이 기간은 관리자 대시보드 내 [🏥 병가 / ✈️ 안식년 일괄 설정] 목록에서 직접 삭제 및 취소하실 수 있습니다.');
           });
         }
         
@@ -2901,14 +2892,14 @@ function renderRosterForManagers(headerRowId, tbodyId) {
       
       // Determine badge class and single-character label
       let badgeClass = 'badge-off';
-      let displayLabel = '??;
-      if (shift === '二쇨컙') { badgeClass = 'badge-day'; displayLabel = '二?; }
-      else if (shift === '?뱀쭅') { badgeClass = 'badge-duty'; displayLabel = '??; }
-      else if (shift === '?쇨컙') { badgeClass = 'badge-night'; displayLabel = '??; }
-      else if (shift === '?곌?') { badgeClass = 'badge-leave'; displayLabel = '??; }
-      else if (shift === '?곌?(?湲?') { badgeClass = 'badge-pending-leave'; displayLabel = '?'; }
-      else if (shift === '怨듦?') { badgeClass = 'badge-official-leave'; displayLabel = '怨?; }
-      else if (shift === '怨듦?(?湲?') { badgeClass = 'badge-pending-leave'; displayLabel = '怨?; }
+      let displayLabel = '휴';
+      if (shift === '주간') { badgeClass = 'badge-day'; displayLabel = '주'; }
+      else if (shift === '당직') { badgeClass = 'badge-duty'; displayLabel = '당'; }
+      else if (shift === '야간') { badgeClass = 'badge-night'; displayLabel = '야'; }
+      else if (shift === '연가') { badgeClass = 'badge-leave'; displayLabel = '연'; }
+      else if (shift === '연가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '대'; }
+      else if (shift === '공가') { badgeClass = 'badge-official-leave'; displayLabel = '공'; }
+      else if (shift === '공가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '공'; }
       
       const otMorningDisplay = getOvertimeCellHtml(emp, dateStr, 'morning');
       const otAfternoonDisplay = getOvertimeCellHtml(emp, dateStr, 'afternoon');
@@ -2961,18 +2952,18 @@ function populateMasterPrintTable() {
   const totalDays = new Date(year, month + 1, 0).getDate();
   
   // 1. Update Title
-  document.getElementById('print-title-month').textContent = `${year}??${month + 1}??洹쇰Т(?쒓컙?? 怨꾪쉷 : ?앺솢吏?먰?`;
+  document.getElementById('print-title-month').textContent = `${year}년 ${month + 1}월 근무(시간외) 계획 : 생활지원팀`;
 
   // 2. Clear & Populate Headers
   const row1 = document.getElementById('print-th-row-1');
   const row2 = document.getElementById('print-th-row-2');
   
-  // Reset Row 1 (keep first 4 cells: ?앺솢愿, 議? ?깅챸, ?쒕챸)
+  // Reset Row 1 (keep first 4 cells: 생활관, 조, 성명, 서명)
   row1.innerHTML = `
-    <th rowspan="2" class="print-hall-col" style="font-size: 7.2pt; letter-spacing: -0.5px;">?앺솢愿</th>
-    <th rowspan="2" class="print-group-col" style="font-size: 7.5pt;">議?/th>
-    <th rowspan="2" class="print-name-col" style="font-size: 8.5pt;">?깅챸</th>
-    <th rowspan="2" class="print-sig-col" style="font-size: 8.5pt;">?쒕챸</th>
+    <th rowspan="2" class="print-hall-col" style="font-size: 7.2pt; letter-spacing: -0.5px;">생활관</th>
+    <th rowspan="2" class="print-group-col" style="font-size: 7.5pt;">조</th>
+    <th rowspan="2" class="print-name-col" style="font-size: 8.5pt;">성명</th>
+    <th rowspan="2" class="print-sig-col" style="font-size: 8.5pt;">서명</th>
   `;
   // Append dates 1..31
   for (let day = 1; day <= totalDays; day++) {
@@ -3002,14 +2993,13 @@ function populateMasterPrintTable() {
   sumTh.rowSpan = 2;
   sumTh.className = 'print-sum-col';
   sumTh.style.fontSize = '8.5pt';
-  sumTh.textContent = '??;
+  sumTh.textContent = '합';
   row1.appendChild(sumTh);
 
   // Reset Row 2 (populate days of week)
   row2.innerHTML = '';
   for (let day = 1; day <= totalDays; day++) {
     const th = document.createElement('th');
-
     th.classList.add('date-col');
     th.style.fontSize = '7.5pt';
     th.style.fontWeight = 'normal';
@@ -3028,6 +3018,7 @@ function populateMasterPrintTable() {
     }
 
     if (d.getDay() === 0) {
+
       th.style.setProperty('border-right', '2.5px solid #000000', 'important');
     }
     row2.appendChild(th);
@@ -3067,14 +3058,14 @@ function populateMasterPrintTable() {
         tr.appendChild(hallTd);
       }
 
-      // Render 議?(Group) Cell
+      // Render 조 (Group) Cell
       // If Mulbongseon group 1 has two staff members, we merge them into a single cell spanning 2 rows
-      if (sectionLabel === '臾쇰큺?? && emp.shiftGroup === 1) {
+      if (sectionLabel === '물봉선' && emp.shiftGroup === 1) {
         if (index === 0) {
           const groupTd = document.createElement('td');
           groupTd.className = 'print-group-col';
           groupTd.rowSpan = 2;
-          groupTd.textContent = '1議?;
+          groupTd.textContent = '1조';
           groupTd.style.verticalAlign = 'middle';
           groupTd.style.fontWeight = 'bold';
           groupTd.style.fontSize = '8.5pt';
@@ -3085,7 +3076,7 @@ function populateMasterPrintTable() {
       } else {
         const groupTd = document.createElement('td');
         groupTd.className = 'print-group-col';
-        groupTd.textContent = `${emp.shiftGroup}議?;
+        groupTd.textContent = `${emp.shiftGroup}조`;
         groupTd.style.verticalAlign = 'middle';
         groupTd.style.fontWeight = 'bold';
         groupTd.style.fontSize = '8.5pt';
@@ -3115,8 +3106,8 @@ function populateMasterPrintTable() {
         const dateStr = formatDateString(year, month, day);
         const shift = calculateShift(emp, dateStr);
         
-        // ?밸퀎 ?닿?(蹂묎?, ?덉떇?? ?곗냽 ?뚮뜑留?? 蹂묓빀 (?몄뇙??- ?쇰컲吏곸썝)
-        if (shift === '蹂묎?' || shift === '蹂묎?(?湲?' || shift === '?덉떇?? || shift === '?덉떇???湲?') {
+        // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (인쇄용 - 일반직원)
+        if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
           let colspan = 1;
           let checkDay = day + 1;
           while (checkDay <= totalDays) {
@@ -3124,8 +3115,8 @@ function populateMasterPrintTable() {
             const nextShift = calculateShift(emp, nextDateStr);
             
             const isSameType = (
-              ((shift === '蹂묎?' || shift === '蹂묎?(?湲?') && (nextShift === '蹂묎?' || nextShift === '蹂묎?(?湲?')) ||
-              ((shift === '?덉떇?? || shift === '?덉떇???湲?') && (nextShift === '?덉떇?? || nextShift === '?덉떇???湲?'))
+              ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+              ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
             );
             if (isSameType) {
               colspan++;
@@ -3138,17 +3129,18 @@ function populateMasterPrintTable() {
           const td = document.createElement('td');
           td.className = 'date-cell special-leave-cell';
           td.setAttribute('colspan', colspan);
-          td.setAttribute('title', `${emp.name} - ${shift} (${colspan}?쇨컙)`);
+          td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
           
-          const labelText = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? '?????? : '蹂?媛';
-          const cellBadgeClass = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+          const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+          const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
           td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
           
           if (isShaded) {
             td.style.backgroundColor = bgColor;
           }
           
-          // ?쇱슂?쇱씠 蹂묓빀 踰붿쐞 ?댁뿉 ?ы븿?섏뼱 ?덈뒗吏 泥댄겕?섏뿬 border-right 遺??          let hasSunday = false;
+          // 일요일이 병합 범위 내에 포함되어 있는지 체크하여 border-right 부여
+          let hasSunday = false;
           for (let offset = 0; offset < colspan; offset++) {
             const d = new Date(year, month, day + offset);
             if (d.getDay() === 0) {
@@ -3173,11 +3165,11 @@ function populateMasterPrintTable() {
 
         const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
         let printLabel = displayLabel;
-        if (shift === '?곌?' || shift === '?곌?(?湲?') printLabel = '?곌?';
-        else if (shift === '怨듦?' || shift === '怨듦?(?湲?') printLabel = '怨듦?';
+        if (shift === '연가' || shift === '연가(대기)') printLabel = '연가';
+        else if (shift === '공가' || shift === '공가(대기)') printLabel = '공가';
 
         const modification = shiftModifications.find(mod => mod && mod.employeeId === emp.id && mod.date === dateStr);
-        const isManualOff = (modification && modification.shift === '?대Т' && calculateDefaultCycleShift(emp, dateStr) !== '?대Т');
+        const isManualOff = (modification && modification.shift === '휴무' && calculateDefaultCycleShift(emp, dateStr) !== '휴무');
 
         const otMorningDisplay = getOvertimeCellHtml(emp, dateStr, 'morning');
         const otAfternoonDisplay = getOvertimeCellHtml(emp, dateStr, 'afternoon');
@@ -3226,9 +3218,9 @@ function populateMasterPrintTable() {
   };
 
   // Render sections
-  renderSectionRows(girinchoStaff, '湲곕┛珥?);
+  renderSectionRows(girinchoStaff, '기린초');
   appendSeparatorRow();
-  renderSectionRows(mulbongseonStaff, '臾쇰큺??);
+  renderSectionRows(mulbongseonStaff, '물봉선');
   appendSeparatorRow();
   
   // Render Team Leaders
@@ -3237,7 +3229,7 @@ function populateMasterPrintTable() {
     if (index === 0) {
       const leaderTd = document.createElement('td');
       leaderTd.rowSpan = teamLeaders.length;
-      leaderTd.colSpan = 2; // Spans both ?앺솢愿 and 議?columns!
+      leaderTd.colSpan = 2; // Spans both 생활관 and 조 columns!
       leaderTd.className = 'print-hall-col group-cell';
       leaderTd.style.fontWeight = 'bold';
       leaderTd.style.fontSize = '9.5pt';
@@ -3245,7 +3237,7 @@ function populateMasterPrintTable() {
       leaderTd.style.writingMode = 'vertical-rl';
       leaderTd.style.textOrientation = 'upright';
       leaderTd.style.letterSpacing = '1px';
-      leaderTd.textContent = '???;
+      leaderTd.textContent = '팀장';
       tr.appendChild(leaderTd);
     }
     
@@ -3260,7 +3252,6 @@ function populateMasterPrintTable() {
     const sigTd = document.createElement('td');
     sigTd.className = 'print-sig-col';
     sigTd.innerHTML = '&nbsp;';
-
     tr.appendChild(sigTd);
 
     // Shifts 1..31
@@ -3270,17 +3261,18 @@ function populateMasterPrintTable() {
       const dateStr = formatDateString(year, month, day);
       const shift = calculateShift(emp, dateStr);
       
-      // ?밸퀎 ?닿?(蹂묎?, ?덉떇?? ?곗냽 ?뚮뜑留?? 蹂묓빀 (?몄뇙??
-      if (shift === '蹂묎?' || shift === '蹂묎?(?湲?' || shift === '?덉떇?? || shift === '?덉떇???湲?') {
+      // 특별 휴가(병가, 안식년) 연속 렌더링 셀 병합 (인쇄용)
+      if (shift === '병가' || shift === '병가(대기)' || shift === '안식년' || shift === '안식년(대기)') {
         let colspan = 1;
         let checkDay = day + 1;
         while (checkDay <= totalDays) {
           const nextDateStr = formatDateString(year, month, checkDay);
           const nextShift = calculateShift(emp, nextDateStr);
           
+
           const isSameType = (
-            ((shift === '蹂묎?' || shift === '蹂묎?(?湲?') && (nextShift === '蹂묎?' || nextShift === '蹂묎?(?湲?')) ||
-            ((shift === '?덉떇?? || shift === '?덉떇???湲?') && (nextShift === '?덉떇?? || nextShift === '?덉떇???湲?'))
+            ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
+            ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
           );
           if (isSameType) {
             colspan++;
@@ -3293,13 +3285,14 @@ function populateMasterPrintTable() {
         const td = document.createElement('td');
         td.className = 'date-cell special-leave-cell';
         td.setAttribute('colspan', colspan);
-        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}?쇨컙)`);
+        td.setAttribute('title', `${emp.name} - ${shift} (${colspan}일간)`);
         
-        const labelText = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? '?????? : '蹂?媛';
-        const cellBadgeClass = (shift === '?덉떇?? || shift === '?덉떇???湲?') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
+        const labelText = (shift === '안식년' || shift === '안식년(대기)') ? '안 식 년' : '병 가';
+        const cellBadgeClass = (shift === '안식년' || shift === '안식년(대기)') ? 'badge-sabbatical-merged' : 'badge-sick-merged';
         td.innerHTML = `<div class="merged-special-leave ${cellBadgeClass}">${labelText}</div>`;
         
-        // ?쇱슂?쇱씠 蹂묓빀 踰붿쐞 ?댁뿉 ?ы븿?섏뼱 ?덈뒗吏 泥댄겕?섏뿬 border-right 遺??        let hasSunday = false;
+        // 일요일이 병합 범위 내에 포함되어 있는지 체크하여 border-right 부여
+        let hasSunday = false;
         for (let offset = 0; offset < colspan; offset++) {
           const d = new Date(year, month, day + offset);
           if (d.getDay() === 0) {
@@ -3323,21 +3316,21 @@ function populateMasterPrintTable() {
       monthlyTotalOt += otHours;
 
       let badgeClass = 'badge-off';
-      let displayLabel = '??;
-      if (shift === '二쇨컙') { badgeClass = 'badge-day'; displayLabel = '二?; }
-      else if (shift === '?뱀쭅') { badgeClass = 'badge-duty'; displayLabel = '??; }
-      else if (shift === '?쇨컙') { badgeClass = 'badge-night'; displayLabel = '??; }
-      else if (shift === '?곌?') { badgeClass = 'badge-leave'; displayLabel = '??; }
-      else if (shift === '?곌?(?湲?') { badgeClass = 'badge-pending-leave'; displayLabel = '?'; }
-      else if (shift === '怨듦?') { badgeClass = 'badge-official-leave'; displayLabel = '怨?; }
-      else if (shift === '怨듦?(?湲?') { badgeClass = 'badge-pending-leave'; displayLabel = '怨?; }
+      let displayLabel = '휴';
+      if (shift === '주간') { badgeClass = 'badge-day'; displayLabel = '주'; }
+      else if (shift === '당직') { badgeClass = 'badge-duty'; displayLabel = '당'; }
+      else if (shift === '야간') { badgeClass = 'badge-night'; displayLabel = '야'; }
+      else if (shift === '연가') { badgeClass = 'badge-leave'; displayLabel = '연'; }
+      else if (shift === '연가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '대'; }
+      else if (shift === '공가') { badgeClass = 'badge-official-leave'; displayLabel = '공'; }
+      else if (shift === '공가(대기)') { badgeClass = 'badge-pending-leave'; displayLabel = '공'; }
 
       let printLabel = displayLabel;
-      if (shift === '?곌?' || shift === '?곌?(?湲?') printLabel = '?곌?';
-      else if (shift === '怨듦?' || shift === '怨듦?(?湲?') printLabel = '怨듦?';
+      if (shift === '연가' || shift === '연가(대기)') printLabel = '연가';
+      else if (shift === '공가' || shift === '공가(대기)') printLabel = '공가';
 
       const modification = shiftModifications.find(mod => mod && mod.employeeId === emp.id && mod.date === dateStr);
-      const isManualOff = (modification && modification.shift === '?대Т' && calculateDefaultCycleShift(emp, dateStr) !== '?대Т');
+      const isManualOff = (modification && modification.shift === '휴무' && calculateDefaultCycleShift(emp, dateStr) !== '휴무');
 
       const otMorningDisplay = getOvertimeCellHtml(emp, dateStr, 'morning');
       const otAfternoonDisplay = getOvertimeCellHtml(emp, dateStr, 'afternoon');
@@ -3416,8 +3409,8 @@ function renderAdminDashboard() {
     const empB = employees.find(emp => emp.id === b.employeeId);
 
     if (sortFilter === 'hall-name') {
-      const hallA = empA ? (empA.hall || '???) : '???;
-      const hallB = empB ? (empB.hall || '???) : '???;
+      const hallA = empA ? (empA.hall || '팀장') : '팀장';
+      const hallB = empB ? (empB.hall || '팀장') : '팀장';
       const hallCompare = hallA.localeCompare(hallB, 'ko');
       if (hallCompare !== 0) return hallCompare;
 
@@ -3443,7 +3436,7 @@ function renderAdminDashboard() {
   };
 
   if (relevantLeaveRequests.length === 0) {
-    leaveTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">?대떦 ?붿쓽 ?곌? ?좎껌???녾굅???湲곗뿴??鍮꾩뼱?덉뒿?덈떎.</td></tr>`;
+    leaveTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">해당 월의 연가 신청이 없거나 대기열이 비어있습니다.</td></tr>`;
   } else {
     const sortedLeaveRequests = [...relevantLeaveRequests].sort(sortFunc);
 
@@ -3451,32 +3444,32 @@ function renderAdminDashboard() {
       const tr = document.createElement('tr');
       
       let statusBadgeClass = 'badge-pending';
-      let statusText = '?湲곗쨷';
+      let statusText = '대기중';
       if (req.status === 'approved') {
         statusBadgeClass = 'badge-approved';
-        statusText = '?뱀씤??;
+        statusText = '승인됨';
       } else if (req.status === 'rejected') {
         statusBadgeClass = 'badge-rejected';
-        statusText = '諛섎젮??;
+        statusText = '반려됨';
       }
 
       const employee = employees.find(emp => emp.id === req.employeeId);
-      const isOfficial = req.leaveType === '怨듦?';
-      const labelBadge = isOfficial ? `<span style="font-size:0.75rem; color:#0369a1; background-color:#e0f2fe; padding:0.1rem 0.35rem; border-radius:0.25rem; margin-left:0.25rem; font-weight:bold;">怨듦?</span>` : (employee ? `(?⑥쓬: ${employee.remainingLeave}??` : '');
+      const isOfficial = req.leaveType === '공가';
+      const labelBadge = isOfficial ? `<span style="font-size:0.75rem; color:#0369a1; background-color:#e0f2fe; padding:0.1rem 0.35rem; border-radius:0.25rem; margin-left:0.25rem; font-weight:bold;">공가</span>` : (employee ? `(남음: ${employee.remainingLeave}일)` : '');
 
       let actionButtons = '';
       if (req.status === 'pending') {
         actionButtons = `
           <div style="display: inline-flex; gap: 0.25rem;">
-            <button class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="approveLeave('${req.id}')">?뱀씤</button>
-            <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rejectLeave('${req.id}')">諛섎젮</button>
+            <button class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="approveLeave('${req.id}')">승인</button>
+            <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rejectLeave('${req.id}')">반려</button>
           </div>
         `;
       } else {
         actionButtons = `
           <div style="display: inline-flex; gap: 0.25rem; align-items: center;">
             <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 0.25rem;">-</span>
-            <button class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;" onclick="cancelApproval('${req.id}', 'leave')">寃곗옱痍⑥냼</button>
+            <button class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;" onclick="cancelApproval('${req.id}', 'leave')">결재취소</button>
           </div>
         `;
       }
@@ -3511,11 +3504,10 @@ function renderAdminDashboard() {
       }
       return emp && emp.hall === hallFilter && emp.role !== 'manager';
     });
-
   }
 
   if (relevantOtRequests.length === 0) {
-    otTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">?대떦 ?붿쓽 ?쒓컙???좎껌???녾굅???湲곗뿴??鍮꾩뼱?덉뒿?덈떎.</td></tr>`;
+    otTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">해당 월의 시간외 신청이 없거나 대기열이 비어있습니다.</td></tr>`;
   } else {
     const sortedOtRequests = [...relevantOtRequests].sort(sortFunc);
 
@@ -3523,39 +3515,40 @@ function renderAdminDashboard() {
       const tr = document.createElement('tr');
       
       let statusBadgeClass = 'badge-pending';
-      let statusText = '?湲곗쨷';
+      let statusText = '대기중';
       if (req.status === 'approved') {
         statusBadgeClass = 'badge-approved';
-        statusText = '?뱀씤??;
+        statusText = '승인됨';
       } else if (req.status === 'rejected') {
+
         statusBadgeClass = 'badge-rejected';
-        statusText = '諛섎젮??;
+        statusText = '반려됨';
       }
 
       const empWeekTotal = getWeeklyOvertimeTotal(req.employeeId, req.date, req.id);
-      const timeOfDayText = req.timeOfDay === 'morning' ? '?ㅼ쟾' : '?ㅽ썑';
+      const timeOfDayText = req.timeOfDay === 'morning' ? '오전' : '오후';
 
       let actionButtons = '';
       if (req.status === 'pending') {
         actionButtons = `
           <div style="display: inline-flex; gap: 0.25rem;">
-            <button class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="approveOvertime('${req.id}')">?뱀씤</button>
-            <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rejectOvertime('${req.id}')">諛섎젮</button>
+            <button class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="approveOvertime('${req.id}')">승인</button>
+            <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rejectOvertime('${req.id}')">반려</button>
           </div>
         `;
       } else {
         actionButtons = `
           <div style="display: inline-flex; gap: 0.25rem; align-items: center;">
             <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 0.25rem;">-</span>
-            <button class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;" onclick="cancelApproval('${req.id}', 'overtime')">寃곗옱痍⑥냼</button>
+            <button class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;" onclick="cancelApproval('${req.id}', 'overtime')">결재취소</button>
           </div>
         `;
       }
 
       tr.innerHTML = `
-        <td><strong>${req.employeeName}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(二쇨컙 ?꾩쟻: ${empWeekTotal}h)</span></td>
+        <td><strong>${req.employeeName}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(주간 누적: ${empWeekTotal}h)</span></td>
         <td>${req.date}</td>
-        <td><strong>[${timeOfDayText}] ${req.hours}?쒓컙</strong></td>
+        <td><strong>[${timeOfDayText}] ${req.hours}시간</strong></td>
         <td>${escapeHtml(req.reason)}</td>
         <td><span class="badge ${statusBadgeClass}" style="width:auto; height:auto; border-radius:0.375rem; padding:0.25rem 0.5rem; display:inline-flex;">${statusText}</span></td>
         <td>${actionButtons}</td>
@@ -3580,19 +3573,19 @@ function renderAdminEmployees() {
 
   relevantEmployees.forEach(emp => {
     const tr = document.createElement('tr');
-    const hallLabel = emp.hall === 'girincho' ? '湲곕┛珥? : '臾쇰큺??;
+    const hallLabel = emp.hall === 'girincho' ? '기린초' : '물봉선';
     
     tr.innerHTML = `
-      <td><span class="badge" style="background-color:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color); border-radius:0.375rem; width:auto; height:auto; padding:0.25rem 0.5rem; font-size:0.85rem; font-weight:600;">${hallLabel}?앺솢愿</span></td>
-      <td><strong>${emp.shiftGroup}議?/strong></td>
+      <td><span class="badge" style="background-color:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color); border-radius:0.375rem; width:auto; height:auto; padding:0.25rem 0.5rem; font-size:0.85rem; font-weight:600;">${hallLabel}생활관</span></td>
+      <td><strong>${emp.shiftGroup}조</strong></td>
       <td><strong>${emp.name}</strong></td>
-      <td><code>${emp.loginId || '誘몄뿰寃?}</code></td>
+      <td><code>${emp.loginId || '미연결'}</code></td>
       <td>${emp.joinYearMonth}</td>
-      <td>${emp.totalLeave}??/td>
-      <td><strong>${emp.remainingLeave}??/strong> <span style="font-size:0.75rem; color:var(--text-muted);">(?ъ슜: ${emp.usedLeave}??</span></td>
+      <td>${emp.totalLeave}일</td>
+      <td><strong>${emp.remainingLeave}일</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(사용: ${emp.usedLeave}일)</span></td>
       <td>
-        <button class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openEditEmployeeModal('${emp.id}')">?륅툘 ?뺣낫/?뚯냽 ?섏젙</button>
-        ${currentUser.hall === 'all' ? `<button class="btn btn-primary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${emp.id}')">?꾩씠??蹂寃?/button>` : ''}
+        <button class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openEditEmployeeModal('${emp.id}')">✏️ 정보/소속 수정</button>
+        ${currentUser.hall === 'all' ? `<button class="btn btn-primary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${emp.id}')">아이디 변경</button>` : ''}
       </td>
     `;
     tbody.appendChild(tr);
@@ -3607,7 +3600,7 @@ window.openEditEmployeeModal = function(employeeId) {
   document.getElementById('edit-emp-id').value = emp.id;
   document.getElementById('edit-emp-name').value = emp.name;
   document.getElementById('edit-emp-hall').value = emp.hall; // Load living hall
-  document.getElementById('edit-emp-login-id').value = emp.loginId || '誘몄뿰寃?;
+  document.getElementById('edit-emp-login-id').value = emp.loginId || '미연결';
   document.getElementById('edit-emp-join').value = emp.joinYearMonth;
   document.getElementById('edit-emp-total').value = emp.totalLeave;
   document.getElementById('edit-emp-group').value = emp.shiftGroup || 1;
@@ -3627,21 +3620,21 @@ function renderAdminManagers() {
 
   managers.forEach(mgr => {
     const tr = document.createElement('tr');
-    let roleLabel = '?꾩껜 愿由ъ옄 (媛쒕컻??';
-    if (mgr.hall === 'girincho') roleLabel = '湲곕┛珥덉깮?쒓? ???;
-    else if (mgr.hall === 'mulbongseon') roleLabel = '臾쇰큺?좎깮?쒓? ???;
+    let roleLabel = '전체 관리자 (개발자)';
+    if (mgr.hall === 'girincho') roleLabel = '기린초생활관 팀장';
+    else if (mgr.hall === 'mulbongseon') roleLabel = '물봉선생활관 팀장';
     
     tr.innerHTML = `
       <td><span class="badge" style="background-color:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color); border-radius:0.375rem; width:auto; height:auto; padding:0.25rem 0.5rem; font-size:0.85rem; font-weight:600;">${roleLabel}</span></td>
       <td><strong>${mgr.name}</strong></td>
-      <td><code>${mgr.loginId || mgr.username || '誘몄뿰寃?}</code></td>
-      <td><span class="badge" style="width:auto;height:auto;padding:0.2rem 0.45rem;">${mgr.loginId ? '?곌껐?? : '誘몄뿰寃?}</span></td>
+      <td><code>${mgr.loginId || mgr.username || '미연결'}</code></td>
+      <td><span class="badge" style="width:auto;height:auto;padding:0.2rem 0.45rem;">${mgr.loginId ? '연결됨' : '미연결'}</span></td>
       <td>
         ${currentUser.hall === 'all' ? `
-          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">?뺣낫 ?섏젙</button>
-          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${mgr.id}')">?꾩씠??蹂寃?/button>
-          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">沅뚰븳 ?묐룄</button>
-        ` : '<span style="color:var(--text-muted);font-size:0.75rem;">議고쉶留?媛??/span>'}
+          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
+          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${mgr.id}')">아이디 변경</button>
+          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
+        ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
     `;
     tbody.appendChild(tr);
@@ -3668,16 +3661,16 @@ window.openManagerTransferModal = function(managerId) {
   const mgr = employees.find(e => e.id === managerId && e.role === 'manager');
   if (!mgr) return;
   document.getElementById('transfer-manager-id').value = mgr.id;
-  document.getElementById('transfer-manager-current').textContent = `?꾩옱 ?대떦?? ${mgr.name} / 濡쒓렇??ID: ${mgr.loginId || mgr.username || '誘몄뿰寃?}`;
+  document.getElementById('transfer-manager-current').textContent = `현재 담당자: ${mgr.name} / 로그인 ID: ${mgr.loginId || mgr.username || '미연결'}`;
   document.getElementById('transfer-manager-overlay').classList.add('active');
 };
 
 window.openChangeLoginIdModal = function(employeeId) {
   if (!currentUser || currentUser.hall !== 'all') return;
   const employee = employees.find(e => e.id === employeeId);
-  if (!employee) return alert('?ъ슜???뺣낫瑜?李얠? 紐삵뻽?듬땲??');
+  if (!employee) return alert('사용자 정보를 찾지 못했습니다.');
   document.getElementById('change-login-employee-id').value = employee.id;
-  document.getElementById('change-login-current').textContent = `${employee.name} / ?꾩옱 ID: ${employee.loginId || '誘몄뿰寃?}`;
+  document.getElementById('change-login-current').textContent = `${employee.name} / 현재 ID: ${employee.loginId || '미연결'}`;
   document.getElementById('change-login-new-id').value = employee.loginId || '';
   document.getElementById('change-login-id-overlay').classList.add('active');
 };
@@ -3692,7 +3685,7 @@ window.approveLeave = async function(requestId) {
   if (!emp) return;
 
   if (emp.remainingLeave <= 0) {
-    alert('?대떦 吏곸썝? ?붿뿬 ?곌?媛 ?뚯쭊?섏뿀?듬땲??');
+    alert('해당 직원은 잔여 연가가 소진되었습니다.');
     return;
   }
 
@@ -3702,11 +3695,11 @@ window.approveLeave = async function(requestId) {
     recalculateEmployeeLeaveCounts();
     await saveEmployeeLeaveCounts(emp);
   } catch (error) {
-    alert('?곌? ?뱀씤???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+    alert('연가 승인에 실패했습니다: ' + (error.message || error));
     return;
   }
 
-  alert(`${emp.name} ?좎깮?섏쓽 ${req.date} ?곌?媛 ?뺤긽 ?뱀씤?섏뿀?듬땲?? 利먭굅???닿? ?섏꽭?? ?뙱`);
+  alert(`${emp.name} 선생님의 ${req.date} 연가가 정상 승인되었습니다. 즐거운 휴가 되세요! 🌴`);
   renderAdminDashboard();
   renderRoster();
 };
@@ -3723,11 +3716,11 @@ window.rejectLeave = async function(requestId) {
     const emp = employees.find(e => e.id === req.employeeId);
     if (emp) await saveEmployeeLeaveCounts(emp);
   } catch (error) {
-    alert('?곌? 諛섎젮???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+    alert('연가 반려에 실패했습니다: ' + (error.message || error));
     return;
   }
 
-  alert('?곌? ?좎껌??諛섎젮 泥섎━?섏뿀?듬땲??');
+  alert('연가 신청이 반려 처리되었습니다.');
   renderAdminDashboard();
   renderRoster();
 };
@@ -3743,30 +3736,29 @@ window.approveOvertime = async function(requestId) {
     const shift = calculateShift(employee, req.date);
     
     // Verify off day overtime rules
-    if (shift === '?대Т' || shift === '?? || shift === '?대Т(?湲?') {
+    if (shift === '휴무' || shift === '휴' || shift === '휴무(대기)') {
       const { startStr, endStr } = getWeekRange(req.date);
       const hasLeaveInWeek = leaveRequests.some(r => r && r.employeeId === req.employeeId && r.date >= startStr && r.date <= endStr && r.status !== 'rejected');
       if (hasLeaveInWeek) {
-        alert('?대쾲 二쇱뿉 ?대떦 吏곸썝???곌? ?좎껌 ?댁뿭???덉뼱 ?대Т?쇱뿉 ?쒓컙??洹쇰Т瑜??뱀씤?????놁뒿?덈떎.');
+        alert('이번 주에 해당 직원의 연가 신청 내역이 있어 휴무일에 시간외 근무를 승인할 수 없습니다.');
         return;
       }
     }
 
-    const baseOt = (shift === '?뱀쭅') ? 3 : (shift === '?쇨컙' ? 4 : 0);
+    const baseOt = (shift === '당직') ? 3 : (shift === '야간' ? 4 : 0);
     const approvedOtReq = overtimeRequests.filter(r => r.employeeId === req.employeeId && r.date === req.date && r.status === 'approved' && r.id !== req.id);
     const approvedOtHours = approvedOtReq.reduce((sum, r) => sum + parseInt(r.hours), 0);
     
     if (baseOt + approvedOtHours + req.hours > 4) {
-      alert(`?대떦 吏곸썝???뱀씪 ?쒓컙??洹쇰Т ?섎떦 ?쒕룄(4?쒓컙)瑜?珥덇낵?섏뿬 ?뱀씤?????놁뒿?덈떎. (諛곗젙???쒓컙?? ${baseOt + approvedOtHours}?쒓컙, ?뱀씤?붿껌: ${req.hours}?쒓컙)`);
+      alert(`해당 직원의 당일 시간외 근무 수당 한도(4시간)를 초과하여 승인할 수 없습니다. (배정된 시간외: ${baseOt + approvedOtHours}시간, 승인요청: ${req.hours}시간)`);
       return;
     }
   }
 
-
   // Verify weekly limit before approval
   const currentWeeklyTotalWithoutThis = getWeeklyOvertimeTotal(req.employeeId, req.date, req.id);
   if (currentWeeklyTotalWithoutThis + req.hours > 12) {
-    alert(`?대떦 吏곸썝???대떦 二쇨컙 ?쒓컙??洹쇰Т媛 ?쒕룄(12?쒓컙)瑜?珥덇낵?섏뿬 ?뱀씤?????놁뒿?덈떎. (?꾩옱 二쇨컙 ?꾩쟻: ${currentWeeklyTotalWithoutThis}?쒓컙, ?뱀씤 ?붿껌: ${req.hours}?쒓컙)`);
+    alert(`해당 직원의 해당 주간 시간외 근무가 한도(12시간)를 초과하여 승인할 수 없습니다. (현재 주간 누적: ${currentWeeklyTotalWithoutThis}시간, 승인 요청: ${req.hours}시간)`);
     return;
   }
 
@@ -3776,19 +3768,20 @@ window.approveOvertime = async function(requestId) {
   const rMonth = reqDate.getMonth();
   const currentMonthlyTotalWithoutThis = getMonthlyOvertimeTotal(req.employeeId, rYear, rMonth, req.id);
   if (currentMonthlyTotalWithoutThis + req.hours > 40) {
-    alert(`?대떦 吏곸썝???대떦 ?붽컙 ?쒓컙??洹쇰Т媛 ?쒕룄(40?쒓컙)瑜?珥덇낵?섏뿬 ?뱀씤?????놁뒿?덈떎. (?꾩옱 ?붽컙 ?꾩쟻: ${currentMonthlyTotalWithoutThis}?쒓컙, ?뱀씤 ?붿껌: ${req.hours}?쒓컙)`);
+    alert(`해당 직원의 해당 월간 시간외 근무가 한도(40시간)를 초과하여 승인할 수 없습니다. (현재 월간 누적: ${currentMonthlyTotalWithoutThis}시간, 승인 요청: ${req.hours}시간)`);
     return;
   }
+
 
   try {
     await updateRequestStatus('overtime_requests', requestId, 'approved');
     req.status = 'approved';
   } catch (error) {
-    alert('?쒓컙???뱀씤???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+    alert('시간외 승인에 실패했습니다: ' + (error.message || error));
     return;
   }
 
-  alert(`${req.employeeName} ?좎깮?섏쓽 ${req.date} ?쒓컙??洹쇰Т(${req.hours}?쒓컙)媛 ?뱀씤?섏뿀?듬땲??`);
+  alert(`${req.employeeName} 선생님의 ${req.date} 시간외 근무(${req.hours}시간)가 승인되었습니다.`);
   renderAdminDashboard();
   renderRoster();
 };
@@ -3802,11 +3795,11 @@ window.rejectOvertime = async function(requestId) {
     await updateRequestStatus('overtime_requests', requestId, 'rejected');
     req.status = 'rejected';
   } catch (error) {
-    alert('?쒓컙??諛섎젮???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+    alert('시간외 반려에 실패했습니다: ' + (error.message || error));
     return;
   }
 
-  alert('?쒓컙??洹쇰Т ?좎껌??諛섎젮 泥섎━?섏뿀?듬땲??');
+  alert('시간외 근무 신청이 반려 처리되었습니다.');
   renderAdminDashboard();
   renderRoster();
 };
@@ -3814,7 +3807,7 @@ window.rejectOvertime = async function(requestId) {
 // Revert/Cancel Approval handler
 window.cancelApproval = async function(requestId, type) {
   if (!currentUser || !isUserAdmin()) return;
-  if (!confirm('???좎껌 嫄댁쓽 寃곗옱 泥섎━瑜?痍⑥냼?섍퀬 ?ㅼ떆 ?湲??곹깭濡??섎룎由ъ떆寃좎뒿?덇퉴?')) return;
+  if (!confirm('이 신청 건의 결재 처리를 취소하고 다시 대기 상태로 되돌리시겠습니까?')) return;
 
   if (type === 'leave') {
     const req = leaveRequests.find(r => r.id === requestId);
@@ -3826,10 +3819,10 @@ window.cancelApproval = async function(requestId, type) {
         const emp = employees.find(e => e.id === req.employeeId);
         if (emp) await saveEmployeeLeaveCounts(emp);
       } catch (error) {
-        alert('寃곗옱 痍⑥냼???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+        alert('결재 취소에 실패했습니다: ' + (error.message || error));
         return;
       }
-      alert('?곌? 寃곗옱 泥섎━媛 痍⑥냼?섏뼱 ?湲??곹깭濡?蹂寃쎈릺?덉뒿?덈떎.');
+      alert('연가 결재 처리가 취소되어 대기 상태로 변경되었습니다.');
     }
   } else {
     const req = overtimeRequests.find(r => r.id === requestId);
@@ -3838,10 +3831,10 @@ window.cancelApproval = async function(requestId, type) {
         await updateRequestStatus('overtime_requests', requestId, 'pending');
         req.status = 'pending';
       } catch (error) {
-        alert('寃곗옱 痍⑥냼???ㅽ뙣?덉뒿?덈떎: ' + (error.message || error));
+        alert('결재 취소에 실패했습니다: ' + (error.message || error));
         return;
       }
-      alert('?쒓컙??寃곗옱 泥섎━媛 痍⑥냼?섏뼱 ?湲??곹깭濡?蹂寃쎈릺?덉뒿?덈떎.');
+      alert('시간외 결재 처리가 취소되어 대기 상태로 변경되었습니다.');
     }
   }
 
@@ -3855,12 +3848,12 @@ window.cancelApproval = async function(requestId, type) {
 // Revert/Cancel My own Request handler (for regular staff)
 window.cancelMyRequest = async function(requestId, type) {
   if (!currentUser) return;
-  if (!confirm('???좎껌 ?댁뿭??痍⑥냼/泥좏쉶?섏떆寃좎뒿?덇퉴?')) return;
+  if (!confirm('이 신청 내역을 취소/철회하시겠습니까?')) return;
 
   try {
     await deleteOwnRequest(type === 'leave' ? 'leave_requests' : 'overtime_requests', requestId);
   } catch (error) {
-    alert('?좎껌??痍⑥냼?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+    alert('신청을 취소하지 못했습니다: ' + (error.message || error));
     return;
   }
 
@@ -3873,17 +3866,17 @@ window.cancelMyRequest = async function(requestId, type) {
 
   renderMyPage();
   renderRoster();
-  alert('?좎껌??痍⑥냼?섏뿀?듬땲??');
+  alert('신청이 취소되었습니다.');
 };
 
 // Direct cancellation via calendar date click modal
 window.cancelMyRequestDirectly = async function(requestId, type) {
-  if (!confirm('?뺣쭚濡????湲?以묒씤 ?좎껌??痍⑥냼?섏떆寃좎뒿?덇퉴?')) return;
+  if (!confirm('정말로 이 대기 중인 신청을 취소하시겠습니까?')) return;
   
   try {
     await deleteOwnRequest(type === 'leave' ? 'leave_requests' : 'overtime_requests', requestId);
   } catch (error) {
-    alert('?좎껌??痍⑥냼?섏? 紐삵뻽?듬땲?? ' + (error.message || error));
+    alert('신청을 취소하지 못했습니다: ' + (error.message || error));
     return;
   }
 
@@ -3899,7 +3892,7 @@ window.cancelMyRequestDirectly = async function(requestId, type) {
   
   renderMyPage();
   renderRoster();
-  alert('?湲?以묒씤 ?좎껌???깃났?곸쑝濡?痍⑥냼?섏뿀?듬땲??');
+  alert('대기 중인 신청이 성공적으로 취소되었습니다.');
 };
 
 // Helper: Escape HTML strings to prevent XSS
@@ -3988,7 +3981,7 @@ window.saveRosterAsImage = function() {
   
   const container = document.getElementById('master-print-layout');
   if (!container) {
-    alert('?몄뇙 ?묒떇??李얠쓣 ???놁뒿?덈떎.');
+    alert('인쇄 양식을 찾을 수 없습니다.');
     return;
   }
   
@@ -4013,7 +4006,6 @@ window.saveRosterAsImage = function() {
   container.style.backgroundColor = '#ffffff'; // White background
   
   // Use html2canvas after a short delay to allow browser repaint/reflow
-
   setTimeout(() => {
     html2canvas(container, {
       scale: 2, // High resolution scale
@@ -4030,17 +4022,18 @@ window.saveRosterAsImage = function() {
       container.style.visibility = originalVisibility;
       container.style.width = originalWidth;
       container.style.padding = originalPadding;
+
       container.classList.add('print-only'); // Restore class
       
       // Download PNG securely by appending temporary link to DOM
       const link = document.createElement('a');
-      link.download = `洹쇰Т怨꾪쉷_${currentYear}??${currentMonth + 1}??png`;
+      link.download = `근무계획_${currentYear}년_${currentMonth + 1}월.png`;
       link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      alert('?대?吏 ??μ씠 ?꾨즺?섏뿀?듬땲??');
+      alert('이미지 저장이 완료되었습니다.');
     }).catch(err => {
       // Restore styling in case of error
       container.style.display = originalDisplay;
@@ -4053,7 +4046,7 @@ window.saveRosterAsImage = function() {
       container.style.padding = originalPadding;
       container.classList.add('print-only'); // Restore class
       console.error(err);
-      alert('?대?吏 ???以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: ' + err.message);
+      alert('이미지 저장 중 오류가 발생했습니다: ' + err.message);
     });
   }, 100);
 };
@@ -4067,30 +4060,31 @@ function editMyRequest(id, type) {
     const req = leaveRequests.find(r => r.id === id);
     if (!req) return;
     
-    if (req.leaveType === '?곌?') {
-      // Switch tab to ?곌?
+    if (req.leaveType === '연가') {
+      // Switch tab to 연가
       const tab = document.getElementById('tab-staff-leave');
       if (tab) tab.click();
       const input = document.getElementById('staff-leave-reason');
       if (input) input.value = req.reason;
       
       const submitBtn = document.querySelector('#staff-leave-form button[type="submit"]');
-      if (submitBtn) submitBtn.textContent = '?곌? ?섏젙 ?꾨즺';
+      if (submitBtn) submitBtn.textContent = '연가 수정 완료';
     } else {
-      // Switch tab to 怨듦?
+      // Switch tab to 공가
       const tab = document.getElementById('tab-staff-official-leave');
       if (tab) tab.click();
       const input = document.getElementById('staff-official-leave-reason');
       if (input) input.value = req.reason;
       
       const submitBtn = document.querySelector('#staff-official-leave-form button[type="submit"]');
-      if (submitBtn) submitBtn.textContent = '怨듦? ?섏젙 ?꾨즺';
+      if (submitBtn) submitBtn.textContent = '공가 수정 완료';
     }
   } else if (type === 'overtime') {
     const req = overtimeRequests.find(r => r.id === id);
     if (!req) return;
     
-    // Switch tab to ?쒓컙??    const tab = document.getElementById('tab-staff-ot');
+    // Switch tab to 시간외
+    const tab = document.getElementById('tab-staff-ot');
     if (tab) tab.click();
     const timeSel = document.getElementById('staff-ot-time-of-day');
     if (timeSel) timeSel.value = req.timeOfDay;
@@ -4100,7 +4094,7 @@ function editMyRequest(id, type) {
     if (input) input.value = req.reason;
     
     const submitBtn = document.querySelector('#staff-ot-form button[type="submit"]');
-    if (submitBtn) submitBtn.textContent = '?쒓컙???섏젙 ?꾨즺';
+    if (submitBtn) submitBtn.textContent = '시간외 수정 완료';
   }
 }
 window.editMyRequest = editMyRequest;
@@ -4131,7 +4125,7 @@ function renderAdminNoticeList() {
   
   listEl.innerHTML = '';
   if (globalNotices.length === 0) {
-    listEl.innerHTML = '<li style="color: var(--text-muted); padding: 0.5rem 0;">?깅줉??怨듭??ы빆???놁뒿?덈떎.</li>';
+    listEl.innerHTML = '<li style="color: var(--text-muted); padding: 0.5rem 0;">등록된 공지사항이 없습니다.</li>';
     return;
   }
   
@@ -4149,7 +4143,7 @@ function renderAdminNoticeList() {
     
     li.innerHTML = `
       <span style="flex: 1; word-break: break-all; font-size: 0.85rem; line-height: 1.4;">${idx + 1}. ${escapeHtml(notice)}</span>
-      <button class="btn btn-secondary btn-sm" onclick="deleteNotice(${idx})" style="padding: 0.25rem 0.5rem; font-size: 0.725rem; font-weight: bold; background-color: #ef4444; border-color: #ef4444; color: #fff; cursor: pointer;" type="button">??젣</button>
+      <button class="btn btn-secondary btn-sm" onclick="deleteNotice(${idx})" style="padding: 0.25rem 0.5rem; font-size: 0.725rem; font-weight: bold; background-color: #ef4444; border-color: #ef4444; color: #fff; cursor: pointer;" type="button">삭제</button>
     `;
     listEl.appendChild(li);
   });
@@ -4163,19 +4157,19 @@ window.addNotice = function() {
   
   const val = input.value.trim();
   if (val === '') {
-    alert('怨듭? ?댁슜???낅젰??二쇱꽭??');
+    alert('공지 내용을 입력해 주세요.');
     return;
   }
   
   if (globalNotices.length >= 5) {
-    alert('怨듭??ы빆? 理쒕? 5媛쒓퉴吏留??깅줉?????덉뒿?덈떎. 湲곗〈 怨듭?瑜???젣?섍퀬 異붽???二쇱꽭??');
+    alert('공지사항은 최대 5개까지만 등록할 수 있습니다. 기존 공지를 삭제하고 추가해 주세요.');
     return;
   }
   
   globalNotices.push(val);
   input.value = '';
   saveState();
-  alert('怨듭??ы빆??異붽??섏뿀?듬땲??');
+  alert('공지사항이 추가되었습니다.');
 };
 
 // Admin action to delete notice
@@ -4183,41 +4177,41 @@ window.deleteNotice = function(index) {
   if (!isUserAdmin()) return;
   globalNotices.splice(index, 1);
   saveState();
-  alert('怨듭??ы빆????젣?섏뿀?듬땲??');
+  alert('공지사항이 삭제되었습니다.');
 };
 
-// Determine shift display badge class and single-character label (supporting full-day & partial ???
+// Determine shift display badge class and single-character label (supporting full-day & partial 대휴)
 function getShiftBadgeAndLabel(shift) {
   let badgeClass = 'badge-off';
-  let displayLabel = '??;
+  let displayLabel = '휴';
   
-  if (shift === '二쇨컙') {
+  if (shift === '주간') {
     badgeClass = 'badge-day';
-    displayLabel = '二?;
-  } else if (shift === '?뱀쭅') {
+    displayLabel = '주';
+  } else if (shift === '당직') {
     badgeClass = 'badge-duty';
-    displayLabel = '??;
-  } else if (shift === '?쇨컙') {
+    displayLabel = '당';
+  } else if (shift === '야간') {
     badgeClass = 'badge-night';
-    displayLabel = '??;
-  } else if (shift === '?곌?') {
+    displayLabel = '야';
+  } else if (shift === '연가') {
     badgeClass = 'badge-leave';
-    displayLabel = '??;
-  } else if (shift === '?곌?(?湲?') {
+    displayLabel = '연';
+  } else if (shift === '연가(대기)') {
     badgeClass = 'badge-pending-leave';
-    displayLabel = '?';
-  } else if (shift === '蹂댁긽?닿?') {
+    displayLabel = '대';
+  } else if (shift === '보상휴가') {
     badgeClass = 'badge-leave';
-    displayLabel = '蹂댁긽';
-  } else if (shift === '怨듦?') {
+    displayLabel = '보상';
+  } else if (shift === '공가') {
     badgeClass = 'badge-official-leave';
-    displayLabel = '怨?;
-  } else if (shift === '怨듦?(?湲?') {
+    displayLabel = '공';
+  } else if (shift === '공가(대기)') {
     badgeClass = 'badge-pending-leave';
-    displayLabel = '怨?;
-  } else if (shift && shift.startsWith('蹂댁긽?닿? (')) {
+    displayLabel = '공';
+  } else if (shift && shift.startsWith('보상휴가 (')) {
     badgeClass = 'badge-day';
-    displayLabel = '二?;
+    displayLabel = '주';
   }
   
   return { badgeClass, displayLabel };
@@ -4236,13 +4230,13 @@ window.exportData = function() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.download = `?ы븯?섏쭛_洹쇰Т?곗씠??諛깆뾽_${new Date().toISOString().split('T')[0]}.json`;
+  link.download = `사하의집_근무데이터_백업_${new Date().toISOString().split('T')[0]}.json`;
   link.href = url;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-  alert('?곗씠??諛깆뾽 ?뚯씪???ㅼ슫濡쒕뱶?섏뿀?듬땲??');
+  alert('데이터 백업 파일이 다운로드되었습니다.');
 };
 
 // Trigger hidden file input click
@@ -4264,22 +4258,22 @@ window.importData = function(event) {
         employees = data.employees;
         leaveRequests = data.leaveRequests;
         overtimeRequests = data.overtimeRequests;
-
         shiftModifications = data.shiftModifications;
         if (data.globalNotices) {
           globalNotices = data.globalNotices;
         }
         
         saveState();
-        alert('?곗씠??蹂듭썝???깃났?곸쑝濡??꾨즺?섏뿀?듬땲?? 蹂寃??ы빆??洹쇰Т?쒖뿉 ?곸슜?⑸땲??');
+        alert('데이터 복원이 성공적으로 완료되었습니다! 변경 사항이 근무표에 적용됩니다.');
         syncDateAndRender();
       } else {
-        alert('?щ컮瑜?諛깆뾽 ?뚯씪 ?뺤떇???꾨떃?덈떎. ?뚯씪 ?댁슜???뺤씤??二쇱꽭??');
+        alert('올바른 백업 파일 형식이 아닙니다. 파일 내용을 확인해 주세요.');
       }
     } catch (err) {
-      alert('?뚯씪???쎈뒗 ?꾩쨷 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎: ' + err.message);
+      alert('파일을 읽는 도중 오류가 발생했습니다: ' + err.message);
     }
   };
+
   reader.readAsText(file);
   event.target.value = ''; // Reset input selection
 };
@@ -4295,7 +4289,7 @@ function renderSpecialLeaveEmployeeSelect() {
   targetList.forEach(emp => {
     const opt = document.createElement('option');
     opt.value = emp.id;
-    const roleLabel = emp.role === 'manager' ? '??? : (emp.hall === 'girincho' ? '湲곕┛珥? : '臾쇰큺??);
+    const roleLabel = emp.role === 'manager' ? '팀장' : (emp.hall === 'girincho' ? '기린초' : '물봉선');
     opt.textContent = `${emp.name} (${roleLabel})`;
     select.appendChild(opt);
   });
@@ -4307,8 +4301,8 @@ function renderSpecialLeaveList() {
   if (!tbody) return;
   
   tbody.innerHTML = '';
-  // Filter special leaves (蹂묎?, ?덉떇??
-  const list = leaveRequests.filter(req => req && (req.leaveType === '蹂묎?' || req.leaveType === '?덉떇??));
+  // Filter special leaves (병가, 안식년)
+  const list = leaveRequests.filter(req => req && (req.leaveType === '병가' || req.leaveType === '안식년'));
   
   // Group by groupId
   const groups = {};
@@ -4341,7 +4335,7 @@ function renderSpecialLeaveList() {
   groupList.sort((a, b) => b.startDate.localeCompare(a.startDate));
   
   if (groupList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="padding: 0.75rem; text-align: center; color: var(--text-muted);">?깅줉???뱀닔 ?닿?(蹂묎?/?덉떇?? ?댁뿭???놁뒿?덈떎.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="padding: 0.75rem; text-align: center; color: var(--text-muted);">등록된 특수 휴가(병가/안식년) 내역이 없습니다.</td></tr>`;
     return;
   }
   
@@ -4349,21 +4343,21 @@ function renderSpecialLeaveList() {
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid var(--border-color)';
     
-    const isSick = group.leaveType === '蹂묎?';
+    const isSick = group.leaveType === '병가';
     const badgeHtml = isSick 
-      ? `<span class="badge badge-sick" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">?룯 蹂묎?</span>`
-      : `<span class="badge badge-sabbatical" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">?덌툘 ?덉떇??/span>`;
+      ? `<span class="badge badge-sick" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">🏥 병가</span>`
+      : `<span class="badge badge-sabbatical" style="width: auto; height: auto; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">✈️ 안식년</span>`;
       
     const dateRangeText = group.startDate === group.endDate 
       ? group.startDate 
-      : `${group.startDate} ~ ${group.endDate} (${group.dateCount}?쇨컙)`;
+      : `${group.startDate} ~ ${group.endDate} (${group.dateCount}일간)`;
       
     tr.innerHTML = `
       <td style="padding: 0.5rem 0.75rem; font-weight: 500;">${group.employeeName}</td>
       <td style="padding: 0.5rem 0.75rem;">${badgeHtml}</td>
       <td style="padding: 0.5rem 0.75rem; color: var(--text-main); font-family: monospace;">${dateRangeText}</td>
       <td style="padding: 0.5rem 0.75rem; text-align: right; padding-right: 1.5rem;">
-        <button class="btn btn-secondary btn-sm" onclick="deleteSpecialLeave('${group.id}')" style="background-color: #ef4444; border-color: #ef4444; color: #fff; padding: 2px 8px; font-size: 0.725rem; font-weight: bold; cursor: pointer;" type="button">??젣</button>
+        <button class="btn btn-secondary btn-sm" onclick="deleteSpecialLeave('${group.id}')" style="background-color: #ef4444; border-color: #ef4444; color: #fff; padding: 2px 8px; font-size: 0.725rem; font-weight: bold; cursor: pointer;" type="button">삭제</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -4399,15 +4393,15 @@ window.addSpecialLeave = function() {
   const endVal = document.getElementById('special-leave-end').value;
   
   if (!empId) {
-    alert('???吏곸썝???좏깮??二쇱꽭??');
+    alert('대상 직원을 선택해 주세요.');
     return;
   }
   if (!startVal || !endVal) {
-    alert('?쒖옉?쇨낵 醫낅즺?쇱쓣 ?낅젰??二쇱꽭??');
+    alert('시작일과 종료일을 입력해 주세요.');
     return;
   }
   if (startVal > endVal) {
-    alert('?쒖옉?쇱? 醫낅즺?쇰낫???댁쟾 ?좎쭨?ъ빞 ?⑸땲??');
+    alert('시작일은 종료일보다 이전 날짜여야 합니다.');
     return;
   }
   
@@ -4418,7 +4412,7 @@ window.addSpecialLeave = function() {
   if (dates.length === 0) return;
   
   // Confirm action
-  if (!confirm(`${employee.name} ?좎깮?섏쓽 ${startVal} ~ ${endVal} (${dates.length}?쇨컙) 湲곌컙?????[${typeVal}]???깅줉?섏떆寃좎뒿?덇퉴?`)) {
+  if (!confirm(`${employee.name} 선생님의 ${startVal} ~ ${endVal} (${dates.length}일간) 기간에 대해 [${typeVal}]을 등록하시겠습니까?`)) {
     return;
   }
   
@@ -4438,7 +4432,7 @@ window.addSpecialLeave = function() {
       hall: employee.hall,
       date: dStr,
       leaveType: typeVal,
-      reason: `${typeVal} ?ㅼ젙`,
+      reason: `${typeVal} 설정`,
       status: 'approved'
     };
     leaveRequests.push(newReq);
@@ -4451,7 +4445,7 @@ window.addSpecialLeave = function() {
   // Reset date fields
   document.getElementById('special-leave-start').value = '';
   document.getElementById('special-leave-end').value = '';
-  alert(`${employee.name} ?좎깮?섏쓽 [${typeVal}] ?깅줉???꾨즺?섏뿀?듬땲??`);
+  alert(`${employee.name} 선생님의 [${typeVal}] 등록이 완료되었습니다.`);
 };
 
 // Delete special leave action
@@ -4461,7 +4455,7 @@ window.deleteSpecialLeave = function(groupId) {
   const sample = leaveRequests.find(r => r.groupId === groupId || r.id === groupId);
   if (!sample) return;
   
-  if (!confirm(`${sample.employeeName} ?좎깮?섏쓽 ?깅줉???밸퀎 ?닿?(蹂묎?/?덉떇?? 湲곌컙???쇨큵 ??젣(痍⑥냼)?섏떆寃좎뒿?덇퉴?`)) {
+  if (!confirm(`${sample.employeeName} 선생님의 등록된 특별 휴가(병가/안식년) 기간을 일괄 삭제(취소)하시겠습니까?`)) {
     return;
   }
   
@@ -4469,5 +4463,5 @@ window.deleteSpecialLeave = function(groupId) {
   saveState();
   renderRoster();
   renderSpecialLeaveList();
-  alert('??젣?섏뿀?듬땲??');
+  alert('삭제되었습니다.');
 };
