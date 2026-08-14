@@ -1164,4 +1164,150 @@ tr.my-roster-row td {
   body.staff-mobile-mode[data-mobile-screen="request"] #mobile-request-section {
     display: block !important;
   }
+
+  /* Phone layout: keep each bottom-tab screen completely separate. */
+  body.staff-mobile-mode[data-mobile-screen="mine"] #screen-main > section.card:first-child,
+  body.staff-mobile-mode[data-mobile-screen="request"] #screen-main > section.card:first-child {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode[data-mobile-screen="all"] #screen-main > section.card:first-child {
+    display: block !important;
+  }
+
+  body.staff-mobile-mode header {
+    position: sticky !important;
+    padding: 0.65rem 0.9rem !important;
+    gap: 0.65rem !important;
+    flex-wrap: nowrap !important;
+  }
+
+  body.staff-mobile-mode header > div:first-child {
+    flex: 0 1 auto !important;
+    min-width: 0;
+  }
+
+  body.staff-mobile-mode .logo-section {
+    gap: 0.55rem;
+    flex-wrap: nowrap !important;
+  }
+
+  body.staff-mobile-mode .logo-icon {
+    width: 2.15rem;
+    height: 2.15rem;
+    flex: 0 0 2.15rem;
+    font-size: 1rem;
+  }
+
+  body.staff-mobile-mode .logo-text h1 {
+    font-size: 0.95rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  body.staff-mobile-mode .logo-text p {
+    display: none;
+  }
+
+  body.staff-mobile-mode .nav-actions {
+    flex: 0 0 auto;
+    gap: 0.35rem !important;
+  }
+
+  body.staff-mobile-mode #header-user-info {
+    padding: 0.3rem 0.45rem !important;
+    gap: 0.3rem !important;
+    white-space: nowrap;
+  }
+
+  body.staff-mobile-mode #header-avatar-initial,
+  body.staff-mobile-mode #header-role-text,
+  body.staff-mobile-mode #header-role-text + span {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode #btn-logout {
+    margin-left: 0.15rem !important;
+  }
+
+  body.staff-mobile-mode #screen-main {
+    width: 100%;
+    padding: 0.85rem !important;
+    overflow-x: hidden;
+  }
+
+  body.staff-mobile-mode .card {
+    border-radius: 0.9rem;
+  }
+
+  body.staff-mobile-mode #mypage-section > .card-title {
+    display: none;
+  }
+
+  body.staff-mobile-mode .mypage-grid {
+    gap: 1rem;
+  }
+
+  body.staff-mobile-mode .stats-card-group {
+    gap: 0.4rem;
+  }
+
+  body.staff-mobile-mode .stat-card {
+    padding: 0.6rem 0.3rem;
+  }
+
+  body.staff-mobile-mode .mini-calendar {
+    max-width: none;
+    width: 100%;
+  }
+
+  body.staff-mobile-mode .mini-cal-day {
+    height: 44px !important;
+  }
+
+  body.staff-mobile-mode .mobile-request-history-wrap,
+  body.staff-mobile-mode .roster-table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.staff-mobile-mode .leave-requests-table {
+    min-width: 560px;
+  }
+
+  body.staff-mobile-mode .schedule-card {
+    padding: 1rem;
+    margin-bottom: 5.5rem !important;
+  }
+
+  body.staff-mobile-mode .schedule-card .card-title {
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+
+  body.staff-mobile-mode .calendar-controls,
+  body.staff-mobile-mode .calendar-title-group {
+    gap: 0.55rem !important;
+  }
+
+  body.staff-mobile-mode #stats-dashboard-container {
+    width: 100%;
+    align-items: flex-start !important;
+  }
+
+  body.staff-mobile-mode .calendar-legend {
+    font-size: 0.72rem;
+  }
+
+  .mobile-bottom-nav {
+    gap: 0 !important;
+    padding-top: 0.35rem;
+  }
+
+  .mobile-bottom-nav-btn {
+    min-width: 0;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.15rem;
+  }
 }
