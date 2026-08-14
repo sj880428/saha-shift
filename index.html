@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="?ы쉶蹂듭? 嫄곗＜?쒖꽕 ?앺솢吏?꾩썝???쒗솚 洹쇰Т??諛??곌? 愿由?????>
+  <meta name="description" content="사회복지 거주시설 생활지도원용 순환 근무표 및 연가 관리 웹 앱">
   <meta name="theme-color" content="#13795b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="app-icon.svg" type="image/svg+xml">
-  <title>?ы븯?섏쭛 洹쇰Т怨꾪쉷 - ?곌? 諛??쒓컙??愿由?/title>
+  <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
   <link rel="stylesheet" href="styles.css?v=20260814_4">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -20,44 +20,44 @@
   <header style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 0.75rem 1.5rem;">
     <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; flex: 1;">
       <div class="logo-section">
-        <div class="logo-icon">??/div>
+        <div class="logo-icon">사</div>
         <div class="logo-text">
-          <h1>?ы븯?섏쭛 洹쇰Т怨꾪쉷</h1>
-          <p>?ы븯?섏쭛 ?곌? 諛??쒓컙??愿由??쒖뒪??/p>
+          <h1>사하의집 근무계획</h1>
+          <p>사하의집 연가 및 시간외 관리 시스템</p>
         </div>
       </div>
     </div>
     
     <div class="nav-actions" style="display: flex; align-items: center; gap: 1rem;">
       <!-- Dark/Light Theme Toggle -->
-      <button id="theme-toggle" class="btn-icon" title="?뚮쭏 蹂寃? style="display: none;">?뙔 ?ㅽ겕 紐⑤뱶</button>
+      <button id="theme-toggle" class="btn-icon" title="테마 변경" style="display: none;">🌙 다크 모드</button>
       
       <!-- User Profile (Inline next to Login/Logout) -->
       <div id="header-user-info" style="display: none; align-items: center; gap: 0.5rem; background-color: var(--bg-color); padding: 0.35rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color); font-size: 0.8rem;">
-        <div class="user-avatar" id="header-avatar-initial" style="width: 28px; height: 28px; font-size: 0.85rem; background-color: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">源</div>
+        <div class="user-avatar" id="header-avatar-initial" style="width: 28px; height: 28px; font-size: 0.85rem; background-color: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">김</div>
         <div style="display: inline-flex; align-items: center; gap: 0.25rem;">
-          <strong id="header-username-text" style="color: var(--text-main);">源湲곕┛</strong>
-          <span style="color: var(--text-muted); font-size: 0.75rem;">(<span id="header-role-text">湲곕┛珥덉깮?쒓?</span>)</span>
+          <strong id="header-username-text" style="color: var(--text-main);">김기린</strong>
+          <span style="color: var(--text-muted); font-size: 0.75rem;">(<span id="header-role-text">기린초생활관</span>)</span>
         </div>
-        <button id="btn-change-password" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">鍮꾨?踰덊샇</button>
-        <button id="btn-logout" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">濡쒓렇?꾩썐</button>
+        <button id="btn-change-password" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">비밀번호</button>
+        <button id="btn-logout" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">로그아웃</button>
       </div>
 
       <!-- Login Trigger Button (Visible when logged out) -->
-      <button id="btn-login-trigger" class="btn btn-primary">?뵎 濡쒓렇??/button>
+      <button id="btn-login-trigger" class="btn btn-primary">🔑 로그인</button>
     </div>
   </header>
 
   <!-- Global Notice banner (Below Header) -->
   <div id="global-notice-banner" class="global-notice-banner no-print" style="display: none; align-items: center; gap: 0.5rem; background-color: #fff9db; border-left: 4px solid #fab005; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; max-width: 1200px; width: calc(100% - 3rem); margin: 1rem auto 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
-    <span style="font-weight: 700; color: #b28600; white-space: nowrap;">?뱼 怨듭?:</span>
+    <span style="font-weight: 700; color: #b28600; white-space: nowrap;">📢 공지:</span>
     <span id="global-notice-text" style="color: #2b2b2b; font-weight: 500; line-height: 1.4;"></span>
   </div>
 
   <section id="guest-welcome" class="card" style="max-width:520px;margin:4rem auto;padding:2rem 1.5rem;text-align:center;">
-    <div style="font-size:2.5rem;margin-bottom:0.75rem;">?뱟</div>
-    <h2 style="margin:0 0 0.75rem;">?ы븯?섏쭛 洹쇰Т??/h2>
-    <p style="margin:0;color:var(--text-muted);line-height:1.7;">濡쒓렇?명븯硫???????洹쇰Т?쒖? ?꾩껜 洹쇰Т?쒕? ?뺤씤?섍퀬<br>?곌?쨌怨듦?쨌?쒓컙??洹쇰Т瑜??좎껌?????덉뒿?덈떎.</p>
+    <div style="font-size:2.5rem;margin-bottom:0.75rem;">📅</div>
+    <h2 style="margin:0 0 0.75rem;">사하의집 근무표</h2>
+    <p style="margin:0;color:var(--text-muted);line-height:1.7;">로그인하면 내 한 달 근무표와 전체 근무표를 확인하고<br>연가·공가·시간외 근무를 신청할 수 있습니다.</p>
   </section>
 
   <!-- Main Container -->
@@ -68,44 +68,47 @@
     <section class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
       <div class="calendar-controls" style="margin-bottom: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
         <div class="calendar-title-group" style="margin-bottom: 0; display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <button id="prev-month-btn" class="btn btn-secondary">&lt; ?댁쟾??/button>
+          <button id="prev-month-btn" class="btn btn-secondary">&lt; 이전달</button>
           <span id="current-month-label" class="current-month-label" style="font-size: 1.35rem; display: inline-flex; align-items: center; gap: 0.25rem;">
-            <select id="select-year" style="font-size: 1.1rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;"></select>??            <select id="select-month" style="font-size: 1.1rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;"></select>??          </span>
-          <button id="next-month-btn" class="btn btn-secondary" style="margin-right: 0.5rem;">?ㅼ쓬??&gt;</button>
+            <select id="select-year" style="font-size: 1.1rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;"></select>년
+            <select id="select-month" style="font-size: 1.1rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-weight: bold; cursor: pointer;"></select>월
+          </span>
+          <button id="next-month-btn" class="btn btn-secondary" style="margin-right: 0.5rem;">다음달 &gt;</button>
           
           <button class="btn btn-primary" onclick="printAllRosters()" style="font-weight: 600; padding: 0.35rem 0.75rem; font-size: 0.85rem;">
-            ?뼥截?洹쇰Т???몄뇙 諛?pdf ???          </button>
+            🖨️ 근무표 인쇄 및 pdf 저장
+          </button>
         </div>
         
         <!-- Compact Today Shift Workers Row (Right Side) -->
         <div id="stats-dashboard-container" class="no-print" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem; background-color: var(--card-bg); padding: 0.4rem 0.85rem; border-radius: 0.375rem; border: 1px solid var(--border-color); border-left: 4px solid var(--color-primary);">
           <span style="font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
-            ?뱟 ?ㅻ뒛 洹쇰Т ?몄썝 (<strong id="stat-today-total-count" style="color: var(--color-primary);">0紐?/strong>):
+            📅 오늘 근무 인원 (<strong id="stat-today-total-count" style="color: var(--color-primary);">0명</strong>):
           </span>
           <div style="display: inline-flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; color: var(--text-muted); font-weight: 500;">
-            <span><span class="badge badge-day" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">二?/span> <span id="stat-names-day" style="color: var(--text-main); font-weight: 600;">-</span></span>
+            <span><span class="badge badge-day" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">주</span> <span id="stat-names-day" style="color: var(--text-main); font-weight: 600;">-</span></span>
             <span style="color: var(--border-color);">|</span>
-            <span><span class="badge badge-duty" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">??/span> <span id="stat-names-duty" style="color: var(--text-main); font-weight: 600;">-</span></span>
+            <span><span class="badge badge-duty" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">당</span> <span id="stat-names-duty" style="color: var(--text-main); font-weight: 600;">-</span></span>
             <span style="color: var(--border-color);">|</span>
-            <span><span class="badge badge-night" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">??/span> <span id="stat-names-night" style="color: var(--text-main); font-weight: 600;">-</span></span>
+            <span><span class="badge badge-night" style="font-size: 0.7rem; padding: 0.05rem 0.25rem; margin-right: 0.1rem;">야</span> <span id="stat-names-night" style="color: var(--text-main); font-weight: 600;">-</span></span>
           </div>
         </div>
         
         <!-- Mobile tab controls (Visible only on mobile screens) -->
         <div id="mobile-hall-tabs" class="mobile-tabs" style="display: none; width: 100%; margin-top: 0.5rem;">
-          <button class="mobile-tab-btn active" data-tab="girincho">湲곕┛珥?/button>
-          <button class="mobile-tab-btn" data-tab="mulbongseon">臾쇰큺??/button>
-          <button class="mobile-tab-btn" data-tab="managers">???/button>
+          <button class="mobile-tab-btn active" data-tab="girincho">기린초</button>
+          <button class="mobile-tab-btn" data-tab="mulbongseon">물봉선</button>
+          <button class="mobile-tab-btn" data-tab="managers">팀장</button>
         </div>
         
         <div class="calendar-legend" style="width: 100%; margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
-          <div class="legend-item"><span class="badge badge-day">二?/span> 二쇨컙</div>
-          <div class="legend-item"><span class="badge badge-duty">??/span> ?뱀쭅 (3h)</div>
-          <div class="legend-item"><span class="badge badge-night">??/span> ?쇨컙 (4h)</div>
-          <div class="legend-item"><span class="badge badge-off">??/span> ?대Т</div>
-          <div class="legend-item"><span class="badge badge-pending-leave">?</span> ?곌??湲?/div>
-          <div class="legend-item"><span class="badge badge-leave">??/span> ?곌??뱀씤</div>
-          <div class="legend-item"><span style="font-weight: 700; font-size: 0.75rem; color: var(--text-main); margin-left: 0.25rem;">?レ옄</span> 異붽? ?쒓컙???섎떦 ?쒓컙 (?쇱そ:?ㅼ쟾, ?ㅻⅨ履??ㅽ썑)</div>
+          <div class="legend-item"><span class="badge badge-day">주</span> 주간</div>
+          <div class="legend-item"><span class="badge badge-duty">당</span> 당직 (3h)</div>
+          <div class="legend-item"><span class="badge badge-night">야</span> 야간 (4h)</div>
+          <div class="legend-item"><span class="badge badge-off">휴</span> 휴무</div>
+          <div class="legend-item"><span class="badge badge-pending-leave">대</span> 연가대기</div>
+          <div class="legend-item"><span class="badge badge-leave">연</span> 연가승인</div>
+          <div class="legend-item"><span style="font-weight: 700; font-size: 0.75rem; color: var(--text-main); margin-left: 0.25rem;">숫자</span> 추가 시간외 수당 시간 (왼쪽:오전, 오른쪽:오후)</div>
         </div>
       </div>
     </section>
@@ -113,7 +116,7 @@
     <!-- Girincho Living Hall (6 members) Card -->
     <section id="schedule-section-girincho" class="card schedule-card" style="margin-bottom: 2rem;">
       <div class="card-header">
-        <h2 class="card-title">湲곕┛珥덉깮?쒓? ?붽컙 洹쇰Т ?꾪솴??(6紐?</h2>
+        <h2 class="card-title">기린초생활관 월간 근무 현황표 (6명)</h2>
       </div>
       <!-- Table Container -->
       <div class="roster-table-container">
@@ -133,7 +136,7 @@
     <!-- Mulbongseon Living Hall (7 members) Card -->
     <section id="schedule-section-mulbongseon" class="card schedule-card" style="margin-bottom: 2rem;">
       <div class="card-header">
-        <h2 class="card-title">臾쇰큺?좎깮?쒓? ?붽컙 洹쇰Т ?꾪솴??(7紐?</h2>
+        <h2 class="card-title">물봉선생활관 월간 근무 현황표 (7명)</h2>
       </div>
       <!-- Table Container -->
       <div class="roster-table-container">
@@ -153,7 +156,7 @@
     <!-- Team Leaders Card -->
     <section id="schedule-section-managers" class="card schedule-card" style="margin-bottom: 2rem;">
       <div class="card-header">
-        <h2 class="card-title">?앺솢愿 ???洹쇰Т ?꾪솴??(2紐?</h2>
+        <h2 class="card-title">생활관 팀장 근무 현황표 (2명)</h2>
       </div>
       <!-- Table Container -->
       <div class="roster-table-container">
@@ -172,42 +175,43 @@
 
     <!-- My Page Section (Visible to logged-in Instructors) -->
     <section id="mypage-section" style="display: none; margin-bottom: 2rem;">
-      <h2 class="card-title" style="margin-bottom: 1rem;">留덉씠?섏씠吏 (???뺣낫 諛??대젰)</h2>
+      <h2 class="card-title" style="margin-bottom: 1rem;">마이페이지 (내 정보 및 이력)</h2>
       <div class="mypage-grid">
         
         <!-- Left Column: Leave Stats only -->
         <div class="card" style="height: fit-content;">
-          <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">?곌? 諛??쒓컙???꾪솴</h3>
+          <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">연가 및 시간외 현황</h3>
           
           <div class="stats-card-group">
             <div class="stat-card">
-              <div class="stat-lbl">?낆궗??/div>
+              <div class="stat-lbl">입사일</div>
               <div class="stat-val" id="my-join-year" style="font-size: 0.95rem;">-</div>
             </div>
             <div class="stat-card">
-              <div class="stat-lbl">湲곕낯 ?곌?</div>
+              <div class="stat-lbl">기본 연가</div>
               <div class="stat-val" id="my-total-leave">-</div>
             </div>
             <div class="stat-card">
-              <div class="stat-lbl">?ъ슜 ?곌?</div>
+              <div class="stat-lbl">사용 연가</div>
               <div class="stat-val" id="my-used-leave">-</div>
             </div>
           </div>
           
           <div class="stats-card-group" style="margin-top: 1rem; margin-bottom: 0.5rem;">
+
             <div class="stat-card" style="grid-column: span 2;">
-              <div class="stat-lbl">?대쾲 二??꾩쟻 ?쒓컙??(?쒕룄: 12h)</div>
-              <div class="stat-val" id="my-weekly-overtime" style="color:var(--color-primary);">0?쒓컙</div>
+              <div class="stat-lbl">이번 주 누적 시간외 (한도: 12h)</div>
+              <div class="stat-val" id="my-weekly-overtime" style="color:var(--color-primary);">0시간</div>
             </div>
             <div class="stat-card">
-              <div class="stat-lbl">?⑥? ?붿뿬 ?곌?</div>
+              <div class="stat-lbl">남은 잔여 연가</div>
               <div class="stat-val" id="my-remaining-leave" style="color:var(--color-leave-text); font-weight:700;">-</div>
             </div>
           </div>
           
           <div style="margin-top: 1.5rem; background-color: var(--bg-color); padding: 0.85rem; border-radius: 0.375rem; border: 1px dashed var(--border-color);">
             <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-              ?뮕 <strong>?곌? 諛??쒓컙???좎껌 ?덈궡</strong>: ?곷떒???붽컙 洹쇰Т ?꾪솴?쒖뿉??<strong>蹂몄씤 ?대쫫 ?됱쓽 ?뱀젙 ?좎쭨(洹쇰Т 移?</strong>瑜?吏곸젒 ?대┃?섎㈃ ?대떦 ?좎쭨??????곌? ?먮뒗 ?쒓컙??洹쇰Т ?좎껌 ?앹뾽李쎌씠 ?섑??⑸땲?? (蹂몄씤 ?됱쓽 ?留??대┃ 媛?ν빀?덈떎.)
+              💡 <strong>연가 및 시간외 신청 안내</strong>: 상단의 월간 근무 현황표에서 <strong>본인 이름 행의 특정 날짜(근무 칸)</strong>를 직접 클릭하면 해당 날짜에 대한 연가 또는 시간외 근무 신청 팝업창이 나타납니다. (본인 행의 셀만 클릭 가능합니다.)
             </p>
           </div>
         </div>
@@ -217,7 +221,7 @@
           
           <!-- Mini personal calendar -->
           <div class="card" style="flex: 1; min-width: 320px; max-width: 340px; height: fit-content; margin-bottom: 0;">
-            <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;" id="my-cal-label">??洹쇰Т ?щ젰</h3>
+            <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;" id="my-cal-label">내 근무 달력</h3>
             <div class="mini-calendar" id="my-mini-calendar">
               <!-- Populated via JS -->
             </div>
@@ -225,16 +229,16 @@
           
           <!-- Request history list -->
           <div class="card" style="flex: 2; min-width: 450px; height: fit-content; margin-bottom: 0;">
-            <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">?좎껌 ?대젰 (?곌? / ?쒓컙??</h3>
+            <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;">신청 이력 (연가 / 시간외)</h3>
             <div style="overflow-x: auto;">
               <table class="leave-requests-table">
                 <thead>
                   <tr>
-                    <th style="text-align: left;">援щ텇</th>
-                    <th style="text-align: left;">?좎껌?쇱옄</th>
-                    <th style="text-align: left;">?곸꽭?댁슜</th>
-                    <th style="text-align: left;">寃곗옱?곹깭</th>
-                    <th style="text-align: left;">?좎껌 愿由?/th>
+                    <th style="text-align: left;">구분</th>
+                    <th style="text-align: left;">신청일자</th>
+                    <th style="text-align: left;">상세내용</th>
+                    <th style="text-align: left;">결재상태</th>
+                    <th style="text-align: left;">신청 관리</th>
                   </tr>
                 </thead>
                 <tbody id="my-leave-history">
@@ -251,43 +255,45 @@
     <!-- Manager (Admin) Section (Visible to logged-in Team Leaders / System Admin) -->
     <section id="admin-section" class="card" style="display: none; margin-bottom: 2rem;">
       <div class="card-header" style="flex-wrap: wrap; gap: 1rem;">
-        <h2 class="card-title" id="admin-dashboard-title">寃곗옱 愿由ъ옄 ??쒕낫??/h2>
+        <h2 class="card-title" id="admin-dashboard-title">결재 관리자 대시보드</h2>
         
         <!-- Filter requests by month option -->
         <div class="filter-group" style="margin-left: auto; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
           <!-- Hall Filter -->
-          <label for="admin-hall-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">?앺솢愿 ?꾪꽣:</label>
+          <label for="admin-hall-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">생활관 필터:</label>
           <select id="admin-hall-filter" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">
-            <option value="all">?꾩껜 ?앺솢愿</option>
-            <option value="girincho">湲곕┛珥덉깮?쒓?留?蹂닿린</option>
-            <option value="mulbongseon">臾쇰큺?좎깮?쒓?留?蹂닿린</option>
-            <option value="manager">??λ쭔 蹂닿린</option>
+            <option value="all">전체 생활관</option>
+            <option value="girincho">기린초생활관만 보기</option>
+            <option value="mulbongseon">물봉선생활관만 보기</option>
+            <option value="manager">팀장만 보기</option>
           </select>
 
           <!-- Sort Filter -->
-          <label for="admin-sort-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem;">?뺣젹 湲곗?:</label>
+          <label for="admin-sort-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem;">정렬 기준:</label>
           <select id="admin-sort-filter" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">
-            <option value="hall-name">?앺솢愿??+ 媛?섎떎??/option>
-            <option value="name">媛?섎떎珥덉꽦??(?대쫫??</option>
-            <option value="date-desc">理쒓렐 ?좎껌?쇱닚</option>
-            <option value="date-asc">怨쇨굅 ?좎껌?쇱닚</option>
+            <option value="hall-name">생활관순 + 가나다순</option>
+            <option value="name">가나다초성순 (이름순)</option>
+            <option value="date-desc">최근 신청일순</option>
+            <option value="date-asc">과거 신청일순</option>
           </select>
 
-          <label for="admin-month-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem;">?좎껌 議고쉶 ??</label>
+          <label for="admin-month-filter" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.5rem;">신청 조회 월:</label>
           <select id="admin-month-filter" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">
-            <option value="current">吏???붾쭔 議고쉶</option>
-            <option value="all">?꾩껜 ?댁뿭 議고쉶</option>
+            <option value="current">지정 월만 조회</option>
+            <option value="all">전체 내역 조회</option>
           </select>
           <div id="admin-date-select-container" style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.85rem;">
-            <select id="admin-select-year" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; font-weight: 600; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main);"></select>??            <select id="admin-select-month" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; font-weight: 600; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main);"></select>??          </div>
+            <select id="admin-select-year" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; font-weight: 600; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main);"></select>년
+            <select id="admin-select-month" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; font-weight: 600; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main);"></select>월
+          </div>
         </div>
       </div>
       
       <!-- Admin Utilities (Backup/Restore) -->
       <div style="background-color: var(--bg-color); padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-        <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: auto; font-weight: 600;">?뵩 ?쒖뒪???곗씠??愿由?</span>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="exportData()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; background-color: var(--card-bg);">?뮶 ?곗씠??諛깆뾽 (?대낫?닿린)</button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="triggerImport()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; background-color: var(--card-bg);">?뱛 ?곗씠??蹂듭썝 (媛?몄삤湲?</button>
+        <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: auto; font-weight: 600;">🔧 시스템 데이터 관리:</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="exportData()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; background-color: var(--card-bg);">💾 데이터 백업 (내보내기)</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="triggerImport()" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; background-color: var(--card-bg);">📂 데이터 복원 (가져오기)</button>
         <input type="file" id="import-data-file" onchange="importData(event)" style="display: none;" accept=".json">
       </div>
       
@@ -296,53 +302,375 @@
       <div style="margin-bottom: 2rem;">
         <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
           <button class="collapse-trigger" data-target="admin-notice-container" type="button">
-            ?뱼 怨듭??ы빆 ?깅줉 諛?愿由?(理쒕? 5媛?
+            📢 공지사항 등록 및 관리 (최대 5개)
           </button>
         </div>
         <div id="admin-notice-container" class="collapse-content">
           <div style="margin-bottom: 1rem; width: 100%;">
             <ul id="admin-notice-list" style="margin: 0; padding: 0; list-style-type: none;">
-              <!-- …4820 tokens truncated…    <button type="submit" class="btn btn-primary">?곌? ?좎껌 ?쒖텧</button>
+              <!-- Populated dynamically via JS -->
+            </ul>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; width: 100%; align-items: flex-end;">
+            <textarea id="admin-notice-input" placeholder="새 공지사항을 입력하세요..." style="flex: 1; min-height: 60px; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-main); font-family: inherit; resize: vertical;"></textarea>
+            <button class="btn btn-primary" onclick="addNotice()" style="font-weight: 600; height: 38px; padding: 0 1rem;" type="button">공지 추가</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Leave Approval (Collapsible) -->
+      <div style="margin-bottom: 2.5rem;">
+        <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+          <button class="collapse-trigger" data-target="admin-leave-requests-container">
+            🌴 연가 및 공가 신청 결재 대기 및 이력
+          </button>
+        </div>
+        <div id="admin-leave-requests-container" class="collapse-content">
+          <div style="overflow-x: auto;">
+            <table class="leave-requests-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">신청 근무자</th>
+                  <th style="text-align: left;">희망일 (연가/공가)</th>
+                  <th style="text-align: left;">신청 사유</th>
+                  <th style="text-align: left;">결재 상태</th>
+                  <th style="text-align: left;">결재 처리</th>
+                </tr>
+              </thead>
+              <tbody id="admin-leave-requests-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overtime Approval (Collapsible) -->
+      <div style="margin-bottom: 2.5rem;">
+        <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+          <button class="collapse-trigger" data-target="admin-ot-requests-container">
+            ⏰ 시간외 근무 신청 결재 대기 및 이력
+          </button>
+        </div>
+        <div id="admin-ot-requests-container" class="collapse-content">
+          <div style="overflow-x: auto;">
+            <table class="leave-requests-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">신청 근무자</th>
+                  <th style="text-align: left;">희망 일자</th>
+                  <th style="text-align: left;">신청 시간 및 구분</th>
+                  <th style="text-align: left;">구체적 사유</th>
+                  <th style="text-align: left;">결재 상태</th>
+                  <th style="text-align: left;">결재 처리</th>
+                </tr>
+              </thead>
+              <tbody id="admin-ot-requests-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Directory Management Section (Collapsible) -->
+      <div style="margin-bottom: 1.5rem;">
+        <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+          <button class="collapse-trigger" data-target="admin-employees-container">
+            👥 생활관 직원 정보 관리 (이름/소속/정보/조 수정)
+          </button>
+        </div>
+        <div id="admin-employees-container" class="collapse-content">
+          <div style="overflow-x: auto;">
+            <table class="leave-requests-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">소속</th>
+                  <th style="text-align: left;">조(Group)</th>
+                  <th style="text-align: left;">이름</th>
+                  <th style="text-align: left;">로그인 ID</th>
+                  <th style="text-align: left;">입사년월</th>
+                  <th style="text-align: left;">기본 연가 일수</th>
+                  <th style="text-align: left;">남은 연가</th>
+                  <th style="text-align: left;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="admin-employees-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+      </div>
+      
+      <!-- Manager Account Management Section (Collapsible) -->
+      <div style="margin-bottom: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+          <button class="collapse-trigger" data-target="admin-managers-container">
+            🔑 관리자 계정 및 권한 인계
+          </button>
+        </div>
+        <div id="admin-managers-container" class="collapse-content">
+          <div style="overflow-x: auto;">
+            <table class="leave-requests-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">직책/권한</th>
+                  <th style="text-align: left;">담당자 이름</th>
+                  <th style="text-align: left;">로그인 ID</th>
+                  <th style="text-align: left;">계정 상태</th>
+                  <th style="text-align: left;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="admin-managers-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Special Leave (Sick / Sabbatical) Section (Collapsible) -->
+      <div style="margin-bottom: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div class="card-header" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+          <button class="collapse-trigger" data-target="admin-special-leave-container" type="button">
+            🏥 병가 / ✈️ 안식년 일괄 설정 및 관리 (기간 지정)
+          </button>
+        </div>
+        <div id="admin-special-leave-container" class="collapse-content">
+          <div style="padding: 1rem; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 0.375rem; margin-top: 0.5rem;">
+            <form id="admin-special-leave-form" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; min-width: 150px;">
+                <label for="special-leave-emp" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">대상 직원</label>
+                <select id="special-leave-emp" style="padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.85rem; height: 36px;"></select>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; min-width: 120px;">
+                <label for="special-leave-type" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">구분</label>
+                <select id="special-leave-type" style="padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.85rem; height: 36px;">
+                  <option value="병가">🏥 병가</option>
+                  <option value="안식년">✈️ 안식년</option>
+                </select>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; min-width: 140px;">
+                <label for="special-leave-start" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">시작일</label>
+                <input type="date" id="special-leave-start" style="padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.85rem; height: 36px;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem; min-width: 140px;">
+                <label for="special-leave-end" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">종료일</label>
+                <input type="date" id="special-leave-end" style="padding: 0.4rem; border-radius: 0.375rem; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.85rem; height: 36px;">
+              </div>
+              <button type="button" class="btn btn-primary" onclick="addSpecialLeave()" style="height: 36px; padding: 0 1.25rem; font-weight: 600; font-size: 0.85rem;">설정 및 등록</button>
+            </form>
+            
+            <!-- List of registered Special Leaves for cancellation -->
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+              <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.75rem;">등록된 병가 / 안식년 목록 (최근 등록 순)</h4>
+              <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 0.375rem; background-color: var(--card-bg);">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;">
+                  <thead>
+                    <tr style="background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-weight: 600;">
+                      <th style="padding: 0.5rem 0.75rem;">직원명</th>
+                      <th style="padding: 0.5rem 0.75rem;">구분</th>
+                      <th style="padding: 0.5rem 0.75rem;">날짜</th>
+                      <th style="padding: 0.5rem 0.75rem; text-align: right; padding-right: 1.5rem;">작업</th>
+                    </tr>
+                  </thead>
+                  <tbody id="special-leave-list-tbody">
+                    <!-- Dynmically rendered -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; background-color: var(--bg-color); padding: 1rem; border-radius: 0.5rem; border: 1px dashed var(--border-color);">
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+          💡 <strong>근무표 수동 편집 안내</strong>: 위의 전체 월간 근무 현황표에서 변경하고자 하는 특정 직원의 <strong>근무 칸(주/당/야/휴)</strong>을 직접 클릭하면 수동으로 수정할 수 있습니다. 수동으로 변경된 내용은 6일 교대 주기에서 오버라이드되어 근무표에 고정됩니다.
+        </p>
+      </div>
+    </section>
+    <!-- Staff mobile request hub -->
+    <section id="mobile-request-section" class="card mobile-staff-screen" style="display: none; margin-bottom: 6rem;">
+      <div class="card-header">
+        <h2 class="card-title">신청</h2>
+      </div>
+      <p class="mobile-request-help">신청할 날짜를 고른 뒤 버튼을 눌러 주세요. 연가·공가·시간외 신청 창이 열립니다.</p>
+      <div class="mobile-request-form">
+        <label for="mobile-request-date">신청 날짜</label>
+        <input id="mobile-request-date" type="date">
+        <button id="mobile-request-open" type="button" class="btn btn-primary">신청 내용 입력하기</button>
+      </div>
+      <div class="mobile-request-history-wrap">
+        <h3>내 신청 내역</h3>
+        <p>기존 마이페이지의 신청 이력과 같은 데이터를 사용합니다.</p>
+        <div id="mobile-request-history"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Logged-in staff only: app-like bottom navigation -->
+  <nav id="mobile-bottom-nav" class="mobile-bottom-nav no-print" aria-label="직원용 메뉴" style="display: none;">
+    <button type="button" class="mobile-bottom-nav-btn active" data-mobile-screen="mine">내 근무표</button>
+    <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="all">전체 근무표</button>
+    <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="request">신청</button>
+  </nav>
+
+  <!-- Login Dialog Overlay -->
+  <div class="dialog-overlay" id="login-overlay">
+    <div class="dialog-content" style="max-width: 400px;">
+      <div class="dialog-header">
+        <h3 class="dialog-title">시스템 로그인</h3>
+        <button type="button" class="btn-icon" id="login-modal-close" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      
+      <div class="auth-tabs" style="margin-bottom: 1rem;">
+        <div class="auth-tab active" data-type="staff" style="padding: 0.5rem;">직원</div>
+        <div class="auth-tab" data-type="manager" style="padding: 0.5rem;">관리자 (ID/PW)</div>
+      </div>
+      
+      <form id="login-form">
+        <div class="dialog-body">
+          <!-- Staff Login -->
+          <div id="staff-login-fields">
+            <div class="auth-form-group">
+              <label for="staff-login-id">직원 아이디</label>
+              <input type="text" id="staff-login-id" placeholder="예: girin03" inputmode="text" autocomplete="username" minlength="4" maxlength="20" required>
+            </div>
+            <div class="auth-form-group">
+              <label for="staff-password">숫자 비밀번호 8자리</label>
+              <input type="password" id="staff-password" placeholder="숫자 8자리" inputmode="numeric" autocomplete="current-password" pattern="[0-9]{8}" maxlength="8" required>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+                개인 휴대전화에서는 한 번 로그인하면 로그인 상태가 유지됩니다.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Manager Login -->
+          <div id="manager-login-fields" style="display: none;">
+            <div class="auth-form-group">
+              <label for="manager-id">아이디</label>
+              <input type="text" id="manager-id" placeholder="관리자 아이디" autocomplete="username">
+            </div>
+            <div class="auth-form-group">
+              <label for="manager-pw">비밀번호</label>
+              <input type="password" id="manager-pw" placeholder="비밀번호" autocomplete="current-password">
+            </div>
+          </div>
+        </div>
+        
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" id="login-modal-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">로그인</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Password Change Dialog -->
+  <div class="dialog-overlay" id="password-change-overlay">
+    <div class="dialog-content" style="max-width: 400px;">
+      <div class="dialog-header">
+        <h3 class="dialog-title">비밀번호 변경</h3>
+        <button type="button" class="btn-icon" id="password-change-close" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      <form id="password-change-form">
+        <div class="dialog-body">
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">새 비밀번호는 숫자 8자리로 입력해 주세요.</p>
+          <div class="auth-form-group">
+            <label for="new-password">새 비밀번호</label>
+            <input id="new-password" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" maxlength="8" required placeholder="숫자 8자리">
+          </div>
+          <div class="auth-form-group">
+            <label for="new-password-confirm">새 비밀번호 확인</label>
+            <input id="new-password-confirm" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" maxlength="8" required placeholder="한 번 더 입력">
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" id="password-change-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">변경하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Staff Request Modal (Staff-only popup on self date cell click) -->
+  <div class="dialog-overlay" id="staff-request-overlay">
+    <div class="dialog-content">
+      <div class="dialog-header">
+
+        <h3 class="dialog-title">연가 / 시간외 근무 신청</h3>
+        <button type="button" class="btn-icon" id="staff-request-close" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-muted);">
+          신청인: <strong id="staff-req-name" style="color: var(--text-main);">-</strong><br>
+          신청일자: <strong id="staff-req-date" style="color: var(--text-main);">-</strong>
+        </p>
+
+        <!-- 결재 대기중인 신청 취소 영역 -->
+        <div id="staff-pending-cancel-panel" style="display: none; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 1rem;">
+          <h4 style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #b45309; font-weight: bold;">⚠️ 이미 신청되어 대기 중인 내역</h4>
+          <div id="staff-pending-cancel-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+        </div>
+
+        <div class="auth-tabs" style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <div class="auth-tab active" id="tab-staff-leave" style="padding: 0.5rem; font-size:0.85rem; width:33.3%; text-align:center;">🌴 연가 신청</div>
+          <div class="auth-tab" id="tab-staff-official-leave" style="padding: 0.5rem; font-size:0.85rem; width:33.3%; text-align:center;">🏛️ 공가 신청</div>
+          <div class="auth-tab" id="tab-staff-ot" style="padding: 0.5rem; font-size:0.85rem; width:33.3%; text-align:center;">⏰ 시간외 신청</div>
+        </div>
+
+        <!-- Staff Leave Request Form -->
+        <form id="staff-leave-form">
+          <div class="auth-form-group">
+            <label for="staff-leave-reason">사유</label>
+            <input type="text" id="staff-leave-reason" placeholder="예: 병원 진료, 개인 휴식 등" required>
+          </div>
+          <div class="dialog-footer" style="padding-top: 1rem; padding-bottom: 0;">
+            <button type="button" class="btn btn-secondary" id="staff-leave-cancel">취소</button>
+            <button type="submit" class="btn btn-primary">연가 신청 제출</button>
           </div>
         </form>
 
         <!-- Staff Official Leave Request Form -->
         <form id="staff-official-leave-form" style="display: none;">
           <div class="auth-form-group">
-            <label for="staff-official-leave-reason">怨듦? ?ъ쑀</label>
-            <input type="text" id="staff-official-leave-reason" placeholder="?? 怨듬Т 異쒖옣, 援먯쑁 李몄꽍, ?덈퉬援??덈젴 ?? required>
+            <label for="staff-official-leave-reason">공가 사유</label>
+            <input type="text" id="staff-official-leave-reason" placeholder="예: 공무 출장, 교육 참석, 예비군 훈련 등" required>
           </div>
           <div class="dialog-footer" style="padding-top: 1rem; padding-bottom: 0;">
-            <button type="button" class="btn btn-secondary" id="staff-official-leave-cancel">痍⑥냼</button>
-            <button type="submit" class="btn btn-primary">怨듦? ?좎껌 ?쒖텧</button>
+            <button type="button" class="btn btn-secondary" id="staff-official-leave-cancel">취소</button>
+            <button type="submit" class="btn btn-primary">공가 신청 제출</button>
           </div>
         </form>
 
         <!-- Staff Overtime Request Form -->
         <form id="staff-ot-form" style="display: none;">
           <div class="auth-form-group">
-            <label for="staff-ot-time-of-day">?좎껌 援щ텇 (?ㅼ쟾/?ㅽ썑)</label>
+            <label for="staff-ot-time-of-day">신청 구분 (오전/오후)</label>
             <select id="staff-ot-time-of-day" required>
-              <option value="morning">?ㅼ쟾 (洹쇰Т ???쒓컙??</option>
-              <option value="afternoon">?ㅽ썑 (洹쇰Т ???쒓컙??</option>
+              <option value="morning">오전 (근무 전 시간외)</option>
+              <option value="afternoon">오후 (근무 후 시간외)</option>
             </select>
           </div>
           <div class="auth-form-group">
-            <label for="staff-ot-hours">?좎껌 ?쒓컙</label>
+            <label for="staff-ot-hours">신청 시간</label>
             <select id="staff-ot-hours" required>
-              <option value="1">1?쒓컙</option>
-              <option value="2">2?쒓컙</option>
-              <option value="3">3?쒓컙</option>
-              <option value="4">4?쒓컙</option>
+              <option value="1">1시간</option>
+              <option value="2">2시간</option>
+              <option value="3">3시간</option>
+              <option value="4">4시간</option>
             </select>
           </div>
           <div class="auth-form-group">
-            <label for="staff-ot-reason">援ъ껜???ъ쑀</label>
-            <input type="text" id="staff-ot-reason" placeholder="?? ?쇨컙 ?쒖같 ?곗옣, ?됱젙 ?낅Т" required>
+            <label for="staff-ot-reason">구체적 사유</label>
+            <input type="text" id="staff-ot-reason" placeholder="예: 야간 순찰 연장, 행정 업무" required>
           </div>
           <div class="dialog-footer" style="padding-top: 1rem; padding-bottom: 0;">
-            <button type="button" class="btn btn-secondary" id="staff-ot-cancel">痍⑥냼</button>
-            <button type="submit" class="btn btn-primary">?쒓컙???좎껌 ?쒖텧</button>
+            <button type="button" class="btn btn-secondary" id="staff-ot-cancel">취소</button>
+            <button type="submit" class="btn btn-primary">시간외 신청 제출</button>
           </div>
         </form>
       </div>
@@ -353,56 +681,56 @@
   <div class="dialog-overlay" id="edit-shift-overlay">
     <div class="dialog-content">
       <div class="dialog-header">
-        <h3 class="dialog-title">洹쇰Т ?뺥깭 諛??쒓컙???섎룞 蹂寃?/h3>
+        <h3 class="dialog-title">근무 형태 및 시간외 수동 변경</h3>
         <button type="button" class="btn-icon" id="edit-shift-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
       <form id="edit-shift-form">
         <div class="dialog-body">
           <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-muted);">
-            ???洹쇰Т?? <strong id="edit-shift-instructor" style="color: var(--text-main);">源湲곕┛</strong><br>
-            吏???좎쭨: <strong id="edit-shift-date" style="color: var(--text-main);">2026-07-01</strong>
+            대상 근무자: <strong id="edit-shift-instructor" style="color: var(--text-main);">김기린</strong><br>
+            지정 날짜: <strong id="edit-shift-date" style="color: var(--text-main);">2026-07-01</strong>
           </p>
           
           <div class="auth-form-group">
-            <label for="edit-shift-select">洹쇰Т ?뺥깭 吏??/label>
+            <label for="edit-shift-select">근무 형태 지정</label>
             <select id="edit-shift-select">
-              <option value="二쇨컙">二쇨컙</option>
-              <option value="?뱀쭅">?뱀쭅</option>
-              <option value="?쇨컙">?쇨컙</option>
-              <option value="?대Т">?대Т</option>
-              <option value="?곌?">?곌?</option>
-              <option value="怨듦?">怨듦?</option>
-              <option value="蹂댁긽?닿?">蹂댁긽?닿?</option>
-              <option value="蹂댁긽?닿? (1?쒓컙)">蹂댁긽?닿? (1?쒓컙)</option>
-              <option value="蹂댁긽?닿? (2?쒓컙)">蹂댁긽?닿? (2?쒓컙)</option>
-              <option value="蹂댁긽?닿? (3?쒓컙)">蹂댁긽?닿? (3?쒓컙)</option>
-              <option value="蹂댁긽?닿? (4?쒓컙)">蹂댁긽?닿? (4?쒓컙)</option>
-              <option value="蹂댁긽?닿? (5?쒓컙)">蹂댁긽?닿? (5?쒓컙)</option>
-              <option value="蹂댁긽?닿? (6?쒓컙)">蹂댁긽?닿? (6?쒓컙)</option>
-              <option value="蹂댁긽?닿? (7?쒓컙)">蹂댁긽?닿? (7?쒓컙)</option>
+              <option value="주간">주간</option>
+              <option value="당직">당직</option>
+              <option value="야간">야간</option>
+              <option value="휴무">휴무</option>
+              <option value="연가">연가</option>
+              <option value="공가">공가</option>
+              <option value="보상휴가">보상휴가</option>
+              <option value="보상휴가 (1시간)">보상휴가 (1시간)</option>
+              <option value="보상휴가 (2시간)">보상휴가 (2시간)</option>
+              <option value="보상휴가 (3시간)">보상휴가 (3시간)</option>
+              <option value="보상휴가 (4시간)">보상휴가 (4시간)</option>
+              <option value="보상휴가 (5시간)">보상휴가 (5시간)</option>
+              <option value="보상휴가 (6시간)">보상휴가 (6시간)</option>
+              <option value="보상휴가 (7시간)">보상휴가 (7시간)</option>
             </select>
           </div>
 
           <div class="auth-form-group">
-            <label for="edit-shift-ot-morning">?ㅼ쟾 ?쒓컙??洹쇰Т 吏??(?쒓컙)</label>
-            <input type="number" id="edit-shift-ot-morning" min="0" max="4" placeholder="湲곕낯 0h">
+            <label for="edit-shift-ot-morning">오전 시간외 근무 지정 (시간)</label>
+            <input type="number" id="edit-shift-ot-morning" min="0" max="4" placeholder="기본 0h">
           </div>
 
           <div class="auth-form-group">
-            <label for="edit-shift-ot-afternoon">?ㅽ썑 ?쒓컙??洹쇰Т 吏??(?쒓컙)</label>
-            <input type="number" id="edit-shift-ot-afternoon" min="0" max="4" placeholder="鍮꾩썙?먮㈃ ?먮룞 怨꾩궛 (?뱀쭅:3h, ?쇨컙:4h, 洹몄쇅:0h)">
+            <label for="edit-shift-ot-afternoon">오후 시간외 근무 지정 (시간)</label>
+            <input type="number" id="edit-shift-ot-afternoon" min="0" max="4" placeholder="비워두면 자동 계산 (당직:3h, 야간:4h, 그외:0h)">
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
-              ???뱀쭅/?쇨컙??湲곕낯 ?쒓났 ?쒓컙???몄뿉 異붽? ?섎떦 ?쒓컙??媛쒕퀎 吏?뺥븷 ???덉뒿?덈떎.
+              ※ 당직/야간의 기본 제공 시간외 외에 추가 수당 시간을 개별 지정할 수 있습니다.
             </p>
           </div>
           
           <p style="font-size: 0.75rem; color: #f59e0b; margin-top: 0.5rem;">
-            ?좑툘 ?대떦 ?좎쭨???좎껌 ?먮뒗 ?뱀씤???곌?媛 ?덉쓣 寃쎌슦, ?곌???痍⑥냼?섍퀬 吏?뺣맂 洹쇰Т ?뺥깭濡??ㅻ쾭?쇱씠?쒕맗?덈떎.
+            ⚠️ 해당 날짜에 신청 또는 승인된 연가가 있을 경우, 연가는 취소되고 지정된 근무 형태로 오버라이드됩니다.
           </p>
         </div>
         <div class="dialog-footer">
-          <button type="button" class="btn btn-secondary" id="edit-shift-cancel">痍⑥냼</button>
-          <button type="submit" class="btn btn-primary">蹂寃??꾨즺</button>
+          <button type="button" class="btn btn-secondary" id="edit-shift-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">변경 완료</button>
         </div>
       </form>
     </div>
@@ -411,33 +739,33 @@
   <div class="dialog-overlay" id="admin-cell-approval-overlay">
     <div class="dialog-content" style="max-width: 420px;">
       <div class="dialog-header">
-        <h3 class="dialog-title">?湲?以묒씤 ?좎껌 ?뱀씤/諛섎젮</h3>
+        <h3 class="dialog-title">대기 중인 신청 승인/반려</h3>
         <button type="button" class="btn-icon" id="admin-cell-approval-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
       <div class="dialog-body">
         <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-muted);">
-          ???洹쇰Т?? <strong id="admin-cell-approval-instructor" style="color: var(--text-main);"></strong><br>
-          吏???좎쭨: <strong id="admin-cell-approval-date" style="color: var(--text-main);"></strong>
+          대상 근무자: <strong id="admin-cell-approval-instructor" style="color: var(--text-main);"></strong><br>
+          지정 날짜: <strong id="admin-cell-approval-date" style="color: var(--text-main);"></strong>
         </p>
         
         <!-- Leave request area (hidden if not exists) -->
         <div id="admin-cell-approval-leave-section" style="border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1rem; background-color: var(--bg-color); display: none;">
-          <h4 style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; color: #dc2626;">?뙱 ?湲?以묒씤 ?닿? ?좎껌</h4>
+          <h4 style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; color: #dc2626;">🌴 대기 중인 휴가 신청</h4>
           <p style="font-size: 0.8rem; margin-bottom: 0.5rem;" id="admin-cell-approval-leave-text"></p>
           <div style="display: flex; gap: 0.25rem;">
-            <button type="button" class="btn btn-primary btn-sm" id="btn-admin-cell-approve-leave">?뱀씤</button>
-            <button type="button" class="btn btn-danger btn-sm" id="btn-admin-cell-reject-leave">諛섎젮</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-admin-cell-approve-leave">승인</button>
+            <button type="button" class="btn btn-danger btn-sm" id="btn-admin-cell-reject-leave">반려</button>
           </div>
         </div>
 
         <!-- Overtime requests area (hidden if not exists) -->
         <div id="admin-cell-approval-ot-section" style="border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1rem; background-color: var(--bg-color); display: none;">
-          <h4 style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; color: #dc2626;">???湲?以묒씤 ?쒓컙??洹쇰Т ?좎껌</h4>
+          <h4 style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; color: #dc2626;">⏰ 대기 중인 시간외 근무 신청</h4>
           <div id="admin-cell-approval-ot-list"></div>
         </div>
 
         <p style="text-align: center; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-          <button type="button" id="btn-admin-cell-go-manual" class="btn btn-secondary" style="width: 100%; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">?륅툘 洹쇰Т 吏곸젒 ?섎룞 蹂寃쏀븯湲?/button>
+          <button type="button" id="btn-admin-cell-go-manual" class="btn btn-secondary" style="width: 100%; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">✏️ 근무 직접 수동 변경하기</button>
         </p>
       </div>
     </div>
@@ -447,7 +775,7 @@
   <div class="dialog-overlay" id="edit-employee-overlay">
     <div class="dialog-content">
       <div class="dialog-header">
-        <h3 class="dialog-title">吏곸썝 ?좎긽 ?뺣낫 諛??뚯냽 ?섏젙</h3>
+        <h3 class="dialog-title">직원 신상 정보 및 소속 수정</h3>
         <button type="button" class="btn-icon" id="edit-employee-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
       <form id="edit-employee-form">
@@ -455,52 +783,53 @@
           <input type="hidden" id="edit-emp-id">
           
           <div class="auth-form-group">
-            <label for="edit-emp-name">?대쫫 (?깅챸)</label>
-            <input type="text" id="edit-emp-name" placeholder="?? 吏곸썝 ?대쫫" required>
+            <label for="edit-emp-name">이름 (성명)</label>
+            <input type="text" id="edit-emp-name" placeholder="예: 직원 이름" required>
           </div>
           <div class="auth-form-group">
-            <label for="edit-emp-hall">?뚯냽 ?앺솢愿</label>
+            <label for="edit-emp-hall">소속 생활관</label>
             <select id="edit-emp-hall" required>
-              <option value="girincho">湲곕┛珥덉깮?쒓?</option>
-              <option value="mulbongseon">臾쇰큺?좎깮?쒓?</option>
+              <option value="girincho">기린초생활관</option>
+              <option value="mulbongseon">물봉선생활관</option>
             </select>
           </div>
           <div class="auth-form-group">
-            <label for="edit-emp-login-id">濡쒓렇??ID</label>
+            <label for="edit-emp-login-id">로그인 ID</label>
             <input type="text" id="edit-emp-login-id" readonly>
-            <p style="font-size:0.725rem;color:var(--text-muted);margin-top:0.25rem;">??濡쒓렇??ID??吏곸썝 紐⑸줉???섏븘?대뵒 蹂寃썩?踰꾪듉?먯꽌 ?덉쟾?섍쾶 蹂寃쏀빀?덈떎.</p>
+            <p style="font-size:0.725rem;color:var(--text-muted);margin-top:0.25rem;">※ 로그인 ID는 직원 목록의 ‘아이디 변경’ 버튼에서 안전하게 변경합니다.</p>
           </div>
           <div class="auth-form-group">
-            <label for="edit-emp-join">?낆궗?꾩썡</label>
+            <label for="edit-emp-join">입사년월</label>
             <input type="month" id="edit-emp-join" required>
+
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
-              ???낆궗?꾩썡 ?좏깮 ???꾨옒 珥?遺???곌? ?쇱닔媛 ?먮룞 怨꾩궛?⑸땲??
+              ※ 입사년월 선택 시 아래 총 부여 연가 일수가 자동 계산됩니다.
             </p>
           </div>
           <div class="auth-form-group">
-            <label for="edit-emp-total">珥?遺???곌? ?쇱닔 (?섎룞 ?섏젙 媛??</label>
-            <input type="number" id="edit-emp-total" placeholder="?? 15" min="0" max="40" required>
+            <label for="edit-emp-total">총 부여 연가 일수 (수동 수정 가능)</label>
+            <input type="number" id="edit-emp-total" placeholder="예: 15" min="0" max="40" required>
           </div>
           
           <!-- Shift Group Edit Selection -->
           <div class="auth-form-group">
-            <label for="edit-emp-group">洹쇰Т 議?吏??(1議?~ 6議?</label>
+            <label for="edit-emp-group">근무 조 지정 (1조 ~ 6조)</label>
             <select id="edit-emp-group">
-              <option value="1">1議?/option>
-              <option value="2">2議?/option>
-              <option value="3">3議?/option>
-              <option value="4">4議?/option>
-              <option value="5">5議?/option>
-              <option value="6">6議?/option>
+              <option value="1">1조</option>
+              <option value="2">2조</option>
+              <option value="3">3조</option>
+              <option value="4">4조</option>
+              <option value="5">5조</option>
+              <option value="6">6조</option>
             </select>
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
-              ??洹쇰Т 議?蹂寃????대떦 議곗쓽 ?쒖? 6???쒗솚 洹쇰Т ?ㅽ봽?뗭씠 利됱떆 洹쇰Т?쒖뿉 ?먮룞 ?곸슜?⑸땲??
+              ※ 근무 조 변경 시 해당 조의 표준 6일 순환 근무 오프셋이 즉시 근무표에 자동 적용됩니다.
             </p>
           </div>
         </div>
         <div class="dialog-footer">
-          <button type="button" class="btn btn-secondary" id="edit-employee-cancel">痍⑥냼</button>
-          <button type="submit" class="btn btn-primary">????꾨즺</button>
+          <button type="button" class="btn btn-secondary" id="edit-employee-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">저장 완료</button>
         </div>
       </form>
     </div>
@@ -510,7 +839,7 @@
   <div class="dialog-overlay" id="change-login-id-overlay">
     <div class="dialog-content" style="max-width:400px;">
       <div class="dialog-header">
-        <h3 class="dialog-title">濡쒓렇??ID 蹂寃?/h3>
+        <h3 class="dialog-title">로그인 ID 변경</h3>
         <button type="button" class="btn-icon" id="change-login-id-close" style="border:none;font-size:1.25rem;">&times;</button>
       </div>
       <form id="change-login-id-form">
@@ -518,14 +847,14 @@
           <input type="hidden" id="change-login-employee-id">
           <p id="change-login-current" style="margin-top:0;color:var(--text-muted);"></p>
           <div class="auth-form-group">
-            <label for="change-login-new-id">??濡쒓렇??ID</label>
-            <input type="text" id="change-login-new-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="?곷Ц ?뚮Ц?먯? ?レ옄, 4~20??>
+            <label for="change-login-new-id">새 로그인 ID</label>
+            <input type="text" id="change-login-new-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="영문 소문자와 숫자, 4~20자">
           </div>
-          <p style="font-size:0.78rem;color:#b45309;">蹂寃??꾩뿉????ID濡?濡쒓렇?명빐???⑸땲?? 鍮꾨?踰덊샇? 洹쇰Т쨌?좎껌 ?대젰? 洹몃?濡??좎??⑸땲??</p>
+          <p style="font-size:0.78rem;color:#b45309;">변경 후에는 새 ID로 로그인해야 합니다. 비밀번호와 근무·신청 이력은 그대로 유지됩니다.</p>
         </div>
         <div class="dialog-footer">
-          <button type="button" class="btn btn-secondary" id="change-login-id-cancel">痍⑥냼</button>
-          <button type="submit" class="btn btn-primary">?꾩씠??蹂寃?/button>
+          <button type="button" class="btn btn-secondary" id="change-login-id-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">아이디 변경</button>
         </div>
       </form>
     </div>
@@ -534,7 +863,7 @@
   <div class="dialog-overlay" id="edit-manager-overlay">
     <div class="dialog-content" style="max-width: 400px;">
       <div class="dialog-header">
-        <h3 class="dialog-title">愿由ъ옄 怨꾩젙 ?뺣낫 ?섏젙 (沅뚰븳 ?멸퀎)</h3>
+        <h3 class="dialog-title">관리자 계정 정보 수정 (권한 인계)</h3>
         <button type="button" class="btn-icon" id="edit-manager-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
       <form id="edit-manager-form">
@@ -542,33 +871,33 @@
           <input type="hidden" id="edit-mgr-id">
           
           <div class="auth-form-group">
-            <label for="edit-mgr-hall">?뚯냽 ?앺솢愿 (沅뚰븳 踰붿쐞)</label>
+            <label for="edit-mgr-hall">소속 생활관 (권한 범위)</label>
             <select id="edit-mgr-hall" required>
-              <option value="girincho">湲곕┛珥덉깮?쒓? ???/option>
-              <option value="mulbongseon">臾쇰큺?좎깮?쒓? ???/option>
-              <option value="all">?꾩껜 愿由ъ옄 (媛쒕컻??</option>
+              <option value="girincho">기린초생활관 팀장</option>
+              <option value="mulbongseon">물봉선생활관 팀장</option>
+              <option value="all">전체 관리자 (개발자)</option>
             </select>
           </div>
           
           <div class="auth-form-group">
-            <label for="edit-mgr-name">?대떦???대쫫 (?깅챸)</label>
-            <input type="text" id="edit-mgr-name" placeholder="?? ?띻만?? required>
+            <label for="edit-mgr-name">담당자 이름 (성명)</label>
+            <input type="text" id="edit-mgr-name" placeholder="예: 홍길동" required>
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
-              ???몄궗?대룞 ???꾩엫???대쫫?쇰줈 蹂寃쏀븯??沅뚰븳???멸퀎?????덉뒿?덈떎.
+              ※ 인사이동 시 후임자 이름으로 변경하여 권한을 인계할 수 있습니다.
             </p>
           </div>
           
           <div class="auth-form-group">
-            <label for="edit-mgr-username">濡쒓렇??ID (ID)</label>
+            <label for="edit-mgr-username">로그인 ID (ID)</label>
             <input type="text" id="edit-mgr-username" disabled>
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
-              ??濡쒓렇??ID? 鍮꾨?踰덊샇 蹂寃쎌? ?섑뙆踰좎씠???몄쬆 ?붾㈃?먯꽌留?泥섎━?⑸땲??
+              ※ 로그인 ID와 비밀번호 변경은 수파베이스 인증 화면에서만 처리합니다.
             </p>
           </div>
         </div>
         <div class="dialog-footer">
-          <button type="button" class="btn btn-secondary" id="edit-manager-cancel">痍⑥냼</button>
-          <button type="submit" class="btn btn-primary">?섏젙 ?꾨즺</button>
+          <button type="button" class="btn btn-secondary" id="edit-manager-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">수정 완료</button>
         </div>
       </form>
     </div>
@@ -578,7 +907,7 @@
   <div class="dialog-overlay" id="transfer-manager-overlay">
     <div class="dialog-content" style="max-width: 440px;">
       <div class="dialog-header">
-        <h3 class="dialog-title">愿由ъ옄 沅뚰븳 ?묐룄</h3>
+        <h3 class="dialog-title">관리자 권한 양도</h3>
         <button type="button" class="btn-icon" id="transfer-manager-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
       <form id="transfer-manager-form">
@@ -586,27 +915,27 @@
           <input type="hidden" id="transfer-manager-id">
           <p id="transfer-manager-current" style="margin-top:0; color:var(--text-muted);"></p>
           <div class="auth-form-group">
-            <label for="transfer-manager-name">?꾩엫???대쫫</label>
+            <label for="transfer-manager-name">후임자 이름</label>
             <input type="text" id="transfer-manager-name" required maxlength="30">
           </div>
           <div class="auth-form-group">
-            <label for="transfer-manager-login-id">?꾩엫??濡쒓렇??ID</label>
-            <input type="text" id="transfer-manager-login-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="?? leader03">
+            <label for="transfer-manager-login-id">후임자 로그인 ID</label>
+            <input type="text" id="transfer-manager-login-id" required minlength="4" maxlength="20" pattern="[a-z0-9-]{4,20}" placeholder="예: leader03">
           </div>
           <div class="auth-form-group">
-            <label for="transfer-manager-password">?꾩엫???꾩떆 鍮꾨?踰덊샇</label>
+            <label for="transfer-manager-password">후임자 임시 비밀번호</label>
             <input type="password" id="transfer-manager-password" required minlength="10" autocomplete="new-password">
-            <p style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem;">?곷Ц쨌?レ옄쨌湲고샇瑜??ы븿??10?먮━ ?댁긽 ?낅젰?섏꽭??</p>
+            <p style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem;">영문·숫자·기호를 포함해 10자리 이상 입력하세요.</p>
           </div>
           <div class="auth-form-group">
-            <label for="transfer-manager-note">?멸퀎 ?ъ쑀</label>
-            <input type="text" id="transfer-manager-note" maxlength="200" placeholder="?? ?몄궗?대룞">
+            <label for="transfer-manager-note">인계 사유</label>
+            <input type="text" id="transfer-manager-note" maxlength="200" placeholder="예: 인사이동">
           </div>
-          <p style="font-size:0.78rem; color:#b45309;">?묐룄 ??湲곗〈 ?대떦??怨꾩젙? ???댁긽 愿由ъ옄 ?먮━???곌껐?섏? ?딆뒿?덈떎. 怨쇨굅 ?뱀씤 湲곕줉? 蹂댁〈?⑸땲??</p>
+          <p style="font-size:0.78rem; color:#b45309;">양도 후 기존 담당자 계정은 더 이상 관리자 자리에 연결되지 않습니다. 과거 승인 기록은 보존됩니다.</p>
         </div>
         <div class="dialog-footer">
-          <button type="button" class="btn btn-secondary" id="transfer-manager-cancel">痍⑥냼</button>
-          <button type="submit" class="btn btn-primary">沅뚰븳 ?묐룄 ?ㅽ뻾</button>
+          <button type="button" class="btn btn-secondary" id="transfer-manager-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">권한 양도 실행</button>
         </div>
       </form>
     </div>
@@ -615,16 +944,16 @@
   <!-- A4 Landscape Master Print Layout (Hidden on Screen, formatted matching user screenshot) -->
   <div id="master-print-layout" class="print-only">
     <div class="print-header-row">
-      <div class="print-main-title" id="print-title-month">2026??7??洹쇰Т(?쒓컙?? 怨꾪쉷 : ?앺솢吏?먰?</div>
+      <div class="print-main-title" id="print-title-month">2026년 7월 근무(시간외) 계획 : 생활지원팀</div>
       
-      <!-- Approval Box (??? 怨쇱옣, 援?옣, ?먯옣) -->
+      <!-- Approval Box (팀장, 과장, 국장, 원장) -->
       <table class="print-approval-table">
         <tr>
-          <td rowspan="2" class="print-approval-header">寃?br>??/td>
-          <td>???/td>
-          <td>怨쇱옣</td>
-          <td>援?옣</td>
-          <td>?먯옣</td>
+          <td rowspan="2" class="print-approval-header">결<br>재</td>
+          <td>팀장</td>
+          <td>과장</td>
+          <td>국장</td>
+          <td>원장</td>
         </tr>
         <tr>
           <td class="print-approval-cell"></td>
@@ -639,11 +968,11 @@
     <table class="print-master-table">
       <thead>
         <tr id="print-th-row-1">
-          <th rowspan="2" style="width: 6%;">?앺솢愿</th>
-          <th rowspan="2" style="width: 4%;">?깅챸</th>
-          <th rowspan="2" style="width: 4%;">?쒕챸</th>
+          <th rowspan="2" style="width: 6%;">생활관</th>
+          <th rowspan="2" style="width: 4%;">성명</th>
+          <th rowspan="2" style="width: 4%;">서명</th>
           <!-- Dates 1 to 31 will go here via JS -->
-          <th rowspan="2" style="width: 3%;">??/th>
+          <th rowspan="2" style="width: 3%;">합</th>
         </tr>
         <tr id="print-th-row-2">
           <!-- Days of week will go here via JS -->
@@ -657,15 +986,15 @@
     <!-- Notes Footer -->
     <table class="print-footer-table">
       <tr>
-        <td style="width: 6%; text-align: center; font-weight: bold; background-color: #f1f5f9;">?낅Т</td>
+        <td style="width: 6%; text-align: center; font-weight: bold; background-color: #f1f5f9;">업무</td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td style="text-align: center; font-weight: bold; background-color: #f1f5f9;">鍮꾧퀬</td>
+        <td style="text-align: center; font-weight: bold; background-color: #f1f5f9;">비고</td>
         <td style="font-size: 8pt; line-height: 1.5; padding: 0.5rem;">
-          二?09:00~18:00(8?쒓컙, ?닿쾶 1?쒓컙)<br>
-          ??07:00~19:00(8?쒓컙, ?닿쾶 1?쒓컙, ?쒓컙??3?쒓컙)<br>
-          ??18:00~09:00(8?쒓컙, ?닿쾶 5?쒓컙, ?쒓컙??4?쒓컙)
+          주 09:00~18:00(8시간, 휴게 1시간)<br>
+          당 07:00~19:00(8시간, 휴게 1시간, 시간외 3시간)<br>
+          야 18:00~09:00(8시간, 휴게 5시간, 시간외 4시간)
         </td>
       </tr>
     </table>
@@ -673,7 +1002,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260814_9"></script>
+
+  <script src="app.js?v=20260814_10"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
