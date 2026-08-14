@@ -248,6 +248,7 @@ async function loadStateFromServer() {
     empData = Array.isArray(empData) ? empData : [];
 
     // If database is completely empty, initialize it with seed data
+
     if (!empData || empData.length === 0) {
       const confirmInit = confirm("Supabase 데이터베이스에 등록된 근무자 데이터가 없습니다.\n기본 초기 데이터를 서버에 자동 등록하시겠습니까?");
       if (confirmInit) {
@@ -498,6 +499,7 @@ async function saveState() {
       await getDB().from('shift_modifications').delete().not('id', 'in', localModIds);
     } else {
       await getDB().from('shift_modifications').delete().neq('id', 'placeholder');
+
     }
 
     // 5. Sync Global Notices
@@ -748,6 +750,7 @@ function getOvertimeCellHtml(employee, dateStr, type) {
     if (showSolid) {
       html += `<span class="${prefix}">${displayHours}</span>`;
     }
+
   }
   
   if (pendingHours > 0) {
@@ -898,7 +901,6 @@ function calculateShift(employee, dateStr) {
   // 2. Check if there's a manual shift modification
   const modification = shiftModifications.find(mod => 
     mod.employeeId === employee.id && 
-
     mod.date === dateStr
   );
   if (modification) return modification.shift;
@@ -999,6 +1001,7 @@ async function initApp() {
       await loadStateFromServer();
       currentUser = employees.find((employee) => employee.authUserId === sessionUser.id) || null;
       updateLoginUI();
+
       renderRoster();
       if (currentUser && currentUser.role === 'manager') {
         renderAdminDashboard();
@@ -1248,6 +1251,7 @@ function setupEventListeners() {
       formStaffOt.style.display = 'block';
     });
   }
+
 
   // Cancel/Close staff modal
   const closeStaffModal = () => {
@@ -1499,6 +1503,7 @@ function setupEventListeners() {
     }
 
     if (editingRequestId && editingRequestType === 'overtime') {
+
       const req = overtimeRequests.find(r => r.id === editingRequestId);
       if (req) {
         try {
@@ -1749,6 +1754,7 @@ function setupEventListeners() {
     if (emp) {
       emp.name = name;
       emp.hall = hall; // Save updated living hall!
+
       emp.joinYearMonth = joinYearMonth;
       emp.totalLeave = totalLeave;
       emp.shiftGroup = shiftGroup; // Save group change!
@@ -1799,7 +1805,6 @@ function setupEventListeners() {
       alert('관리자 기본 정보가 수정되었습니다. 로그인 계정 인계는 권한 양도 버튼을 사용하세요.');
     }
   });
-
 
   const closeMgrBtn = document.getElementById('edit-manager-close');
   if (closeMgrBtn) {
@@ -2000,6 +2005,7 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
       document.getElementById(`reject-ot-${req.id}`).onclick = () => {
+
         window.rejectOvertime(req.id);
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
@@ -2195,7 +2201,13 @@ function renderMyPage() {
         statusBadgeClass = 'badge-approved';
         statusText = '승인됨';
       } else if (req.status === 'rejected') {
-        statusBadgeClass = …39 tokens truncated…tatus === 'pending') {
+        statusBadgeClass = 'badge-rejected';
+        statusText = '반려됨';
+      }
+
+      // Add cancel button for regular staff
+      let cancelBtn = '';
+      if (req.status === 'pending') {
         cancelBtn = `<button class="btn btn-secondary btn-sm" onclick="cancelMyRequest('${req.id}', '${req.type}')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;">신청취소</button>`;
       } else {
         cancelBtn = `<span style="font-size: 0.75rem; color: var(--text-muted);">-</span>`;
@@ -2243,6 +2255,7 @@ function renderMyCalendar() {
 
   // Determine starting weekday of the month
   const startDayOfWeek = new Date(year, month, 1).getDay();
+
 
   // Populate trailing days of the previous month
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
@@ -2494,6 +2507,7 @@ function renderRoster() {
   renderRosterForManagers('roster-header-row-managers', 'roster-tbody-managers');
 
   // Update statistics
+
   updateStatsDashboard();
 }
 
@@ -2694,7 +2708,6 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
           });
         }
       }
-
       
       tr.appendChild(td);
       day++;
@@ -2745,6 +2758,7 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   const nameTh = document.createElement('th');
   nameTh.textContent = '성명';
   nameTh.className = 'instructor-cell';
+
   headerRow.appendChild(nameTh);
   
   // Print-only Signature col
@@ -2995,6 +3009,7 @@ function populateMasterPrintTable() {
     }
 
     if (d.getDay() === 0) {
+
       th.style.setProperty('border-right', '2.5px solid #000000', 'important');
     }
     row2.appendChild(th);
@@ -3245,6 +3260,7 @@ function populateMasterPrintTable() {
           const nextDateStr = formatDateString(year, month, checkDay);
           const nextShift = calculateShift(emp, nextDateStr);
           
+
           const isSameType = (
             ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
             ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
@@ -3495,6 +3511,7 @@ function renderAdminDashboard() {
         statusBadgeClass = 'badge-approved';
         statusText = '승인됨';
       } else if (req.status === 'rejected') {
+
         statusBadgeClass = 'badge-rejected';
         statusText = '반려됨';
       }
@@ -3595,7 +3612,6 @@ function renderAdminManagers() {
   managers.forEach(mgr => {
     const tr = document.createElement('tr');
     let roleLabel = '전체 관리자 (개발자)';
-
     if (mgr.hall === 'girincho') roleLabel = '기린초생활관 팀장';
     else if (mgr.hall === 'mulbongseon') roleLabel = '물봉선생활관 팀장';
     
@@ -3746,6 +3762,7 @@ window.approveOvertime = async function(requestId) {
     alert(`해당 직원의 해당 월간 시간외 근무가 한도(40시간)를 초과하여 승인할 수 없습니다. (현재 월간 누적: ${currentMonthlyTotalWithoutThis}시간, 승인 요청: ${req.hours}시간)`);
     return;
   }
+
 
   try {
     await updateRequestStatus('overtime_requests', requestId, 'approved');
@@ -3996,6 +4013,7 @@ window.saveRosterAsImage = function() {
       container.style.visibility = originalVisibility;
       container.style.width = originalWidth;
       container.style.padding = originalPadding;
+
       container.classList.add('print-only'); // Restore class
       
       // Download PNG securely by appending temporary link to DOM
@@ -4246,6 +4264,7 @@ window.importData = function(event) {
       alert('파일을 읽는 도중 오류가 발생했습니다: ' + err.message);
     }
   };
+
   reader.readAsText(file);
   event.target.value = ''; // Reset input selection
 };
