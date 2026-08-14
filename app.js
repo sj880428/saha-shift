@@ -2283,6 +2283,8 @@ function updateLoginUI() {
   const adminSection = document.getElementById('admin-section');
   const btnLoginTrigger = document.getElementById('btn-login-trigger');
   const headerUserInfo = document.getElementById('header-user-info');
+  const mainContent = document.getElementById('screen-main');
+  const guestWelcome = document.getElementById('guest-welcome');
 
   // Reset inputs in modal
   document.getElementById('staff-login-id').value = '';
@@ -2291,6 +2293,8 @@ function updateLoginUI() {
   document.getElementById('manager-pw').value = '';
 
   if (currentUser) {
+    if (mainContent) mainContent.style.display = '';
+    if (guestWelcome) guestWelcome.style.display = 'none';
     btnLoginTrigger.style.display = 'none';
     
     // Display header user info card inline next to Logo
@@ -2327,6 +2331,8 @@ function updateLoginUI() {
       renderMyPage();
     }
   } else {
+    if (mainContent) mainContent.style.display = 'none';
+    if (guestWelcome) guestWelcome.style.display = 'block';
     document.body.classList.remove('staff-mobile-mode');
     // Guest Mode
     btnLoginTrigger.style.display = 'inline-flex';
@@ -3546,7 +3552,7 @@ function renderAdminManagers() {
       <td>
         ${currentUser.hall === 'all' ? `
           <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
-          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
+          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" disabled title="최종 보안 설정 후 사용할 수 있습니다">권한 양도 준비 중</button>
         ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
     `;
