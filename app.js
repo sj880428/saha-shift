@@ -3588,7 +3588,7 @@ function renderAdminManagers() {
       <td>
         ${currentUser.hall === 'all' ? `
           <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
-          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" disabled title="최종 보안 설정 후 사용할 수 있습니다">권한 양도 준비 중</button>
+          <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
         ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
     `;
