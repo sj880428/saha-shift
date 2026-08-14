@@ -1603,6 +1603,42 @@ function setupEventListeners() {
     });
   }
 
+  const passwordOverlay = document.getElementById('password-change-overlay');
+  const openPasswordButton = document.getElementById('btn-change-password');
+  const closePasswordDialog = () => {
+    passwordOverlay.classList.remove('active');
+    document.getElementById('password-change-form').reset();
+  };
+
+  openPasswordButton.addEventListener('click', () => {
+    if (!currentUser) return;
+    document.getElementById('password-change-form').reset();
+    passwordOverlay.classList.add('active');
+  });
+  document.getElementById('password-change-close').addEventListener('click', closePasswordDialog);
+  document.getElementById('password-change-cancel').addEventListener('click', closePasswordDialog);
+  document.getElementById('password-change-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const password = document.getElementById('new-password').value;
+    const confirmation = document.getElementById('new-password-confirm').value;
+    if (!/^\d{8}$/.test(password)) {
+      alert('새 비밀번호는 숫자 8자리로 입력해 주세요.');
+      return;
+    }
+    if (password !== confirmation) {
+      alert('새 비밀번호 두 칸이 서로 다릅니다.');
+      return;
+    }
+    try {
+      await window.SahaAuth.changePassword(password);
+      closePasswordDialog();
+      alert('비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용해 주세요.');
+    } catch (error) {
+      console.error('Password change failed:', error);
+      alert('비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+  });
+
   // Edit Shift Form Dialog handlers
   document.getElementById('edit-shift-cancel').addEventListener('click', () => {
     document.getElementById('edit-shift-overlay').classList.remove('active');

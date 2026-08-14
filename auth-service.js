@@ -44,7 +44,16 @@
     return data.session?.user || null;
   }
 
+  async function changePassword(newPassword) {
+    if (!validateStaffPassword(newPassword)) {
+      throw new Error('새 비밀번호는 숫자 8자리로 입력해 주세요.');
+    }
+    const { error } = await window.getDB().auth.updateUser({ password: String(newPassword) });
+    if (error) throw error;
+  }
+
   window.SahaAuth = {
+    changePassword,
     getSessionUser,
     normalizeLoginId,
     signIn,

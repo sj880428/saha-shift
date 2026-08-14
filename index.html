@@ -39,7 +39,8 @@
           <strong id="header-username-text" style="color: var(--text-main);">김기린</strong>
           <span style="color: var(--text-muted); font-size: 0.75rem;">(<span id="header-role-text">기린초생활관</span>)</span>
         </div>
-        <button id="btn-logout" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;">로그아웃</button>
+        <button id="btn-change-password" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">비밀번호</button>
+        <button id="btn-logout" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; margin-left: 0.25rem;">로그아웃</button>
       </div>
 
       <!-- Login Trigger Button (Visible when logged out) -->
@@ -566,6 +567,33 @@
     </div>
   </div>
 
+  <!-- Password Change Dialog -->
+  <div class="dialog-overlay" id="password-change-overlay">
+    <div class="dialog-content" style="max-width: 400px;">
+      <div class="dialog-header">
+        <h3 class="dialog-title">비밀번호 변경</h3>
+        <button type="button" class="btn-icon" id="password-change-close" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      <form id="password-change-form">
+        <div class="dialog-body">
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">새 비밀번호는 숫자 8자리로 입력해 주세요.</p>
+          <div class="auth-form-group">
+            <label for="new-password">새 비밀번호</label>
+            <input id="new-password" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" maxlength="8" required placeholder="숫자 8자리">
+          </div>
+          <div class="auth-form-group">
+            <label for="new-password-confirm">새 비밀번호 확인</label>
+            <input id="new-password-confirm" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" maxlength="8" required placeholder="한 번 더 입력">
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-secondary" id="password-change-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">변경하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Staff Request Modal (Staff-only popup on self date cell click) -->
   <div class="dialog-overlay" id="staff-request-overlay">
     <div class="dialog-content">
@@ -943,8 +971,8 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="auth-service.js?v=20260814_2"></script>
-  <script src="app.js?v=20260814_4"></script>
+  <script src="auth-service.js?v=20260814_3"></script>
+  <script src="app.js?v=20260814_5"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
