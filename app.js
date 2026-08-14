@@ -430,7 +430,6 @@ async function saveState() {
     const dbEmps = employees.map(e => ({
       id: e.id,
       name: e.name,
-      phone_last_4: e.phoneLast4,
       username: e.username,
       login_id: e.loginId || null,
       auth_user_id: e.authUserId || null,
@@ -899,6 +898,7 @@ function calculateShift(employee, dateStr) {
   // 2. Check if there's a manual shift modification
   const modification = shiftModifications.find(mod => 
     mod.employeeId === employee.id && 
+
     mod.date === dateStr
   );
   if (modification) return modification.shift;
@@ -1741,23 +1741,14 @@ function setupEventListeners() {
     const id = document.getElementById('edit-emp-id').value;
     const name = document.getElementById('edit-emp-name').value.trim();
     const hall = document.getElementById('edit-emp-hall').value;
-    const phone = document.getElementById('edit-emp-phone').value.trim();
     const joinYearMonth = document.getElementById('edit-emp-join').value;
     const totalLeave = parseInt(document.getElementById('edit-emp-total').value);
     const shiftGroup = parseInt(document.getElementById('edit-emp-group').value);
-
-    // Verify phone number last 4 is unique among other staff
-    const phoneDuplicated = employees.some(emp => emp.id !== id && emp.role === 'staff' && emp.phoneLast4 === phone);
-    if (phoneDuplicated) {
-      alert('동일한 로그인 번호(뒷 4자리)를 사용하는 다른 직원이 이미 존재합니다.');
-      return;
-    }
 
     const emp = employees.find(e => e.id === id);
     if (emp) {
       emp.name = name;
       emp.hall = hall; // Save updated living hall!
-      emp.phoneLast4 = phone;
       emp.joinYearMonth = joinYearMonth;
       emp.totalLeave = totalLeave;
       emp.shiftGroup = shiftGroup; // Save group change!
@@ -1809,6 +1800,7 @@ function setupEventListeners() {
     }
   });
 
+
   const closeMgrBtn = document.getElementById('edit-manager-close');
   if (closeMgrBtn) {
     closeMgrBtn.addEventListener('click', () => {
@@ -1853,6 +1845,36 @@ function setupEventListeners() {
       alert(`권한 양도가 완료되었습니다. 후임자 로그인 ID: ${data.loginId}`);
     } catch (error) {
       alert('권한 양도에 실패했습니다: ' + (error.message || error));
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
+  const loginIdOverlay = document.getElementById('change-login-id-overlay');
+  const closeLoginIdChange = () => {
+    loginIdOverlay.classList.remove('active');
+    document.getElementById('change-login-id-form').reset();
+  };
+  document.getElementById('change-login-id-close').addEventListener('click', closeLoginIdChange);
+  document.getElementById('change-login-id-cancel').addEventListener('click', closeLoginIdChange);
+  document.getElementById('change-login-id-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser || currentUser.hall !== 'all') return;
+    const employeeId = document.getElementById('change-login-employee-id').value;
+    const newLoginId = document.getElementById('change-login-new-id').value.trim().toLowerCase();
+    if (!confirm(`로그인 ID를 '${newLoginId}'(으)로 변경하시겠습니까?`)) return;
+    const submitButton = e.submitter;
+    if (submitButton) submitButton.disabled = true;
+    try {
+      const { data, error } = await getDB().functions.invoke('change-login-id', { body: { employeeId, newLoginId } });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || '로그인 ID 변경에 실패했습니다.');
+      closeLoginIdChange();
+      await loadStateFromServer();
+      renderAdminDashboard();
+      alert(`로그인 ID가 '${data.loginId}'(으)로 변경되었습니다.`);
+    } catch (error) {
+      alert('로그인 ID를 변경하지 못했습니다: ' + (error.message || error));
     } finally {
       if (submitButton) submitButton.disabled = false;
     }
@@ -2173,13 +2195,7 @@ function renderMyPage() {
         statusBadgeClass = 'badge-approved';
         statusText = '승인됨';
       } else if (req.status === 'rejected') {
-        statusBadgeClass = 'badge-rejected';
-        statusText = '반려됨';
-      }
-
-      // Add cancel button for regular staff
-      let cancelBtn = '';
-      if (req.status === 'pending') {
+        statusBadgeClass = …39 tokens truncated…tatus === 'pending') {
         cancelBtn = `<button class="btn btn-secondary btn-sm" onclick="cancelMyRequest('${req.id}', '${req.type}')" style="padding: 0.15rem 0.35rem; font-size: 0.7rem; font-weight: bold;">신청취소</button>`;
       } else {
         cancelBtn = `<span style="font-size: 0.75rem; color: var(--text-muted);">-</span>`;
@@ -2678,6 +2694,7 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
           });
         }
       }
+
       
       tr.appendChild(td);
       day++;
@@ -3536,12 +3553,13 @@ function renderAdminEmployees() {
       <td><span class="badge" style="background-color:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color); border-radius:0.375rem; width:auto; height:auto; padding:0.25rem 0.5rem; font-size:0.85rem; font-weight:600;">${hallLabel}생활관</span></td>
       <td><strong>${emp.shiftGroup}조</strong></td>
       <td><strong>${emp.name}</strong></td>
-      <td><code>${emp.phoneLast4}</code></td>
+      <td><code>${emp.loginId || '미연결'}</code></td>
       <td>${emp.joinYearMonth}</td>
       <td>${emp.totalLeave}일</td>
       <td><strong>${emp.remainingLeave}일</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(사용: ${emp.usedLeave}일)</span></td>
       <td>
-        <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="openEditEmployeeModal('${emp.id}')">✏️ 정보/소속 수정</button>
+        <button class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openEditEmployeeModal('${emp.id}')">✏️ 정보/소속 수정</button>
+        ${currentUser.hall === 'all' ? `<button class="btn btn-primary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${emp.id}')">아이디 변경</button>` : ''}
       </td>
     `;
     tbody.appendChild(tr);
@@ -3556,7 +3574,7 @@ window.openEditEmployeeModal = function(employeeId) {
   document.getElementById('edit-emp-id').value = emp.id;
   document.getElementById('edit-emp-name').value = emp.name;
   document.getElementById('edit-emp-hall').value = emp.hall; // Load living hall
-  document.getElementById('edit-emp-phone').value = emp.phoneLast4;
+  document.getElementById('edit-emp-login-id').value = emp.loginId || '미연결';
   document.getElementById('edit-emp-join').value = emp.joinYearMonth;
   document.getElementById('edit-emp-total').value = emp.totalLeave;
   document.getElementById('edit-emp-group').value = emp.shiftGroup || 1;
@@ -3577,6 +3595,7 @@ function renderAdminManagers() {
   managers.forEach(mgr => {
     const tr = document.createElement('tr');
     let roleLabel = '전체 관리자 (개발자)';
+
     if (mgr.hall === 'girincho') roleLabel = '기린초생활관 팀장';
     else if (mgr.hall === 'mulbongseon') roleLabel = '물봉선생활관 팀장';
     
@@ -3588,6 +3607,7 @@ function renderAdminManagers() {
       <td>
         ${currentUser.hall === 'all' ? `
           <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
+          <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${mgr.id}')">아이디 변경</button>
           <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
         ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
@@ -3618,6 +3638,16 @@ window.openManagerTransferModal = function(managerId) {
   document.getElementById('transfer-manager-id').value = mgr.id;
   document.getElementById('transfer-manager-current').textContent = `현재 담당자: ${mgr.name} / 로그인 ID: ${mgr.loginId || mgr.username || '미연결'}`;
   document.getElementById('transfer-manager-overlay').classList.add('active');
+};
+
+window.openChangeLoginIdModal = function(employeeId) {
+  if (!currentUser || currentUser.hall !== 'all') return;
+  const employee = employees.find(e => e.id === employeeId);
+  if (!employee || !employee.authUserId) return alert('로그인 계정이 연결되지 않은 사용자입니다.');
+  document.getElementById('change-login-employee-id').value = employee.id;
+  document.getElementById('change-login-current').textContent = `${employee.name} / 현재 ID: ${employee.loginId || '미연결'}`;
+  document.getElementById('change-login-new-id').value = employee.loginId || '';
+  document.getElementById('change-login-id-overlay').classList.add('active');
 };
 
 
