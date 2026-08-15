@@ -1,10 +1,10 @@
-const CACHE_NAME = 'saha-shift-v20260814-10';
+const CACHE_NAME = 'saha-shift-v20260815-1';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=20260814_4',
+  './styles.css?v=20260815_1',
   './auth-service.js?v=20260814_3',
-  './app.js?v=20260814_10',
+  './app.js?v=20260815_1',
   './manifest.webmanifest',
   './app-icon.svg'
 ];
