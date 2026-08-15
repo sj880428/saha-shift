@@ -2412,7 +2412,6 @@ function updateLoginUI() {
     // Display header user info card inline next to Logo
     if (headerUserInfo) {
       headerUserInfo.style.display = 'flex';
-      document.getElementById('header-avatar-initial').textContent = currentUser.name[0];
       document.getElementById('header-username-text').textContent = currentUser.name;
       
       let roleText = `${currentUser.hall === 'girincho' ? '기린초생활관' : '물봉선생활관'}`;
