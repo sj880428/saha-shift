@@ -574,6 +574,13 @@ async function updateRequestStatus(table, requestId, status) {
   if (error) throw error;
 }
 
+async function deleteRequestAsManager(table, requestId) {
+  if (!currentUser || !isUserAdmin()) throw new Error('관리자 권한이 필요합니다.');
+  const { data, error } = await getDB().from(table).delete().eq('id', requestId).select('id');
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error('삭제할 신청 내역을 서버에서 찾지 못했습니다.');
+}
+
 async function deleteOwnRequest(table, requestId) {
   const { data, error } = await getDB()
     .from(table)
@@ -3585,6 +3592,10 @@ function renderAdminDashboard() {
             <button class="btn btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="rejectLeave('${req.id}')">반려</button>
           </div>
         `;
+      } else if (req.status === 'rejected') {
+        actionButtons = `
+          <button class="btn btn-danger btn-sm" style="padding: 0.2rem 0.45rem; font-size: 0.7rem; font-weight: bold;" onclick="deleteRejectedLeave('${req.id}')">내역 삭제</button>
+        `;
       } else {
         actionButtons = `
           <div style="display: inline-flex; gap: 0.25rem; align-items: center;">
@@ -3829,8 +3840,8 @@ window.rejectLeave = async function(requestId) {
   if (!req) return;
 
   try {
-    await updateRequestStatus('leave_requests', requestId, 'rejected');
-    req.status = 'rejected';
+    await deleteRequestAsManager('leave_requests', requestId);
+    leaveRequests = leaveRequests.filter(r => r.id !== requestId);
     recalculateEmployeeLeaveCounts();
     const emp = employees.find(e => e.id === req.employeeId);
     if (emp) await saveEmployeeLeaveCounts(emp);
@@ -3839,7 +3850,7 @@ window.rejectLeave = async function(requestId) {
     return;
   }
 
-  alert('연가 신청이 반려 처리되었습니다.');
+  alert('연가 신청이 반려되었으며 신청 내역도 삭제되었습니다.');
   renderAdminDashboard();
   renderRoster();
 };
@@ -3925,14 +3936,17 @@ window.rejectOvertime = async function(requestId) {
 // Revert/Cancel Approval handler
 window.cancelApproval = async function(requestId, type) {
   if (!currentUser || !isUserAdmin()) return;
-  if (!confirm('이 신청 건의 결재 처리를 취소하고 다시 대기 상태로 되돌리시겠습니까?')) return;
+  const confirmMessage = type === 'leave'
+    ? '승인된 연가를 취소하고 신청 내역도 완전히 삭제하시겠습니까? 잔여 연가는 자동으로 복원됩니다.'
+    : '이 신청 건의 결재 처리를 취소하고 다시 대기 상태로 되돌리시겠습니까?';
+  if (!confirm(confirmMessage)) return;
 
   if (type === 'leave') {
     const req = leaveRequests.find(r => r.id === requestId);
     if (req) {
       try {
-        await updateRequestStatus('leave_requests', requestId, 'pending');
-        req.status = 'pending';
+        await deleteRequestAsManager('leave_requests', requestId);
+        leaveRequests = leaveRequests.filter(r => r.id !== requestId);
         recalculateEmployeeLeaveCounts();
         const emp = employees.find(e => e.id === req.employeeId);
         if (emp) await saveEmployeeLeaveCounts(emp);
@@ -3940,7 +3954,7 @@ window.cancelApproval = async function(requestId, type) {
         alert('결재 취소에 실패했습니다: ' + (error.message || error));
         return;
       }
-      alert('연가 결재 처리가 취소되어 대기 상태로 변경되었습니다.');
+      alert('연가 승인이 취소되었고 신청 내역도 삭제되었습니다.');
     }
   } else {
     const req = overtimeRequests.find(r => r.id === requestId);
@@ -3961,6 +3975,26 @@ window.cancelApproval = async function(requestId, type) {
   if (currentUser && currentUser.role === 'staff') {
     renderMyPage();
   }
+};
+
+window.deleteRejectedLeave = async function(requestId) {
+  if (!currentUser || !isUserAdmin()) return;
+  if (!confirm('이 반려 내역을 완전히 삭제하시겠습니까?')) return;
+  const req = leaveRequests.find(r => r.id === requestId);
+  if (!req) return;
+  try {
+    await deleteRequestAsManager('leave_requests', requestId);
+    leaveRequests = leaveRequests.filter(r => r.id !== requestId);
+    recalculateEmployeeLeaveCounts();
+    const emp = employees.find(e => e.id === req.employeeId);
+    if (emp) await saveEmployeeLeaveCounts(emp);
+  } catch (error) {
+    alert('반려 내역을 삭제하지 못했습니다: ' + (error.message || error));
+    return;
+  }
+  renderAdminDashboard();
+  renderRoster();
+  alert('반려 내역이 완전히 삭제되었습니다.');
 };
 
 // Revert/Cancel My own Request handler (for regular staff)
