@@ -2818,6 +2818,9 @@ function renderMobileRosterTable(card, rosterEmployees, year, month, hall) {
     const dateStr = formatDateString(year, month, day);
     const holidayName = getHolidayName(year, month, day);
     const row = document.createElement('tr');
+    const today = new Date();
+    const todayDateStr = formatDateString(today.getFullYear(), today.getMonth(), today.getDate());
+    if (dateStr === todayDateStr) row.classList.add('is-today');
     if (holidayName || date.getDay() === 0) row.classList.add('is-holiday');
     else if (date.getDay() === 6) row.classList.add('is-saturday');
 
