@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- recovery-deploy-20260814 -->
 <html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -12,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="app-icon.svg" type="image/svg+xml">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260814_4">
+  <link rel="stylesheet" href="styles.css?v=20260815_1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -199,7 +198,6 @@
           </div>
           
           <div class="stats-card-group" style="margin-top: 1rem; margin-bottom: 0.5rem;">
-
             <div class="stat-card" style="grid-column: span 2;">
               <div class="stat-lbl">이번 주 누적 시간외 (한도: 12h)</div>
               <div class="stat-val" id="my-weekly-overtime" style="color:var(--color-primary);">0시간</div>
@@ -400,7 +398,6 @@
                 <!-- Populated via JS -->
               </tbody>
             </table>
-
           </div>
         </div>
       </div>
@@ -601,7 +598,6 @@
   <div class="dialog-overlay" id="staff-request-overlay">
     <div class="dialog-content">
       <div class="dialog-header">
-
         <h3 class="dialog-title">연가 / 시간외 근무 신청</h3>
         <button type="button" class="btn-icon" id="staff-request-close" style="border:none; font-size:1.25rem;">&times;</button>
       </div>
@@ -802,7 +798,6 @@
           <div class="auth-form-group">
             <label for="edit-emp-join">입사년월</label>
             <input type="month" id="edit-emp-join" required>
-
             <p style="font-size: 0.725rem; color: var(--text-muted); margin-top: 0.25rem;">
               ※ 입사년월 선택 시 아래 총 부여 연가 일수가 자동 계산됩니다.
             </p>
@@ -1003,8 +998,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-
-  <script src="app.js?v=20260814_10"></script>
+  <script src="app.js?v=20260815_1"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
