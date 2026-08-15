@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="app-icon.svg" type="image/svg+xml">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260815_1">
+  <link rel="stylesheet" href="styles.css?v=20260815_2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -75,7 +75,7 @@
           </span>
           <button id="next-month-btn" class="btn btn-secondary" style="margin-right: 0.5rem;">다음달 &gt;</button>
           
-          <button class="btn btn-primary" onclick="printAllRosters()" style="font-weight: 600; padding: 0.35rem 0.75rem; font-size: 0.85rem;">
+          <button class="btn btn-primary mobile-hide-print" onclick="printAllRosters()" style="font-weight: 600; padding: 0.35rem 0.75rem; font-size: 0.85rem;">
             🖨️ 근무표 인쇄 및 pdf 저장
           </button>
         </div>
@@ -998,7 +998,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260815_1"></script>
+  <script src="app.js?v=20260815_2"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
