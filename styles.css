@@ -1614,3 +1614,89 @@ tr.my-roster-row td {
     box-shadow: 0 2px 6px rgba(79, 70, 229, 0.24) !important;
   }
 }
+
+/* Print only the prepared A4 roster. Screen navigation and app controls must never leak into print. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 5mm;
+  }
+
+  html,
+  body {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  body > *:not(#master-print-layout) {
+    display: none !important;
+  }
+
+  #mobile-bottom-nav,
+  #screen-main,
+  #guest-welcome,
+  #global-notice-banner,
+  header,
+  footer,
+  .dialog-overlay,
+  .mobile-tabs,
+  .no-print {
+    display: none !important;
+  }
+
+  #master-print-layout {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  #master-print-layout,
+  .print-header-row,
+  .print-master-table,
+  .print-footer-table {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-header-row {
+    margin-bottom: 3mm !important;
+  }
+
+  .print-main-title {
+    font-size: 13pt !important;
+  }
+
+  .print-approval-cell {
+    height: 32px !important;
+  }
+
+  .print-master-table tr:not(.print-separator-row) {
+    height: 24px !important;
+  }
+
+  .print-master-table tr.print-separator-row {
+    height: 6px !important;
+  }
+
+  .print-master-table th,
+  .print-master-table td {
+    padding: 0.08rem 0.12rem !important;
+    font-size: 6.4pt !important;
+  }
+
+  .print-footer-table td {
+    padding: 0.35rem !important;
+    font-size: 7.5pt !important;
+    line-height: 1.25 !important;
+  }
+}
