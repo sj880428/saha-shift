@@ -1130,6 +1130,10 @@ tr.my-roster-row td {
   font: inherit;
 }
 
+.mobile-roster-table-container {
+  display: none;
+}
+
 @media (max-width: 768px) {
   body.staff-mobile-mode {
     padding-bottom: 76px;
@@ -1142,6 +1146,15 @@ tr.my-roster-row td {
   body.staff-mobile-mode[data-mobile-screen="mine"] .schedule-card,
   body.staff-mobile-mode[data-mobile-screen="mine"] #admin-section,
   body.staff-mobile-mode[data-mobile-screen="mine"] #mobile-request-section {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode[data-mobile-screen="mine"] #schedule-section-girincho,
+  body.staff-mobile-mode[data-mobile-screen="mine"] #schedule-section-mulbongseon,
+  body.staff-mobile-mode[data-mobile-screen="mine"] #schedule-section-managers,
+  body.staff-mobile-mode[data-mobile-screen="request"] #schedule-section-girincho,
+  body.staff-mobile-mode[data-mobile-screen="request"] #schedule-section-mulbongseon,
+  body.staff-mobile-mode[data-mobile-screen="request"] #schedule-section-managers {
     display: none !important;
   }
 
@@ -1246,6 +1259,22 @@ tr.my-roster-row td {
 
   body.staff-mobile-mode .mypage-grid {
     gap: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body.staff-mobile-mode .mypage-grid > .card:first-child {
+    order: 2;
+  }
+
+  body.staff-mobile-mode .mypage-grid > div:last-child {
+    order: 1;
+  }
+
+  body.staff-mobile-mode .mypage-grid > div:last-child > .card:first-child {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: 100%;
   }
 
   body.staff-mobile-mode .stats-card-group {
@@ -1262,7 +1291,7 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode .mini-cal-day {
-    height: 44px !important;
+    height: 48px !important;
   }
 
   body.staff-mobile-mode .mobile-request-history-wrap,
@@ -1279,6 +1308,104 @@ tr.my-roster-row td {
   body.staff-mobile-mode .schedule-card {
     padding: 1rem;
     margin-bottom: 5.5rem !important;
+  }
+
+  body.staff-mobile-mode .schedule-card > .roster-table-container {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table-container {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    background: var(--card-bg);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: center;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table th,
+  body.staff-mobile-mode .mobile-roster-table td {
+    height: 43px;
+    padding: 0.25rem 0.12rem;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.7rem;
+    background: #fff;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tr > :last-child {
+    border-right: 0;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 54px;
+    background: #f8fafc;
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table thead th span,
+  body.staff-mobile-mode .mobile-roster-table thead th small {
+    display: block;
+    white-space: nowrap;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table thead th small {
+    margin-top: 0.1rem;
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    font-weight: 500;
+  }
+
+  body.staff-mobile-mode .mobile-roster-date-col {
+    width: 36px;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #f8fafc !important;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table thead .mobile-roster-date-col {
+    z-index: 3;
+  }
+
+  body.staff-mobile-mode .mobile-roster-date-col strong,
+  body.staff-mobile-mode .mobile-roster-date-col span {
+    display: inline;
+    margin-right: 0.15rem;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table .is-me {
+    background: #eef2ff !important;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tr.is-holiday .mobile-roster-date-col {
+    color: #ef4444;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tr.is-saturday .mobile-roster-date-col {
+    color: #2563eb;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table .is-actionable {
+    cursor: pointer;
   }
 
   body.staff-mobile-mode .schedule-card .card-title {
