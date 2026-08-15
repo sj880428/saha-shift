@@ -28,6 +28,147 @@
   --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Final phone refinements: iPhone keyboard, compact controls and today's row. */
+@media (max-width: 768px) {
+  .auth-form-group input,
+  .auth-form-group select,
+  .mobile-request-form input {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px !important;
+  }
+
+  .mobile-request-form,
+  #mobile-request-section {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .mobile-request-form input[type="date"] {
+    display: block;
+    width: 100% !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .dialog-overlay {
+    align-items: flex-start;
+    padding: max(0.5rem, env(safe-area-inset-top)) 0.5rem max(0.5rem, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  .dialog-content {
+    width: 100% !important;
+    max-width: 430px !important;
+    max-height: calc(100dvh - 1rem);
+    margin: auto;
+    padding: 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  #login-overlay .dialog-content {
+    margin-top: 0;
+  }
+
+  #login-overlay form {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  #login-overlay .dialog-header,
+  #login-overlay .auth-tabs,
+  #login-overlay .dialog-body {
+    margin-bottom: 0.75rem !important;
+  }
+
+  #login-overlay .dialog-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding-top: 0.65rem;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--card-bg);
+  }
+
+  body.staff-mobile-mode .calendar-controls {
+    display: flex !important;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  body.staff-mobile-mode .calendar-title-group {
+    display: grid !important;
+    width: 100%;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: 0.4rem !important;
+    flex-wrap: nowrap !important;
+  }
+
+  body.staff-mobile-mode .calendar-title-group > .btn {
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0.55rem 0.2rem;
+    font-size: 0.76rem;
+  }
+
+  body.staff-mobile-mode .calendar-title-group .current-month-label {
+    min-width: 0 !important;
+    width: 100%;
+    justify-content: center;
+    gap: 0.1rem !important;
+    font-size: 0.86rem !important;
+    white-space: nowrap;
+  }
+
+  body.staff-mobile-mode .calendar-title-group .current-month-label select {
+    min-width: 0;
+    max-width: 65px;
+    padding: 0.35rem 0.1rem !important;
+    font-size: 0.88rem !important;
+  }
+
+  body.staff-mobile-mode .calendar-title-group .mobile-hide-print {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode #stats-dashboard-container {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr;
+    align-items: start !important;
+    gap: 0.35rem !important;
+    padding: 0.65rem !important;
+    font-size: 0.76rem !important;
+    overflow: hidden;
+  }
+
+  body.staff-mobile-mode #stats-dashboard-container > div {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 0.3rem !important;
+  }
+
+  body.staff-mobile-mode #stats-dashboard-container > div > span[style*="border-color"] {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tr.is-today > * {
+    background: #fff7cc !important;
+    box-shadow: inset 0 1px 0 #f59e0b, inset 0 -1px 0 #f59e0b;
+  }
+
+  body.staff-mobile-mode .mobile-roster-table tr.is-today .mobile-roster-date-col {
+    color: #b45309;
+    font-weight: 800;
+  }
+}
+
 [data-theme="dark"] {
   --primary-color: #6366f1;
   --primary-hover: #4f46e5;
@@ -1436,5 +1577,25 @@ tr.my-roster-row td {
     min-width: 0;
     font-size: 0.78rem;
     padding: 0.35rem 0.15rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dialog-overlay {
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+
+  .dialog-content {
+    width: calc(100% - 1rem) !important;
+    max-height: calc(100dvh - 1rem) !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
+  }
+
+  .auth-form-group input,
+  .auth-form-group select,
+  .mobile-request-form input {
+    font-size: 16px !important;
   }
 }
