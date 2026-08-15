@@ -1598,4 +1598,18 @@ tr.my-roster-row td {
   .mobile-request-form input {
     font-size: 16px !important;
   }
+
+  body.staff-mobile-mode .mobile-tab-btn {
+    background: #ffffff !important;
+    color: #475569 !important;
+    border-color: #e2e8f0 !important;
+    opacity: 1 !important;
+  }
+
+  body.staff-mobile-mode .mobile-tab-btn.active {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.24) !important;
+  }
 }
