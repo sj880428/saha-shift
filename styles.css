@@ -1375,6 +1375,7 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode #header-avatar-initial,
+  body.staff-mobile-mode #header-role-wrap,
   body.staff-mobile-mode #header-role-text,
   body.staff-mobile-mode #header-role-text + span {
     display: none !important;
