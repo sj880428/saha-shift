@@ -248,7 +248,6 @@ async function loadStateFromServer() {
     empData = Array.isArray(empData) ? empData : [];
 
     // If database is completely empty, initialize it with seed data
-
     if (!empData || empData.length === 0) {
       const confirmInit = confirm("Supabase 데이터베이스에 등록된 근무자 데이터가 없습니다.\n기본 초기 데이터를 서버에 자동 등록하시겠습니까?");
       if (confirmInit) {
@@ -499,7 +498,6 @@ async function saveState() {
       await getDB().from('shift_modifications').delete().not('id', 'in', localModIds);
     } else {
       await getDB().from('shift_modifications').delete().neq('id', 'placeholder');
-
     }
 
     // 5. Sync Global Notices
@@ -750,7 +748,6 @@ function getOvertimeCellHtml(employee, dateStr, type) {
     if (showSolid) {
       html += `<span class="${prefix}">${displayHours}</span>`;
     }
-
   }
   
   if (pendingHours > 0) {
@@ -1001,7 +998,6 @@ async function initApp() {
       await loadStateFromServer();
       currentUser = employees.find((employee) => employee.authUserId === sessionUser.id) || null;
       updateLoginUI();
-
       renderRoster();
       if (currentUser && currentUser.role === 'manager') {
         renderAdminDashboard();
@@ -1058,6 +1054,7 @@ async function initApp() {
     mobileTabBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const tab = e.target.getAttribute('data-tab');
+        document.body.dataset.mobileHall = tab;
         mobileTabBtns.forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         document.body.classList.remove('show-tab-girincho', 'show-tab-mulbongseon', 'show-tab-managers');
@@ -1251,7 +1248,6 @@ function setupEventListeners() {
       formStaffOt.style.display = 'block';
     });
   }
-
 
   // Cancel/Close staff modal
   const closeStaffModal = () => {
@@ -1503,7 +1499,6 @@ function setupEventListeners() {
     }
 
     if (editingRequestId && editingRequestType === 'overtime') {
-
       const req = overtimeRequests.find(r => r.id === editingRequestId);
       if (req) {
         try {
@@ -1754,7 +1749,6 @@ function setupEventListeners() {
     if (emp) {
       emp.name = name;
       emp.hall = hall; // Save updated living hall!
-
       emp.joinYearMonth = joinYearMonth;
       emp.totalLeave = totalLeave;
       emp.shiftGroup = shiftGroup; // Save group change!
@@ -1842,7 +1836,16 @@ function setupEventListeners() {
     if (submitButton) submitButton.disabled = true;
     try {
       const { data, error } = await getDB().functions.invoke('transfer-manager', { body: payload });
-      if (error) throw error;
+      if (error) {
+        let serverMessage = error.message || String(error);
+        try {
+          const errorBody = await error.context?.json();
+          serverMessage = errorBody?.error || errorBody?.message || serverMessage;
+        } catch (_) {
+          // Keep the original message when the server did not return JSON.
+        }
+        throw new Error(serverMessage);
+      }
       if (!data || !data.ok) throw new Error(data?.error || '권한 양도에 실패했습니다.');
       closeTransfer();
       await loadStateFromServer();
@@ -2014,7 +2017,6 @@ function openAdminCellApprovalModal(employee, dateStr, currentShift, pendingLeav
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
       document.getElementById(`reject-ot-${req.id}`).onclick = () => {
-
         window.rejectOvertime(req.id);
         document.getElementById('admin-cell-approval-overlay').classList.remove('active');
       };
@@ -2163,16 +2165,16 @@ window.openStaffRequestModal = openStaffRequestModal;
 
 // Render My Page (for logged-in staff)
 function renderMyPage() {
-  if (!currentUser || currentUser.role !== 'staff') return;
+  if (!currentUser) return;
 
   const empData = employees.find(emp => emp.id === currentUser.id);
   if (!empData) return;
 
   // Render stats
   document.getElementById('my-join-year').textContent = empData.joinYearMonth || '-';
-  document.getElementById('my-total-leave').textContent = `${empData.totalLeave}일`;
-  document.getElementById('my-used-leave').textContent = `${empData.usedLeave}일`;
-  document.getElementById('my-remaining-leave').textContent = `${empData.remainingLeave}일`;
+  document.getElementById('my-total-leave').textContent = `${empData.totalLeave ?? 0}일`;
+  document.getElementById('my-used-leave').textContent = `${empData.usedLeave ?? 0}일`;
+  document.getElementById('my-remaining-leave').textContent = `${empData.remainingLeave ?? 0}일`;
 
   // Calculate current week overtime total (using today's date for current week)
   const todayStr = new Date().toISOString().split('T')[0];
@@ -2236,7 +2238,7 @@ function renderMyPage() {
 
 // Render personal calendar for My Page
 function renderMyCalendar() {
-  if (!currentUser || currentUser.role !== 'staff') return;
+  if (!currentUser) return;
 
   const year = currentYear;
   const month = currentMonth;
@@ -2264,7 +2266,6 @@ function renderMyCalendar() {
 
   // Determine starting weekday of the month
   const startDayOfWeek = new Date(year, month, 1).getDay();
-
 
   // Populate trailing days of the previous month
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
@@ -2308,6 +2309,16 @@ function renderMyCalendar() {
 
     container.appendChild(el);
   }
+
+  // Keep a stable six-week calendar and show the next month softly, like a phone calendar app.
+  const renderedDayCells = startDayOfWeek + totalDays;
+  const nextMonthDayCount = Math.max(0, 42 - renderedDayCells);
+  for (let day = 1; day <= nextMonthDayCount; day++) {
+    const el = document.createElement('div');
+    el.className = 'mini-cal-day other-month';
+    el.textContent = day;
+    container.appendChild(el);
+  }
 }
 
 // Update UI based on Current User login state
@@ -2339,7 +2350,7 @@ function setupMobileStaffNavigation() {
   const openButton = document.getElementById('mobile-request-open');
   if (openButton) {
     openButton.addEventListener('click', () => {
-      if (!currentUser || currentUser.role !== 'staff') return;
+      if (!currentUser) return;
       const employee = employees.find((item) => item.id === currentUser.id);
       const dateStr = dateInput && dateInput.value;
       if (!employee || !dateStr) {
@@ -2349,6 +2360,33 @@ function setupMobileStaffNavigation() {
       openStaffRequestModal(employee, dateStr, calculateShift(employee, dateStr));
     });
   }
+
+  const mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
+  const handleLayoutChange = () => {
+    if (currentUser) updateLoginUI();
+  };
+  if (typeof mobileLayoutQuery.addEventListener === 'function') {
+    mobileLayoutQuery.addEventListener('change', handleLayoutChange);
+  } else if (typeof mobileLayoutQuery.addListener === 'function') {
+    mobileLayoutQuery.addListener(handleLayoutChange);
+  }
+}
+
+function selectMobileHallForUser() {
+  const availableTabs = ['girincho', 'mulbongseon', 'managers'];
+  const preferredHall = currentUser && availableTabs.includes(currentUser.hall)
+    ? currentUser.hall
+    : 'girincho';
+  const savedSelection = availableTabs.includes(document.body.dataset.mobileHall)
+    ? document.body.dataset.mobileHall
+    : null;
+  const nextHall = savedSelection || preferredHall;
+
+  document.body.classList.remove('show-tab-girincho', 'show-tab-mulbongseon', 'show-tab-managers');
+  document.body.classList.add(`show-tab-${nextHall}`);
+  document.querySelectorAll('.mobile-tab-btn').forEach((button) => {
+    button.classList.toggle('active', button.dataset.tab === nextHall);
+  });
 }
 
 // Update UI based on Current User login state
@@ -2387,7 +2425,15 @@ function updateLoginUI() {
     }
 
     const isAdmin = isUserAdmin();
-    if (isAdmin) {
+    const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
+    if (isPhoneLayout) {
+      document.body.classList.add('staff-mobile-mode');
+      selectMobileHallForUser();
+      setMobileStaffScreen(document.body.dataset.mobileScreen || 'mine');
+      mypageSection.style.display = 'block';
+      adminSection.style.display = 'none';
+      renderMyPage();
+    } else if (isAdmin) {
       document.body.classList.remove('staff-mobile-mode');
       mypageSection.style.display = 'none';
       adminSection.style.display = 'block';
@@ -2516,7 +2562,6 @@ function renderRoster() {
   renderRosterForManagers('roster-header-row-managers', 'roster-tbody-managers');
 
   // Update statistics
-
   updateStatsDashboard();
 }
 
@@ -2731,6 +2776,80 @@ function renderRosterForHall(hall, headerRowId, tbodyId) {
 
     tbody.appendChild(tr);
   });
+
+  renderMobileRosterTable(card, sortedEmployees, year, month, hall);
+}
+
+// Phone-only roster: dates continue downward and every employee stays visible as a column.
+function renderMobileRosterTable(card, rosterEmployees, year, month, hall) {
+  if (!card) return;
+
+  let container = card.querySelector('.mobile-roster-table-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'mobile-roster-table-container';
+    card.appendChild(container);
+  }
+
+  const hallLabel = hall === 'girincho' ? '기린초생활관' : hall === 'mulbongseon' ? '물봉선생활관' : '생활관 팀장';
+  const table = document.createElement('table');
+  table.className = 'mobile-roster-table';
+
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  const dateHeader = document.createElement('th');
+  dateHeader.className = 'mobile-roster-date-col';
+  dateHeader.innerHTML = `<span>${month + 1}월</span><small>날짜</small>`;
+  headerRow.appendChild(dateHeader);
+
+  rosterEmployees.forEach((employee) => {
+    const th = document.createElement('th');
+    th.innerHTML = `<span>${escapeHtml(employee.name)}</span><small>${employee.role === 'manager' ? '팀장' : `${employee.shiftGroup || '-'}조`}</small>`;
+    if (currentUser && currentUser.id === employee.id) th.classList.add('is-me');
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= totalDays; day++) {
+    const date = new Date(year, month, day);
+    const dateStr = formatDateString(year, month, day);
+    const holidayName = getHolidayName(year, month, day);
+    const row = document.createElement('tr');
+    if (holidayName || date.getDay() === 0) row.classList.add('is-holiday');
+    else if (date.getDay() === 6) row.classList.add('is-saturday');
+
+    const dateCell = document.createElement('th');
+    dateCell.className = 'mobile-roster-date-col';
+    dateCell.innerHTML = `<strong>${day}</strong><span>${getKoranWeekday(year, month, day)}</span>`;
+    if (holidayName) dateCell.title = holidayName;
+    row.appendChild(dateCell);
+
+    rosterEmployees.forEach((employee) => {
+      const cell = document.createElement('td');
+      const shift = calculateShift(employee, dateStr);
+      const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
+      cell.innerHTML = `<span class="badge ${badgeClass}">${displayLabel}</span>`;
+      cell.title = `${hallLabel} · ${employee.name} · ${dateStr} · ${shift}`;
+      if (currentUser && currentUser.id === employee.id) cell.classList.add('is-me');
+
+      if (currentUser) {
+        if (isUserAdmin()) {
+          cell.classList.add('is-actionable');
+          cell.addEventListener('click', () => window.handleAdminCellClick(employee, dateStr, shift));
+        } else if (currentUser.id === employee.id) {
+          cell.classList.add('is-actionable');
+          cell.addEventListener('click', () => window.openStaffRequestModal(employee, dateStr, shift));
+        }
+      }
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  container.replaceChildren(table);
 }
 
 // Render monthly shift roster for Managers (Team Leaders)
@@ -2767,7 +2886,6 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   const nameTh = document.createElement('th');
   nameTh.textContent = '성명';
   nameTh.className = 'instructor-cell';
-
   headerRow.appendChild(nameTh);
   
   // Print-only Signature col
@@ -2937,6 +3055,8 @@ function renderRosterForManagers(headerRowId, tbodyId) {
 
     tbody.appendChild(tr);
   });
+
+  renderMobileRosterTable(card, filteredEmployees, year, month, 'managers');
 }
 
 // Trigger Print for all Living Halls and Team Leaders in the unified layout matching reference image
@@ -3018,7 +3138,6 @@ function populateMasterPrintTable() {
     }
 
     if (d.getDay() === 0) {
-
       th.style.setProperty('border-right', '2.5px solid #000000', 'important');
     }
     row2.appendChild(th);
@@ -3269,7 +3388,6 @@ function populateMasterPrintTable() {
           const nextDateStr = formatDateString(year, month, checkDay);
           const nextShift = calculateShift(emp, nextDateStr);
           
-
           const isSameType = (
             ((shift === '병가' || shift === '병가(대기)') && (nextShift === '병가' || nextShift === '병가(대기)')) ||
             ((shift === '안식년' || shift === '안식년(대기)') && (nextShift === '안식년' || nextShift === '안식년(대기)'))
@@ -3520,7 +3638,6 @@ function renderAdminDashboard() {
         statusBadgeClass = 'badge-approved';
         statusText = '승인됨';
       } else if (req.status === 'rejected') {
-
         statusBadgeClass = 'badge-rejected';
         statusText = '반려됨';
       }
@@ -3772,7 +3889,6 @@ window.approveOvertime = async function(requestId) {
     return;
   }
 
-
   try {
     await updateRequestStatus('overtime_requests', requestId, 'approved');
     req.status = 'approved';
@@ -4022,7 +4138,6 @@ window.saveRosterAsImage = function() {
       container.style.visibility = originalVisibility;
       container.style.width = originalWidth;
       container.style.padding = originalPadding;
-
       container.classList.add('print-only'); // Restore class
       
       // Download PNG securely by appending temporary link to DOM
@@ -4273,7 +4388,6 @@ window.importData = function(event) {
       alert('파일을 읽는 도중 오류가 발생했습니다: ' + err.message);
     }
   };
-
   reader.readAsText(file);
   event.target.value = ''; // Reset input selection
 };
