@@ -1292,6 +1292,17 @@ function setupEventListeners() {
     const { employee, dateStr } = staffRequestData;
     const reason = document.getElementById('staff-leave-reason').value.trim();
 
+    const shiftModification = shiftModifications.find(mod =>
+      mod && mod.employeeId === employee.id && mod.date === dateStr
+    );
+    const scheduledShift = shiftModification
+      ? shiftModification.shift
+      : calculateDefaultCycleShift(employee, dateStr);
+    if (scheduledShift === '휴무' || scheduledShift === '휴' || scheduledShift === '휴무(대기)') {
+      alert('휴무라 연가 사용이 어렵습니다.');
+      return;
+    }
+
     const empData = employees.find(emp => emp.id === employee.id);
     if (!editingRequestId && empData.remainingLeave <= 0) {
       alert('사용 가능한 잔여 연가가 없습니다.');
