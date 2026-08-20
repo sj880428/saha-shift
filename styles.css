@@ -1275,6 +1275,14 @@ tr.my-roster-row td {
   display: none;
 }
 
+.mobile-calendar-heading {
+  margin-bottom: 1rem;
+}
+
+.mobile-month-button {
+  display: none;
+}
+
 @media (max-width: 768px) {
   body.staff-mobile-mode {
     padding-bottom: 76px;
@@ -1432,6 +1440,38 @@ tr.my-roster-row td {
     width: 100%;
   }
 
+  body.staff-mobile-mode .mobile-calendar-heading {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  body.staff-mobile-mode .mobile-calendar-heading h3 {
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  body.staff-mobile-mode .mobile-month-button {
+    display: inline-grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--card-bg);
+    color: var(--primary-color);
+    font: inherit;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   body.staff-mobile-mode .mini-cal-day {
     height: 48px !important;
   }
@@ -1459,11 +1499,14 @@ tr.my-roster-row td {
   body.staff-mobile-mode .mobile-roster-table-container {
     display: block;
     width: 100%;
-    overflow-x: auto;
+    max-height: calc(100dvh - 245px);
+    min-height: 360px;
+    overflow: auto;
     border: 1px solid var(--border-color);
     border-radius: 0.8rem;
     background: var(--card-bg);
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   body.staff-mobile-mode .mobile-roster-table {
@@ -1496,7 +1539,7 @@ tr.my-roster-row td {
   body.staff-mobile-mode .mobile-roster-table thead th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 4;
     height: 54px;
     background: #f8fafc;
     color: var(--text-main);
@@ -1525,7 +1568,7 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode .mobile-roster-table thead .mobile-roster-date-col {
-    z-index: 3;
+    z-index: 5;
   }
 
   body.staff-mobile-mode .mobile-roster-date-col strong,
@@ -1548,6 +1591,42 @@ tr.my-roster-row td {
 
   body.staff-mobile-mode .mobile-roster-table .is-actionable {
     cursor: pointer;
+  }
+
+  body.staff-mobile-mode .mobile-request-calendar-heading {
+    margin-top: 1rem;
+  }
+
+  body.staff-mobile-mode .mobile-request-calendar {
+    margin-bottom: 1rem;
+  }
+
+  body.staff-mobile-mode .mobile-request-calendar-day {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.15rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+  }
+
+  body.staff-mobile-mode .mobile-request-calendar-day.is-selected {
+    background: #e0e7ff;
+    box-shadow: inset 0 0 0 2px var(--primary-color);
+  }
+
+  body.staff-mobile-mode .mobile-request-calendar-day .badge {
+    min-width: 1.35rem;
+    min-height: 1.35rem;
   }
 
   body.staff-mobile-mode .schedule-card .card-title {
@@ -1700,3 +1779,4 @@ tr.my-roster-row td {
     line-height: 1.25 !important;
   }
 }
+
