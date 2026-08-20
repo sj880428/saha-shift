@@ -1,10 +1,10 @@
-const CACHE_NAME = 'saha-shift-v20260819-1';
+const CACHE_NAME = 'saha-shift-v20260820-1';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=20260815_5',
+  './styles.css?v=20260820_1',
   './auth-service.js?v=20260814_3',
-  './app.js?v=20260819_1',
+  './app.js?v=20260820_1',
   './manifest.webmanifest',
   './app-icon.svg'
 ];
@@ -41,3 +41,4 @@ self.addEventListener('fetch', (event) => {
     }))
   );
 });
+
