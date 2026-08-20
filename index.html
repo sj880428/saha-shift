@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Off-day annual leave guard deployment: 2026-08-19 v1 -->
+<!-- Mobile calendar navigation deployment: 2026-08-20 v1 -->
 <html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="app-icon.svg" type="image/svg+xml">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260815_5">
+  <link rel="stylesheet" href="styles.css?v=20260820_1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -220,7 +220,11 @@
           
           <!-- Mini personal calendar -->
           <div class="card" style="flex: 1; min-width: 320px; max-width: 340px; height: fit-content; margin-bottom: 0;">
-            <h3 style="font-size: 1rem; margin-bottom: 1rem; font-weight: 600;" id="my-cal-label">내 근무 달력</h3>
+            <div class="mobile-calendar-heading">
+              <button type="button" class="mobile-month-button" data-mobile-month-delta="-1" aria-label="이전달">‹</button>
+              <h3 style="font-size: 1rem; margin: 0; font-weight: 600;" id="my-cal-label">내 근무 달력</h3>
+              <button type="button" class="mobile-month-button" data-mobile-month-delta="1" aria-label="다음달">›</button>
+            </div>
             <div class="mini-calendar" id="my-mini-calendar">
               <!-- Populated via JS -->
             </div>
@@ -496,6 +500,12 @@
         <h2 class="card-title">신청</h2>
       </div>
       <p class="mobile-request-help">신청할 날짜를 고른 뒤 버튼을 눌러 주세요. 연가·공가·시간외 신청 창이 열립니다.</p>
+      <div class="mobile-calendar-heading mobile-request-calendar-heading">
+        <button type="button" class="mobile-month-button" data-mobile-month-delta="-1" aria-label="이전달">‹</button>
+        <h3 id="mobile-request-calendar-label">내 근무 달력</h3>
+        <button type="button" class="mobile-month-button" data-mobile-month-delta="1" aria-label="다음달">›</button>
+      </div>
+      <div id="mobile-request-calendar" class="mini-calendar mobile-request-calendar" aria-label="신청 날짜 선택 달력"></div>
       <div class="mobile-request-form">
         <label for="mobile-request-date">신청 날짜</label>
         <input id="mobile-request-date" type="date">
@@ -998,7 +1008,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260819_1"></script>
+  <script src="app.js?v=20260820_1"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>
+
