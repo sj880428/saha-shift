@@ -1676,17 +1676,14 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode .mobile-request-calendar-day.sunday {
-    background: #fff1f2;
     color: #dc2626;
   }
 
   body.staff-mobile-mode .mobile-request-calendar-day.saturday {
-    background: #eff6ff;
     color: #2563eb;
   }
 
   body.staff-mobile-mode .mobile-request-calendar-day.holiday {
-    background: #ffe4e6;
     color: #dc2626;
   }
 
