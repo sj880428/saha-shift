@@ -44,8 +44,9 @@
       const dayCell = document.createElement('button');
       dayCell.type = 'button';
       dayCell.className = 'mini-cal-day mobile-request-calendar-day';
-      if (holidayName || date.getDay() === 0) dayCell.classList.add('sunday');
+      if (date.getDay() === 0) dayCell.classList.add('sunday');
       if (date.getDay() === 6) dayCell.classList.add('saturday');
+      if (holidayName) dayCell.classList.add('holiday');
       if (dateStr === selectedDate) dayCell.classList.add('is-selected');
       dayCell.setAttribute('aria-label', `${month + 1}월 ${day}일, ${holidayName ? `${holidayName}, ` : ''}${shift}`);
       dayCell.innerHTML = `<span class="mini-cal-day-num">${day}</span><span class="badge ${badgeClass}">${displayLabel}</span>${holidayName ? `<small class="mini-cal-holiday-name" title="${escapeHtml(holidayName)}">${escapeHtml(holidayName)}</small>` : ''}`;
