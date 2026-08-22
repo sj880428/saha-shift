@@ -665,6 +665,10 @@ main {
 .mini-cal-day.sunday, .mini-cal-day.holiday { color: #ef4444; }
 .mini-cal-day.saturday { color: #3b82f6; }
 
+.mini-cal-holiday-name {
+  display: none;
+}
+
 /* Leave requests table - Strictly single horizontal line nowrap */
 .leave-requests-table {
   width: 100%;
@@ -1440,6 +1444,25 @@ tr.my-roster-row td {
     width: 100%;
   }
 
+  body.staff-mobile-mode .mypage-grid > div:last-child,
+  body.staff-mobile-mode .request-history-card {
+    min-width: 0 !important;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  body.staff-mobile-mode .request-history-card {
+    overflow: hidden;
+  }
+
+  body.staff-mobile-mode .request-history-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: 0 0 0.75rem 0.75rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
   body.staff-mobile-mode .mobile-calendar-heading {
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
@@ -1473,7 +1496,21 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode .mini-cal-day {
-    height: 48px !important;
+    height: 58px !important;
+  }
+
+  body.staff-mobile-mode .mini-cal-holiday-name {
+    display: block;
+    width: calc(100% - 0.2rem);
+    margin-top: 0.08rem;
+    overflow: hidden;
+    color: #ef4444;
+    font-size: 0.52rem;
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   body.staff-mobile-mode .mobile-request-history-wrap,
