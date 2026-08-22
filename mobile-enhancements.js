@@ -39,15 +39,16 @@
       const dateStr = formatDateString(year, month, day);
       const date = new Date(year, month, day);
       const shift = calculateShift(employee, dateStr);
+      const holidayName = getHolidayName(year, month, day);
       const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
       const dayCell = document.createElement('button');
       dayCell.type = 'button';
       dayCell.className = 'mini-cal-day mobile-request-calendar-day';
-      if (getHolidayName(year, month, day) || date.getDay() === 0) dayCell.classList.add('sunday');
+      if (holidayName || date.getDay() === 0) dayCell.classList.add('sunday');
       if (date.getDay() === 6) dayCell.classList.add('saturday');
       if (dateStr === selectedDate) dayCell.classList.add('is-selected');
-      dayCell.setAttribute('aria-label', `${month + 1}월 ${day}일, ${shift}`);
-      dayCell.innerHTML = `<span class="mini-cal-day-num">${day}</span><span class="badge ${badgeClass}">${displayLabel}</span>`;
+      dayCell.setAttribute('aria-label', `${month + 1}월 ${day}일, ${holidayName ? `${holidayName}, ` : ''}${shift}`);
+      dayCell.innerHTML = `<span class="mini-cal-day-num">${day}</span><span class="badge ${badgeClass}">${displayLabel}</span>${holidayName ? `<small class="mini-cal-holiday-name" title="${escapeHtml(holidayName)}">${escapeHtml(holidayName)}</small>` : ''}`;
       dayCell.addEventListener('click', () => {
         if (dateInput) dateInput.value = dateStr;
         container.querySelectorAll('.mobile-request-calendar-day').forEach((cell) => cell.classList.remove('is-selected'));
@@ -78,6 +79,57 @@
     renderMobileRequestCalendar();
   }
 
+  function initializeRosterMonthSwipe() {
+    let gesture = null;
+    let lastChangeAt = 0;
+
+    document.addEventListener('touchstart', (event) => {
+      const container = event.target.closest('.mobile-roster-table-container');
+      if (!container || event.touches.length !== 1) {
+        gesture = null;
+        return;
+      }
+
+      const touch = event.touches[0];
+      gesture = {
+        container,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        atTop: container.scrollTop <= 2,
+        atBottom: container.scrollHeight - container.clientHeight - container.scrollTop <= 2
+      };
+    }, { passive: true });
+
+    document.addEventListener('touchend', (event) => {
+      if (!gesture || event.changedTouches.length !== 1) return;
+
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - gesture.startX;
+      const deltaY = touch.clientY - gesture.startY;
+      const now = Date.now();
+      let monthDelta = 0;
+
+      if (Math.abs(deltaY) >= 75 && Math.abs(deltaY) > Math.abs(deltaX) * 1.25 && now - lastChangeAt > 700) {
+        if (gesture.atTop && deltaY > 0) monthDelta = -1;
+        if (gesture.atBottom && deltaY < 0) monthDelta = 1;
+      }
+
+      const container = gesture.container;
+      gesture = null;
+      if (!monthDelta) return;
+
+      lastChangeAt = now;
+      changeMobileMonth(monthDelta);
+      requestAnimationFrame(() => {
+        container.scrollTop = monthDelta < 0 ? container.scrollHeight : 0;
+      });
+    }, { passive: true });
+
+    document.addEventListener('touchcancel', () => {
+      gesture = null;
+    }, { passive: true });
+  }
+
   function initializeMobileEnhancements() {
     const dateInput = document.getElementById('mobile-request-date');
     if (dateInput) dateInput.addEventListener('change', renderMobileRequestCalendar);
@@ -90,6 +142,7 @@
       button.addEventListener('click', renderMobileRequestCalendar);
     });
 
+    initializeRosterMonthSwipe();
     renderMobileRequestCalendar();
   }
 

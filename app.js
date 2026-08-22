@@ -2323,6 +2323,7 @@ function renderMyCalendar() {
       <div style="margin-top:0.25rem; display:inline-flex; align-items:center; justify-content:center;">
         ${otMorningDisplay}<span class="badge ${badgeClass}">${displayLabel}</span>${otAfternoonDisplay}
       </div>
+      ${holidayName ? `<small class="mini-cal-holiday-name" title="${escapeHtml(holidayName)}">${escapeHtml(holidayName)}</small>` : ''}
     `;
 
     container.appendChild(el);
