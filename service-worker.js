@@ -1,13 +1,13 @@
-const CACHE_NAME = 'saha-shift-v20260822-3';
+const CACHE_NAME = 'saha-shift-v20260824-1';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=20260822_3',
+  './styles.css?v=20260824_1',
   './auth-service.js?v=20260814_3',
   './app.js?v=20260822_1',
   './mobile-enhancements.js?v=20260822_2',
   './manifest.webmanifest',
-  './app-icon.svg'
+  './app-icon.svg?v=20260824_1'
 ];
 
 self.addEventListener('install', (event) => {

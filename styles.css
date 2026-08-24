@@ -241,7 +241,7 @@ header {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 0.92rem;
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
@@ -1479,7 +1479,7 @@ tr.my-roster-row td {
   body.staff-mobile-mode .mobile-calendar-heading h3 {
     min-width: 0;
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.78rem;
     white-space: nowrap;
   }
 
