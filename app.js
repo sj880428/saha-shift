@@ -4214,6 +4214,113 @@ window.saveRosterAsImage = function() {
   }, 100);
 };
 
+// Safari-safe printing: render the completed roster to one fixed image first,
+// then print that image from a dedicated A4 landscape preview window.
+window.printSafariRoster = function() {
+  populateMasterPrintTable();
+
+  const container = document.getElementById('master-print-layout');
+  if (!container) {
+    alert('인쇄 양식을 찾을 수 없습니다.');
+    return;
+  }
+
+  const previewWindow = window.open('', '_blank');
+  if (!previewWindow) {
+    alert('Safari에서 팝업이 차단되었습니다. 주소창의 팝업 허용을 누른 뒤 다시 시도해 주세요.');
+    return;
+  }
+
+  previewWindow.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>Safari 출력 준비 중</title></head><body style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:2rem;text-align:center;"><p>근무표 출력 화면을 준비하고 있습니다...</p></body></html>`);
+  previewWindow.document.close();
+
+  const original = {
+    display: container.style.display,
+    position: container.style.position,
+    left: container.style.left,
+    top: container.style.top,
+    backgroundColor: container.style.backgroundColor,
+    visibility: container.style.visibility,
+    width: container.style.width,
+    padding: container.style.padding
+  };
+
+  const restoreContainer = () => {
+    container.style.display = original.display;
+    container.style.position = original.position;
+    container.style.left = original.left;
+    container.style.top = original.top;
+    container.style.backgroundColor = original.backgroundColor;
+    container.style.visibility = original.visibility;
+    container.style.width = original.width;
+    container.style.padding = original.padding;
+    container.classList.add('print-only');
+  };
+
+  container.classList.remove('print-only');
+  container.style.display = 'block';
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '-9999px';
+  container.style.width = '1122px';
+  container.style.padding = '0.6cm';
+  container.style.visibility = 'visible';
+  container.style.backgroundColor = '#ffffff';
+
+  setTimeout(() => {
+    html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    }).then((canvas) => {
+      restoreContainer();
+
+      const imageData = canvas.toDataURL('image/png');
+      const title = `${currentYear}년 ${currentMonth + 1}월 근무표`;
+      previewWindow.document.open();
+      previewWindow.document.write(`<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title}</title>
+  <style>
+    @page { size: A4 landscape; margin: 5mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #eef2f7; }
+    .toolbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: center; gap: 0.75rem; padding: 0.8rem; background: rgba(255,255,255,0.96); border-bottom: 1px solid #dbe2ea; }
+    button { border: 0; border-radius: 0.55rem; padding: 0.7rem 1.1rem; font: 600 0.95rem -apple-system,BlinkMacSystemFont,sans-serif; cursor: pointer; }
+    .print-button { background: #4f46e5; color: #fff; }
+    .close-button { background: #e5e7eb; color: #111827; }
+    .sheet { width: min(287mm, calc(100vw - 2rem)); margin: 1rem auto; background: #fff; box-shadow: 0 8px 30px rgba(15,23,42,0.16); }
+    .sheet img { display: block; width: 100%; height: auto; }
+    @media print {
+      html, body { width: 100%; background: #fff; }
+      .toolbar { display: none !important; }
+      .sheet { width: 287mm; margin: 0; box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
+      .sheet img { width: 287mm; height: 200mm; object-fit: contain; object-position: top left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="print-button" onclick="window.print()">🖨️ 인쇄하기 / PDF 저장</button>
+    <button class="close-button" onclick="window.close()">닫기</button>
+  </div>
+  <main class="sheet"><img src="${imageData}" alt="${title}"></main>
+</body>
+</html>`);
+      previewWindow.document.close();
+    }).catch((error) => {
+      restoreContainer();
+      previewWindow.close();
+      console.error(error);
+      alert('Safari용 출력 화면을 만들지 못했습니다: ' + error.message);
+    });
+  }, 100);
+};
+
 // Staff Request Edit Flow implementation
 function editMyRequest(id, type) {
   editingRequestId = id;
