@@ -19,6 +19,15 @@ pnpm android:open
 
 `prepare:web`가 기존 정적 웹 파일을 `mobile-web`에 복사하고, `cap sync`가 이를 각 네이티브 프로젝트에 반영합니다.
 
+## 앱 아이콘 다시 만들기
+
+웹에서 사용하는 달력형 `사하` 브랜드 아이콘을 iOS와 Android 규격으로 다시 생성합니다.
+
+```bash
+mkdir -p /tmp/rmsa-swift-module-cache
+swift -module-cache-path /tmp/rmsa-swift-module-cache scripts/generate-app-icons.swift
+```
+
 ## 출시 전 확인 사항
 
 - Supabase RLS 및 직원별 접근 권한 검토
