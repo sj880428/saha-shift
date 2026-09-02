@@ -2252,6 +2252,45 @@ function renderMyPage() {
       historyTbody.appendChild(tr);
     });
   }
+
+  renderMobileRequestHistory(combined);
+}
+
+function renderMobileRequestHistory(requests) {
+  const target = document.getElementById('mobile-request-history');
+  if (!target) return;
+
+  if (!requests || requests.length === 0) {
+    target.innerHTML = '<div class="mobile-request-empty">선택한 월에 신청 내역이 없습니다.</div>';
+    return;
+  }
+
+  target.innerHTML = requests.map((req) => {
+    const isLeave = req.type === 'leave';
+    const typeText = isLeave ? (req.leaveType === '공가' ? '공가' : '연가') : '시간외';
+    const typeIcon = isLeave ? (req.leaveType === '공가' ? '🏛️' : '🌴') : '⏰';
+    const timeLabel = req.timeOfDay === 'morning' ? '오전' : '오후';
+    const detailText = isLeave
+      ? escapeHtml(req.reason || '-')
+      : `${timeLabel} · ${req.hours}시간 · ${escapeHtml(req.reason || '-')}`;
+    const statusClass = req.status === 'approved' ? 'badge-approved' : req.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+    const statusText = req.status === 'approved' ? '승인됨' : req.status === 'rejected' ? '반려됨' : '대기중';
+    const cancelButton = req.status === 'pending'
+      ? `<button class="btn btn-secondary btn-sm mobile-request-cancel" onclick="cancelMyRequest('${req.id}', '${req.type}')">신청취소</button>`
+      : '';
+
+    return `
+      <article class="mobile-request-history-card">
+        <div class="mobile-request-history-topline">
+          <strong>${typeIcon} ${typeText}</strong>
+          <span class="badge ${statusClass}">${statusText}</span>
+        </div>
+        <time datetime="${req.date}">${req.date}</time>
+        <p>${detailText}</p>
+        ${cancelButton}
+      </article>
+    `;
+  }).join('');
 }
 
 // Render personal calendar for My Page
@@ -2295,8 +2334,9 @@ function renderMyCalendar() {
 
   // Current month days
   for (let day = 1; day <= totalDays; day++) {
-    const el = document.createElement('div');
-    el.className = 'mini-cal-day';
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'mini-cal-day personal-calendar-day';
     
     // Weekday / Holiday colors
     const d = new Date(year, month, day);
@@ -2314,6 +2354,7 @@ function renderMyCalendar() {
     const shift = calculateShift(empData, dateStr);
     
     const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
+    const hasPersonalSchedule = typeof window.hasPersonalSchedule === 'function' && window.hasPersonalSchedule(dateStr);
 
     const otMorningDisplay = getOvertimeCellHtml(empData, dateStr, 'morning');
     const otAfternoonDisplay = getOvertimeCellHtml(empData, dateStr, 'afternoon');
@@ -2324,7 +2365,16 @@ function renderMyCalendar() {
         ${otMorningDisplay}<span class="badge ${badgeClass}">${displayLabel}</span>${otAfternoonDisplay}
       </div>
       ${holidayName ? `<small class="mini-cal-holiday-name" title="${escapeHtml(holidayName)}">${escapeHtml(holidayName)}</small>` : ''}
+      ${hasPersonalSchedule ? '<span class="personal-schedule-dot" aria-label="개인 일정 있음"></span>' : ''}
     `;
+
+    el.dataset.date = dateStr;
+    el.setAttribute('aria-label', `${month + 1}월 ${day}일 ${shift}${hasPersonalSchedule ? ', 개인 일정 있음' : ''}`);
+    el.addEventListener('click', () => {
+      if (typeof window.selectPersonalCalendarDate === 'function') {
+        window.selectPersonalCalendarDate(dateStr, shift);
+      }
+    });
 
     container.appendChild(el);
   }
@@ -2350,11 +2400,7 @@ function setMobileStaffScreen(screen) {
   });
 
   if (nextScreen === 'request') {
-    const historyTarget = document.getElementById('mobile-request-history');
-    const historySource = document.querySelector('.leave-requests-table');
-    if (historyTarget && historySource) {
-      historyTarget.innerHTML = historySource.outerHTML;
-    }
+    renderMyPage();
   }
 }
 

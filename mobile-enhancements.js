@@ -1,5 +1,84 @@
 // Mobile-only calendar navigation and request-calendar enhancements.
 (function () {
+  let selectedPersonalDate = '';
+
+  function personalScheduleStorageKey() {
+    return currentUser ? `saha_personal_schedules_${currentUser.id}` : '';
+  }
+
+  function readPersonalSchedules() {
+    const key = personalScheduleStorageKey();
+    if (!key) return {};
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || '{}');
+      return saved && typeof saved === 'object' ? saved : {};
+    } catch (error) {
+      console.warn('개인 일정 데이터를 읽지 못했습니다.', error);
+      return {};
+    }
+  }
+
+  function writePersonalSchedules(schedules) {
+    const key = personalScheduleStorageKey();
+    if (key) localStorage.setItem(key, JSON.stringify(schedules));
+  }
+
+  function hasPersonalSchedule(dateStr) {
+    return Boolean(String(readPersonalSchedules()[dateStr] || '').trim());
+  }
+
+  function selectPersonalCalendarDate(dateStr, shift) {
+    selectedPersonalDate = dateStr;
+    const schedules = readPersonalSchedules();
+    const label = document.getElementById('personal-schedule-date-label');
+    const shiftLabel = document.getElementById('personal-schedule-shift-label');
+    const textarea = document.getElementById('personal-schedule-text');
+    const saveButton = document.getElementById('personal-schedule-save');
+    const deleteButton = document.getElementById('personal-schedule-delete');
+    const parts = dateStr.split('-').map(Number);
+
+    document.querySelectorAll('.personal-calendar-day').forEach((cell) => {
+      cell.classList.toggle('is-selected', cell.dataset.date === dateStr);
+    });
+    if (label) label.textContent = `${parts[1]}월 ${parts[2]}일 일정`;
+    if (shiftLabel) shiftLabel.textContent = `내 근무: ${shift || '-'}`;
+    if (textarea) {
+      textarea.disabled = false;
+      textarea.value = schedules[dateStr] || '';
+      textarea.focus({ preventScroll: true });
+    }
+    if (saveButton) saveButton.disabled = false;
+    if (deleteButton) deleteButton.disabled = !hasPersonalSchedule(dateStr);
+  }
+
+  function saveSelectedPersonalSchedule() {
+    if (!selectedPersonalDate) return;
+    const textarea = document.getElementById('personal-schedule-text');
+    const text = String(textarea ? textarea.value : '').trim();
+    const schedules = readPersonalSchedules();
+    if (text) schedules[selectedPersonalDate] = text;
+    else delete schedules[selectedPersonalDate];
+    writePersonalSchedules(schedules);
+    renderMyCalendar();
+    const employee = employees.find((item) => item.id === currentUser.id);
+    selectPersonalCalendarDate(selectedPersonalDate, employee ? calculateShift(employee, selectedPersonalDate) : '');
+  }
+
+  function deleteSelectedPersonalSchedule() {
+    if (!selectedPersonalDate) return;
+    const schedules = readPersonalSchedules();
+    delete schedules[selectedPersonalDate];
+    writePersonalSchedules(schedules);
+    const textarea = document.getElementById('personal-schedule-text');
+    if (textarea) textarea.value = '';
+    renderMyCalendar();
+    const employee = employees.find((item) => item.id === currentUser.id);
+    selectPersonalCalendarDate(selectedPersonalDate, employee ? calculateShift(employee, selectedPersonalDate) : '');
+  }
+
+  window.hasPersonalSchedule = hasPersonalSchedule;
+  window.selectPersonalCalendarDate = selectPersonalCalendarDate;
+
   function renderMobileRequestCalendar() {
     const container = document.getElementById('mobile-request-calendar');
     const label = document.getElementById('mobile-request-calendar-label');
@@ -54,6 +133,7 @@
         if (dateInput) dateInput.value = dateStr;
         container.querySelectorAll('.mobile-request-calendar-day').forEach((cell) => cell.classList.remove('is-selected'));
         dayCell.classList.add('is-selected');
+        openStaffRequestModal(employee, dateStr, shift);
       });
       container.appendChild(dayCell);
     }
@@ -142,6 +222,11 @@
     document.querySelectorAll('[data-mobile-screen="request"]').forEach((button) => {
       button.addEventListener('click', renderMobileRequestCalendar);
     });
+
+    const personalSaveButton = document.getElementById('personal-schedule-save');
+    if (personalSaveButton) personalSaveButton.addEventListener('click', saveSelectedPersonalSchedule);
+    const personalDeleteButton = document.getElementById('personal-schedule-delete');
+    if (personalDeleteButton) personalDeleteButton.addEventListener('click', deleteSelectedPersonalSchedule);
 
     initializeRosterMonthSwipe();
     renderMobileRequestCalendar();

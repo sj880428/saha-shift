@@ -669,6 +669,147 @@ main {
   display: none;
 }
 
+.personal-calendar-card {
+  width: 100%;
+  max-width: 900px;
+}
+
+.personal-calendar-card .mini-calendar {
+  max-width: 760px;
+}
+
+.personal-calendar-day {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  color: var(--text-main);
+  font: inherit;
+  cursor: pointer;
+}
+
+.personal-calendar-day.is-selected {
+  background: #eef2ff;
+  border-color: var(--primary-color);
+  box-shadow: inset 0 0 0 1px var(--primary-color);
+}
+
+.personal-schedule-dot {
+  position: absolute;
+  right: 0.28rem;
+  bottom: 0.2rem;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.personal-schedule-editor {
+  max-width: 760px;
+  margin: 1rem auto 0;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.8rem;
+  background: var(--bg-color);
+}
+
+.personal-schedule-editor-heading,
+.personal-schedule-actions,
+.mobile-request-history-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.personal-schedule-editor-heading > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.personal-schedule-editor-heading span,
+.personal-schedule-storage-note {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.personal-schedule-private {
+  flex: 0 0 auto;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: var(--primary-color) !important;
+  font-weight: 700;
+}
+
+.personal-schedule-editor textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.85rem 0;
+  padding: 0.8rem;
+  resize: vertical;
+  border: 1px solid var(--border-color);
+  border-radius: 0.65rem;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font: inherit;
+  line-height: 1.5;
+}
+
+.personal-schedule-actions {
+  justify-content: flex-end;
+}
+
+.personal-schedule-storage-note {
+  margin: 0.65rem 0 0;
+  text-align: right;
+}
+
+.mobile-request-history-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+}
+
+.mobile-request-history-card + .mobile-request-history-card {
+  margin-top: 0.65rem;
+}
+
+.mobile-request-history-card time {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.mobile-request-history-card p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.mobile-request-history-card .badge {
+  width: auto;
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+.mobile-request-cancel {
+  justify-self: end;
+  padding: 0.35rem 0.6rem;
+}
+
+.mobile-request-empty {
+  padding: 1.5rem 1rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 /* Leave requests table - Strictly single horizontal line nowrap */
 .leave-requests-table {
   width: 100%;
@@ -1447,6 +1588,10 @@ tr.my-roster-row td {
     width: 100%;
   }
 
+  body.staff-mobile-mode[data-mobile-screen="mine"] .request-history-card {
+    display: none !important;
+  }
+
   body.staff-mobile-mode .mypage-grid > div:last-child,
   body.staff-mobile-mode .request-history-card {
     min-width: 0 !important;
@@ -1503,6 +1648,17 @@ tr.my-roster-row td {
     height: 58px !important;
   }
 
+  body.staff-mobile-mode .personal-calendar-day {
+    height: 76px !important;
+    border-radius: 0.55rem;
+  }
+
+  body.staff-mobile-mode .personal-calendar-day .badge {
+    min-width: 1.55rem;
+    min-height: 1.55rem;
+    font-size: 0.78rem;
+  }
+
   body.staff-mobile-mode .mini-cal-holiday-name {
     display: block;
     width: calc(100% - 0.2rem);
@@ -1520,12 +1676,12 @@ tr.my-roster-row td {
   body.staff-mobile-mode .mobile-request-history-wrap,
   body.staff-mobile-mode .roster-table-container {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  body.staff-mobile-mode .leave-requests-table {
-    min-width: 560px;
+  body.staff-mobile-mode .mobile-request-history-wrap {
+    margin-top: 1.25rem;
   }
 
   body.staff-mobile-mode .schedule-card {
@@ -1704,15 +1860,6 @@ tr.my-roster-row td {
   body.staff-mobile-mode .calendar-controls,
   body.staff-mobile-mode .calendar-title-group {
     gap: 0.55rem !important;
-  }
-
-  body.staff-mobile-mode #stats-dashboard-container {
-    width: 100%;
-    align-items: flex-start !important;
-  }
-
-  body.staff-mobile-mode .calendar-legend {
-    font-size: 0.72rem;
   }
 
   .mobile-bottom-nav {
