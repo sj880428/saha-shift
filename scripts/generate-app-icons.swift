@@ -28,7 +28,7 @@ func icon(size: Int, adaptiveForeground: Bool = false) -> NSImage {
     }
 
     // Adaptive icons need extra breathing room because Android applies the final mask.
-    let inset: CGFloat = adaptiveForeground ? 230 * scale : 174 * scale
+    let inset: CGFloat = adaptiveForeground ? 285 * scale : 174 * scale
     let card = NSRect(x: inset, y: inset * 0.82, width: CGFloat(size) - inset * 2, height: CGFloat(size) - inset * 1.68)
     let radius = (adaptiveForeground ? 64 : 72) * scale
     let cardPath = NSBezierPath(roundedRect: card, xRadius: radius, yRadius: radius)
@@ -38,8 +38,8 @@ func icon(size: Int, adaptiveForeground: Bool = false) -> NSImage {
     let green = NSColor(calibratedRed: 0.075, green: 0.475, blue: 0.357, alpha: 1)
     let pale = NSColor(calibratedRed: 0.851, green: 0.949, blue: 0.910, alpha: 1)
 
-    let ringWidth = (adaptiveForeground ? 28 : 34) * scale
-    let ringY = card.maxY - (adaptiveForeground ? 34 : 42) * scale
+    let ringWidth = (adaptiveForeground ? 24 : 34) * scale
+    let ringY = card.maxY - (adaptiveForeground ? 30 : 42) * scale
     for x in [card.minX + card.width * 0.27, card.minX + card.width * 0.73] {
         let ring = NSBezierPath()
         ring.lineWidth = ringWidth
@@ -51,13 +51,13 @@ func icon(size: Int, adaptiveForeground: Bool = false) -> NSImage {
     }
 
     let divider = NSBezierPath()
-    divider.lineWidth = (adaptiveForeground ? 24 : 30) * scale
+    divider.lineWidth = (adaptiveForeground ? 20 : 30) * scale
     divider.move(to: NSPoint(x: card.minX, y: card.maxY - card.height * 0.31))
     divider.line(to: NSPoint(x: card.maxX, y: card.maxY - card.height * 0.31))
     green.setStroke()
     divider.stroke()
 
-    let fontSize = (adaptiveForeground ? 112 : 142) * scale
+    let fontSize = (adaptiveForeground ? 94 : 142) * scale
     let paragraph = NSMutableParagraphStyle()
     paragraph.alignment = .center
     let attributes: [NSAttributedString.Key: Any] = [
