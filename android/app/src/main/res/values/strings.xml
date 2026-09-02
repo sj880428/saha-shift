@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">사하의집 근무표</string>
+    <string name="title_activity_main">사하의집 근무표</string>
+    <string name="package_name">io.github.sj880428.sahashift</string>
+    <string name="custom_url_scheme">io.github.sj880428.sahashift</string>
+</resources>

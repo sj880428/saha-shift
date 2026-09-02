@@ -1,0 +1,20 @@
+{
+  "name": "saha-shift-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "사하의집 근무표 iOS/Android 앱",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "mobile:sync": "pnpm prepare:web && cap sync",
+    "ios:open": "pnpm mobile:sync && cap open ios",
+    "android:open": "pnpm mobile:sync && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/ios": "^8.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "appId": "io.github.sj880428.sahashift",
+  "appName": "사하의집 근무표",
+  "webDir": "mobile-web",
+  "server": {
+    "iosScheme": "capacitor",
+    "androidScheme": "https"
+  }
+}

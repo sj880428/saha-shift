@@ -1,1 +1,10 @@
-backups/
+node_modules/
+mobile-web/
+build/
+ios/App/Pods/
+ios/App/App/public/
+android/.gradle/
+android/app/build/
+android/build/
+*.xcuserstate
+xcuserdata/
