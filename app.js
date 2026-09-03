@@ -2354,7 +2354,10 @@ function renderMyCalendar() {
     const shift = calculateShift(empData, dateStr);
     
     const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
-    const hasPersonalSchedule = typeof window.hasPersonalSchedule === 'function' && window.hasPersonalSchedule(dateStr);
+    const personalSchedule = typeof window.getPersonalSchedule === 'function'
+      ? window.getPersonalSchedule(dateStr)
+      : '';
+    const hasPersonalSchedule = Boolean(personalSchedule);
 
     const otMorningDisplay = getOvertimeCellHtml(empData, dateStr, 'morning');
     const otAfternoonDisplay = getOvertimeCellHtml(empData, dateStr, 'afternoon');
@@ -2365,11 +2368,11 @@ function renderMyCalendar() {
         ${otMorningDisplay}<span class="badge ${badgeClass}">${displayLabel}</span>${otAfternoonDisplay}
       </div>
       ${holidayName ? `<small class="mini-cal-holiday-name" title="${escapeHtml(holidayName)}">${escapeHtml(holidayName)}</small>` : ''}
-      ${hasPersonalSchedule ? '<span class="personal-schedule-dot" aria-label="개인 일정 있음"></span>' : ''}
+      ${hasPersonalSchedule ? `<span class="personal-schedule-preview" title="${escapeHtml(personalSchedule)}">${escapeHtml(personalSchedule)}</span>` : ''}
     `;
 
     el.dataset.date = dateStr;
-    el.setAttribute('aria-label', `${month + 1}월 ${day}일 ${shift}${hasPersonalSchedule ? ', 개인 일정 있음' : ''}`);
+    el.setAttribute('aria-label', `${month + 1}월 ${day}일 ${shift}${hasPersonalSchedule ? `, 개인 일정 ${personalSchedule}` : ''}`);
     el.addEventListener('click', () => {
       if (typeof window.selectPersonalCalendarDate === 'function') {
         window.selectPersonalCalendarDate(dateStr, shift);

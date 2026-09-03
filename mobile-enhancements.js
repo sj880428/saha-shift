@@ -27,6 +27,10 @@
     return Boolean(String(readPersonalSchedules()[dateStr] || '').trim());
   }
 
+  function getPersonalSchedule(dateStr) {
+    return String(readPersonalSchedules()[dateStr] || '').trim();
+  }
+
   function selectPersonalCalendarDate(dateStr, shift) {
     selectedPersonalDate = dateStr;
     const schedules = readPersonalSchedules();
@@ -77,6 +81,7 @@
   }
 
   window.hasPersonalSchedule = hasPersonalSchedule;
+  window.getPersonalSchedule = getPersonalSchedule;
   window.selectPersonalCalendarDate = selectPersonalCalendarDate;
 
   function renderMobileRequestCalendar() {
