@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="app-icon.svg?v=20260824_1" type="image/svg+xml">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260824_1">
+  <link rel="stylesheet" href="styles.css?v=20260903_3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -207,21 +207,6 @@
             </div>
             <div class="mini-calendar" id="my-mini-calendar">
               <!-- Populated via JS -->
-            </div>
-            <div class="personal-schedule-editor" id="personal-schedule-editor">
-              <div class="personal-schedule-editor-heading">
-                <div>
-                  <strong id="personal-schedule-date-label">날짜를 선택해 주세요</strong>
-                  <span id="personal-schedule-shift-label">달력에서 근무와 일정을 함께 확인할 수 있어요.</span>
-                </div>
-                <span class="personal-schedule-private">나만 보기</span>
-              </div>
-              <textarea id="personal-schedule-text" rows="3" maxlength="300" placeholder="병원 예약, 약속, 해야 할 일 등 간단한 일정을 기록해 보세요." disabled></textarea>
-              <div class="personal-schedule-actions">
-                <button type="button" id="personal-schedule-delete" class="btn btn-secondary" disabled>일정 삭제</button>
-                <button type="button" id="personal-schedule-save" class="btn btn-primary" disabled>일정 저장</button>
-              </div>
-              <p class="personal-schedule-storage-note">현재 시험 버전에서는 이 기기에만 저장돼요.</p>
             </div>
           </div>
           
@@ -516,6 +501,32 @@
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="all">전체 근무표</button>
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="request">신청</button>
   </nav>
+
+  <!-- Personal schedule dialog -->
+  <div class="dialog-overlay personal-schedule-overlay" id="personal-schedule-overlay">
+    <div class="dialog-content personal-schedule-dialog" role="dialog" aria-modal="true" aria-labelledby="personal-schedule-date-label">
+      <div class="dialog-header personal-schedule-editor-heading">
+        <div>
+          <h3 class="dialog-title" id="personal-schedule-date-label">개인 일정</h3>
+          <span id="personal-schedule-shift-label">내 근무를 확인하고 일정을 기록할 수 있어요.</span>
+        </div>
+        <button type="button" class="btn-icon" id="personal-schedule-close" aria-label="개인 일정 닫기" style="border:none; font-size:1.25rem;">&times;</button>
+      </div>
+      <div class="dialog-body personal-schedule-editor" id="personal-schedule-editor">
+        <div class="personal-schedule-privacy-row">
+          <span class="personal-schedule-private">나만 보기</span>
+          <span>현재 시험 버전에서는 이 기기에만 저장돼요.</span>
+        </div>
+        <label class="personal-schedule-input-label" for="personal-schedule-text">일정 내용</label>
+        <textarea id="personal-schedule-text" rows="4" maxlength="300" placeholder="병원 예약, 약속, 해야 할 일 등 간단한 일정을 기록해 보세요."></textarea>
+      </div>
+      <div class="dialog-footer personal-schedule-actions">
+        <button type="button" id="personal-schedule-delete" class="btn btn-secondary">일정 삭제</button>
+        <button type="button" id="personal-schedule-cancel" class="btn btn-secondary">취소</button>
+        <button type="button" id="personal-schedule-save" class="btn btn-primary">일정 저장</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Login Dialog Overlay -->
   <div class="dialog-overlay" id="login-overlay">
@@ -999,8 +1010,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260903_1"></script>
-  <script src="mobile-enhancements.js?v=20260903_1"></script>
+  <script src="app.js?v=20260903_2"></script>
+  <script src="mobile-enhancements.js?v=20260903_2"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>

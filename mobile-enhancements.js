@@ -39,6 +39,7 @@
     const textarea = document.getElementById('personal-schedule-text');
     const saveButton = document.getElementById('personal-schedule-save');
     const deleteButton = document.getElementById('personal-schedule-delete');
+    const overlay = document.getElementById('personal-schedule-overlay');
     const parts = dateStr.split('-').map(Number);
 
     document.querySelectorAll('.personal-calendar-day').forEach((cell) => {
@@ -49,10 +50,15 @@
     if (textarea) {
       textarea.disabled = false;
       textarea.value = schedules[dateStr] || '';
-      textarea.focus({ preventScroll: true });
     }
     if (saveButton) saveButton.disabled = false;
     if (deleteButton) deleteButton.disabled = !hasPersonalSchedule(dateStr);
+    if (overlay) overlay.classList.add('active');
+  }
+
+  function closePersonalScheduleDialog() {
+    const overlay = document.getElementById('personal-schedule-overlay');
+    if (overlay) overlay.classList.remove('active');
   }
 
   function saveSelectedPersonalSchedule() {
@@ -64,8 +70,7 @@
     else delete schedules[selectedPersonalDate];
     writePersonalSchedules(schedules);
     renderMyCalendar();
-    const employee = employees.find((item) => item.id === currentUser.id);
-    selectPersonalCalendarDate(selectedPersonalDate, employee ? calculateShift(employee, selectedPersonalDate) : '');
+    closePersonalScheduleDialog();
   }
 
   function deleteSelectedPersonalSchedule() {
@@ -76,8 +81,7 @@
     const textarea = document.getElementById('personal-schedule-text');
     if (textarea) textarea.value = '';
     renderMyCalendar();
-    const employee = employees.find((item) => item.id === currentUser.id);
-    selectPersonalCalendarDate(selectedPersonalDate, employee ? calculateShift(employee, selectedPersonalDate) : '');
+    closePersonalScheduleDialog();
   }
 
   window.hasPersonalSchedule = hasPersonalSchedule;
@@ -232,6 +236,16 @@
     if (personalSaveButton) personalSaveButton.addEventListener('click', saveSelectedPersonalSchedule);
     const personalDeleteButton = document.getElementById('personal-schedule-delete');
     if (personalDeleteButton) personalDeleteButton.addEventListener('click', deleteSelectedPersonalSchedule);
+    const personalCloseButton = document.getElementById('personal-schedule-close');
+    if (personalCloseButton) personalCloseButton.addEventListener('click', closePersonalScheduleDialog);
+    const personalCancelButton = document.getElementById('personal-schedule-cancel');
+    if (personalCancelButton) personalCancelButton.addEventListener('click', closePersonalScheduleDialog);
+    const personalOverlay = document.getElementById('personal-schedule-overlay');
+    if (personalOverlay) {
+      personalOverlay.addEventListener('click', (event) => {
+        if (event.target === personalOverlay) closePersonalScheduleDialog();
+      });
+    }
 
     initializeRosterMonthSwipe();
     renderMobileRequestCalendar();
