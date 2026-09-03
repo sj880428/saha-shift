@@ -517,13 +517,16 @@
           <span class="personal-schedule-private">나만 보기</span>
           <span>현재 시험 버전에서는 이 기기에만 저장돼요.</span>
         </div>
-        <label class="personal-schedule-input-label" for="personal-schedule-text">일정 내용</label>
-        <textarea id="personal-schedule-text" rows="4" maxlength="300" placeholder="병원 예약, 약속, 해야 할 일 등 간단한 일정을 기록해 보세요."></textarea>
+        <section class="personal-schedule-list-section" aria-labelledby="personal-schedule-list-title">
+          <h4 id="personal-schedule-list-title">저장된 일정</h4>
+          <div id="personal-schedule-list" class="personal-schedule-list"></div>
+        </section>
+        <label class="personal-schedule-input-label" for="personal-schedule-text">새 일정 추가</label>
+        <textarea id="personal-schedule-text" rows="3" maxlength="300" placeholder="병원 예약, 약속, 해야 할 일 등을 하나씩 입력해 보세요."></textarea>
       </div>
       <div class="dialog-footer personal-schedule-actions">
-        <button type="button" id="personal-schedule-delete" class="btn btn-secondary">일정 삭제</button>
         <button type="button" id="personal-schedule-cancel" class="btn btn-secondary">취소</button>
-        <button type="button" id="personal-schedule-save" class="btn btn-primary">일정 저장</button>
+        <button type="button" id="personal-schedule-save" class="btn btn-primary">일정 추가</button>
       </div>
     </div>
   </div>
@@ -1011,7 +1014,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
   <script src="app.js?v=20260903_2"></script>
-  <script src="mobile-enhancements.js?v=20260903_2"></script>
+  <script src="mobile-enhancements.js?v=20260903_3"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
 </html>

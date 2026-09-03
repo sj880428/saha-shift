@@ -23,22 +23,56 @@
     if (key) localStorage.setItem(key, JSON.stringify(schedules));
   }
 
+  function getPersonalScheduleItems(dateStr) {
+    const saved = readPersonalSchedules()[dateStr];
+    const items = Array.isArray(saved) ? saved : (typeof saved === 'string' ? [saved] : []);
+    return items.map((item) => String(item).trim()).filter(Boolean);
+  }
+
   function hasPersonalSchedule(dateStr) {
-    return Boolean(String(readPersonalSchedules()[dateStr] || '').trim());
+    return getPersonalScheduleItems(dateStr).length > 0;
   }
 
   function getPersonalSchedule(dateStr) {
-    return String(readPersonalSchedules()[dateStr] || '').trim();
+    return getPersonalScheduleItems(dateStr).join(' · ');
+  }
+
+  function renderPersonalScheduleList() {
+    const list = document.getElementById('personal-schedule-list');
+    if (!list) return;
+    const items = getPersonalScheduleItems(selectedPersonalDate);
+    list.replaceChildren();
+
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'personal-schedule-list-empty';
+      empty.textContent = '아직 저장된 일정이 없어요.';
+      list.appendChild(empty);
+      return;
+    }
+
+    items.forEach((text, index) => {
+      const item = document.createElement('div');
+      item.className = 'personal-schedule-list-item';
+      const content = document.createElement('span');
+      content.textContent = text;
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'personal-schedule-item-delete';
+      deleteButton.textContent = '삭제';
+      deleteButton.setAttribute('aria-label', `${text} 일정 삭제`);
+      deleteButton.addEventListener('click', () => deletePersonalScheduleItem(index));
+      item.append(content, deleteButton);
+      list.appendChild(item);
+    });
   }
 
   function selectPersonalCalendarDate(dateStr, shift) {
     selectedPersonalDate = dateStr;
-    const schedules = readPersonalSchedules();
     const label = document.getElementById('personal-schedule-date-label');
     const shiftLabel = document.getElementById('personal-schedule-shift-label');
     const textarea = document.getElementById('personal-schedule-text');
     const saveButton = document.getElementById('personal-schedule-save');
-    const deleteButton = document.getElementById('personal-schedule-delete');
     const overlay = document.getElementById('personal-schedule-overlay');
     const parts = dateStr.split('-').map(Number);
 
@@ -49,10 +83,10 @@
     if (shiftLabel) shiftLabel.textContent = `내 근무: ${shift || '-'}`;
     if (textarea) {
       textarea.disabled = false;
-      textarea.value = schedules[dateStr] || '';
+      textarea.value = '';
     }
     if (saveButton) saveButton.disabled = false;
-    if (deleteButton) deleteButton.disabled = !hasPersonalSchedule(dateStr);
+    renderPersonalScheduleList();
     if (overlay) overlay.classList.add('active');
   }
 
@@ -66,22 +100,28 @@
     const textarea = document.getElementById('personal-schedule-text');
     const text = String(textarea ? textarea.value : '').trim();
     const schedules = readPersonalSchedules();
-    if (text) schedules[selectedPersonalDate] = text;
+    if (!text) {
+      if (textarea) textarea.focus();
+      return;
+    }
+    schedules[selectedPersonalDate] = [...getPersonalScheduleItems(selectedPersonalDate), text];
+    writePersonalSchedules(schedules);
+    renderMyCalendar();
+    if (textarea) textarea.value = '';
+    renderPersonalScheduleList();
+    if (textarea) textarea.focus();
+  }
+
+  function deletePersonalScheduleItem(index) {
+    if (!selectedPersonalDate) return;
+    const schedules = readPersonalSchedules();
+    const items = getPersonalScheduleItems(selectedPersonalDate);
+    items.splice(index, 1);
+    if (items.length) schedules[selectedPersonalDate] = items;
     else delete schedules[selectedPersonalDate];
     writePersonalSchedules(schedules);
     renderMyCalendar();
-    closePersonalScheduleDialog();
-  }
-
-  function deleteSelectedPersonalSchedule() {
-    if (!selectedPersonalDate) return;
-    const schedules = readPersonalSchedules();
-    delete schedules[selectedPersonalDate];
-    writePersonalSchedules(schedules);
-    const textarea = document.getElementById('personal-schedule-text');
-    if (textarea) textarea.value = '';
-    renderMyCalendar();
-    closePersonalScheduleDialog();
+    renderPersonalScheduleList();
   }
 
   window.hasPersonalSchedule = hasPersonalSchedule;
@@ -234,8 +274,6 @@
 
     const personalSaveButton = document.getElementById('personal-schedule-save');
     if (personalSaveButton) personalSaveButton.addEventListener('click', saveSelectedPersonalSchedule);
-    const personalDeleteButton = document.getElementById('personal-schedule-delete');
-    if (personalDeleteButton) personalDeleteButton.addEventListener('click', deleteSelectedPersonalSchedule);
     const personalCloseButton = document.getElementById('personal-schedule-close');
     if (personalCloseButton) personalCloseButton.addEventListener('click', closePersonalScheduleDialog);
     const personalCancelButton = document.getElementById('personal-schedule-cancel');
