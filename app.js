@@ -522,6 +522,27 @@ async function saveState() {
 }
 
 // Request-specific writes. Staff actions must never synchronize or delete whole tables.
+const pendingRequestWrites = new Set();
+
+async function runRequestWriteOnce(lockKey, writeAction) {
+  if (pendingRequestWrites.has(lockKey)) {
+    throw new Error('같은 신청을 저장하고 있습니다. 잠시만 기다려 주세요.');
+  }
+  pendingRequestWrites.add(lockKey);
+  try {
+    return await writeAction();
+  } finally {
+    pendingRequestWrites.delete(lockKey);
+  }
+}
+
+function createRequestId(prefix) {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return `${prefix}_${window.crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 async function createLeaveRequest(request) {
   const row = {
     id: request.id,
@@ -534,15 +555,20 @@ async function createLeaveRequest(request) {
     reason: request.reason,
     status: 'pending'
   };
-  const { error } = await getDB().from('leave_requests').insert(row);
-  if (error) throw error;
-  leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+  await runRequestWriteOnce(`leave:create:${currentUser.id}:${request.date}`, async () => {
+    const { error } = await getDB().from('leave_requests').insert(row);
+    if (error) throw error;
+    leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+  });
 }
 
 async function updateOwnLeaveRequest(requestId, changes) {
   const allowed = { reason: changes.reason, leave_type: changes.leaveType, status: 'pending' };
-  const { error } = await getDB().from('leave_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending');
-  if (error) throw error;
+  await runRequestWriteOnce(`leave:update:${requestId}`, async () => {
+    const { data, error } = await getDB().from('leave_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending').select('id');
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('이미 처리된 신청입니다. 새로고침 후 확인해 주세요.');
+  });
 }
 
 async function createOvertimeRequest(request) {
@@ -557,15 +583,20 @@ async function createOvertimeRequest(request) {
     reason: request.reason,
     status: 'pending'
   };
-  const { error } = await getDB().from('overtime_requests').insert(row);
-  if (error) throw error;
-  overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+  await runRequestWriteOnce(`overtime:create:${currentUser.id}:${request.date}:${request.timeOfDay}`, async () => {
+    const { error } = await getDB().from('overtime_requests').insert(row);
+    if (error) throw error;
+    overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+  });
 }
 
 async function updateOwnOvertimeRequest(requestId, changes) {
   const allowed = { time_of_day: changes.timeOfDay, hours: changes.hours, reason: changes.reason, status: 'pending' };
-  const { error } = await getDB().from('overtime_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending');
-  if (error) throw error;
+  await runRequestWriteOnce(`overtime:update:${requestId}`, async () => {
+    const { data, error } = await getDB().from('overtime_requests').update(allowed).eq('id', requestId).eq('employee_id', currentUser.id).eq('status', 'pending').select('id');
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('이미 처리된 신청입니다. 새로고침 후 확인해 주세요.');
+  });
 }
 
 async function updateRequestStatus(table, requestId, status) {
@@ -1350,7 +1381,7 @@ function setupEventListeners() {
     }
 
     const newRequest = {
-      id: 'req_' + Date.now(),
+      id: createRequestId('req'),
       employeeId: employee.id,
       employeeName: employee.name,
       hall: employee.hall,
@@ -1423,7 +1454,7 @@ function setupEventListeners() {
       }
 
       const newRequest = {
-        id: 'req_' + Date.now(),
+        id: createRequestId('req'),
         employeeId: employee.id,
         employeeName: employee.name,
         hall: employee.hall,
@@ -1544,7 +1575,7 @@ function setupEventListeners() {
     }
 
     const newRequest = {
-      id: 'ot_' + Date.now(),
+      id: createRequestId('ot'),
       employeeId: employee.id,
       employeeName: employee.name,
       hall: employee.hall,
