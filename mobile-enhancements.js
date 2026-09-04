@@ -1,9 +1,22 @@
 // Mobile-only calendar navigation and request-calendar enhancements.
 (function () {
   let selectedPersonalDate = '';
+  let personalScheduleSyncPromise = null;
 
   function personalScheduleStorageKey() {
     return currentUser ? `saha_personal_schedules_${currentUser.id}` : '';
+  }
+
+  function personalScheduleDeletedStorageKey() {
+    return currentUser ? `saha_personal_schedule_deleted_${currentUser.id}` : '';
+  }
+
+  function createPersonalScheduleId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
+      const random = Math.floor(Math.random() * 16);
+      return (character === 'x' ? random : ((random & 3) | 8)).toString(16);
+    });
   }
 
   function readPersonalSchedules() {
@@ -11,7 +24,21 @@
     if (!key) return {};
     try {
       const saved = JSON.parse(localStorage.getItem(key) || '{}');
-      return saved && typeof saved === 'object' ? saved : {};
+      if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return {};
+      let migrated = false;
+      const normalized = {};
+      Object.entries(saved).forEach(([dateStr, rawItems]) => {
+        const items = Array.isArray(rawItems) ? rawItems : [rawItems];
+        normalized[dateStr] = items.map((item) => {
+          if (item && typeof item === 'object' && item.id && item.content) {
+            return { id: String(item.id), content: String(item.content).trim(), synced: item.synced === true };
+          }
+          migrated = true;
+          return { id: createPersonalScheduleId(), content: String(item || '').trim(), synced: false };
+        }).filter((item) => item.content);
+      });
+      if (migrated) localStorage.setItem(key, JSON.stringify(normalized));
+      return normalized;
     } catch (error) {
       console.warn('개인 일정 데이터를 읽지 못했습니다.', error);
       return {};
@@ -23,10 +50,29 @@
     if (key) localStorage.setItem(key, JSON.stringify(schedules));
   }
 
+  function readDeletedPersonalScheduleIds() {
+    const key = personalScheduleDeletedStorageKey();
+    if (!key) return [];
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      return Array.isArray(saved) ? saved.map(String) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function writeDeletedPersonalScheduleIds(ids) {
+    const key = personalScheduleDeletedStorageKey();
+    if (key) localStorage.setItem(key, JSON.stringify([...new Set(ids)]));
+  }
+
+  function setPersonalScheduleSyncStatus(message) {
+    const status = document.getElementById('personal-schedule-sync-status');
+    if (status) status.textContent = message;
+  }
+
   function getPersonalScheduleItems(dateStr) {
-    const saved = readPersonalSchedules()[dateStr];
-    const items = Array.isArray(saved) ? saved : (typeof saved === 'string' ? [saved] : []);
-    return items.map((item) => String(item).trim()).filter(Boolean);
+    return readPersonalSchedules()[dateStr] || [];
   }
 
   function hasPersonalSchedule(dateStr) {
@@ -34,7 +80,7 @@
   }
 
   function getPersonalSchedule(dateStr) {
-    return getPersonalScheduleItems(dateStr).join(' · ');
+    return getPersonalScheduleItems(dateStr).map((item) => item.content).join(' · ');
   }
 
   function renderPersonalScheduleList() {
@@ -51,16 +97,16 @@
       return;
     }
 
-    items.forEach((text, index) => {
+    items.forEach((schedule, index) => {
       const item = document.createElement('div');
       item.className = 'personal-schedule-list-item';
       const content = document.createElement('span');
-      content.textContent = text;
+      content.textContent = schedule.content;
       const deleteButton = document.createElement('button');
       deleteButton.type = 'button';
       deleteButton.className = 'personal-schedule-item-delete';
       deleteButton.textContent = '삭제';
-      deleteButton.setAttribute('aria-label', `${text} 일정 삭제`);
+      deleteButton.setAttribute('aria-label', `${schedule.content} 일정 삭제`);
       deleteButton.addEventListener('click', () => deletePersonalScheduleItem(index));
       item.append(content, deleteButton);
       list.appendChild(item);
@@ -95,7 +141,7 @@
     if (overlay) overlay.classList.remove('active');
   }
 
-  function saveSelectedPersonalSchedule() {
+  async function saveSelectedPersonalSchedule() {
     if (!selectedPersonalDate) return;
     const textarea = document.getElementById('personal-schedule-text');
     const text = String(textarea ? textarea.value : '').trim();
@@ -104,29 +150,111 @@
       if (textarea) textarea.focus();
       return;
     }
-    schedules[selectedPersonalDate] = [...getPersonalScheduleItems(selectedPersonalDate), text];
+    schedules[selectedPersonalDate] = [...getPersonalScheduleItems(selectedPersonalDate), {
+      id: createPersonalScheduleId(),
+      content: text,
+      synced: false
+    }];
     writePersonalSchedules(schedules);
     renderMyCalendar();
     if (textarea) textarea.value = '';
     renderPersonalScheduleList();
     if (textarea) textarea.focus();
+    await syncPersonalSchedules();
   }
 
-  function deletePersonalScheduleItem(index) {
+  async function deletePersonalScheduleItem(index) {
     if (!selectedPersonalDate) return;
     const schedules = readPersonalSchedules();
     const items = getPersonalScheduleItems(selectedPersonalDate);
-    items.splice(index, 1);
+    const [removed] = items.splice(index, 1);
+    if (removed && removed.synced) {
+      writeDeletedPersonalScheduleIds([...readDeletedPersonalScheduleIds(), removed.id]);
+    }
     if (items.length) schedules[selectedPersonalDate] = items;
     else delete schedules[selectedPersonalDate];
     writePersonalSchedules(schedules);
     renderMyCalendar();
     renderPersonalScheduleList();
+    await syncPersonalSchedules();
+  }
+
+  async function syncPersonalSchedules() {
+    if (personalScheduleSyncPromise) return personalScheduleSyncPromise;
+    if (!currentUser || !currentUser.authUserId || typeof window.getDB !== 'function' || (typeof isPreviewMode !== 'undefined' && isPreviewMode)) {
+      setPersonalScheduleSyncStatus('이 기기에 안전하게 저장돼요.');
+      return false;
+    }
+
+    personalScheduleSyncPromise = (async () => {
+      setPersonalScheduleSyncStatus('계정과 동기화하는 중이에요.');
+      try {
+        const db = window.getDB();
+        const deletedIds = readDeletedPersonalScheduleIds();
+        if (deletedIds.length) {
+          const { error: deleteError } = await db.from('personal_schedules').delete().in('id', deletedIds);
+          if (deleteError) throw deleteError;
+        }
+
+        const { data: existingRows, error: fetchError } = await db
+          .from('personal_schedules')
+          .select('id,schedule_date,content,created_at')
+          .order('created_at', { ascending: true });
+        if (fetchError) throw fetchError;
+
+        const localSchedules = readPersonalSchedules();
+        const pendingRows = [];
+        Object.entries(localSchedules).forEach(([dateStr, items]) => {
+          items.filter((item) => !item.synced).forEach((item) => {
+            const duplicate = (existingRows || []).some((row) => row.schedule_date === dateStr && row.content === item.content);
+            if (!duplicate) {
+              pendingRows.push({
+                id: item.id,
+                employee_id: currentUser.id,
+                schedule_date: dateStr,
+                content: item.content
+              });
+            }
+          });
+        });
+
+        if (pendingRows.length) {
+          const { error: insertError } = await db.from('personal_schedules').insert(pendingRows);
+          if (insertError) throw insertError;
+        }
+
+        const { data: syncedRows, error: reloadError } = await db
+          .from('personal_schedules')
+          .select('id,schedule_date,content,created_at')
+          .order('created_at', { ascending: true });
+        if (reloadError) throw reloadError;
+
+        const syncedSchedules = {};
+        (syncedRows || []).forEach((row) => {
+          if (!syncedSchedules[row.schedule_date]) syncedSchedules[row.schedule_date] = [];
+          syncedSchedules[row.schedule_date].push({ id: row.id, content: row.content, synced: true });
+        });
+        writePersonalSchedules(syncedSchedules);
+        writeDeletedPersonalScheduleIds([]);
+        setPersonalScheduleSyncStatus('아이폰과 안드로이드에서 함께 보여요.');
+        renderMyCalendar();
+        if (selectedPersonalDate) renderPersonalScheduleList();
+        return true;
+      } catch (error) {
+        console.warn('개인 일정 계정 동기화를 완료하지 못했습니다.', error);
+        setPersonalScheduleSyncStatus('연결되면 자동 동기화돼요.');
+        return false;
+      } finally {
+        personalScheduleSyncPromise = null;
+      }
+    })();
+    return personalScheduleSyncPromise;
   }
 
   window.hasPersonalSchedule = hasPersonalSchedule;
   window.getPersonalSchedule = getPersonalSchedule;
   window.selectPersonalCalendarDate = selectPersonalCalendarDate;
+  window.syncPersonalSchedules = syncPersonalSchedules;
 
   function renderMobileRequestCalendar() {
     const container = document.getElementById('mobile-request-calendar');
@@ -287,6 +415,7 @@
 
     initializeRosterMonthSwipe();
     renderMobileRequestCalendar();
+    syncPersonalSchedules();
   }
 
   if (document.readyState === 'loading') {

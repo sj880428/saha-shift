@@ -1064,6 +1064,7 @@ async function initApp() {
       } else if (currentUser) {
         renderMyPage();
       }
+      if (typeof window.syncPersonalSchedules === 'function') window.syncPersonalSchedules();
     } else {
       clearPrivateState();
       updateLoginUI();
@@ -1175,6 +1176,7 @@ function renderAuthenticatedViews() {
   } else {
     renderMyPage();
   }
+  if (typeof window.syncPersonalSchedules === 'function') window.syncPersonalSchedules();
 }
 
 async function refreshAuthenticatedState() {
@@ -1692,6 +1694,7 @@ function setupEventListeners() {
       renderRoster();
       if (found.role === 'manager') renderAdminDashboard();
       else renderMyPage();
+      if (typeof window.syncPersonalSchedules === 'function') window.syncPersonalSchedules();
       alert(`${found.name}님, 로그인되었습니다.`);
     } catch (error) {
       console.error('Login failed:', error);
