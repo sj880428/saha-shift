@@ -550,6 +550,13 @@ function createRequestId(prefix) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function requestWriteError(error, duplicateMessage) {
+  if (error && error.code === '23505') {
+    return new Error(duplicateMessage);
+  }
+  return error;
+}
+
 async function createLeaveRequest(request) {
   const row = {
     id: request.id,
@@ -564,7 +571,7 @@ async function createLeaveRequest(request) {
   };
   await runRequestWriteOnce(`leave:create:${currentUser.id}:${request.date}`, async () => {
     const { error } = await getDB().from('leave_requests').insert(row);
-    if (error) throw error;
+    if (error) throw requestWriteError(error, '같은 날짜에 이미 진행 중인 휴가 신청이 있습니다. 새로고침 후 확인해 주세요.');
     leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
   });
 }
@@ -592,7 +599,7 @@ async function createOvertimeRequest(request) {
   };
   await runRequestWriteOnce(`overtime:create:${currentUser.id}:${request.date}:${request.timeOfDay}`, async () => {
     const { error } = await getDB().from('overtime_requests').insert(row);
-    if (error) throw error;
+    if (error) throw requestWriteError(error, '같은 날짜와 시간대에 이미 진행 중인 시간외 신청이 있습니다. 새로고침 후 확인해 주세요.');
     overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
   });
 }
