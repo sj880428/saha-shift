@@ -601,8 +601,23 @@ async function updateOwnOvertimeRequest(requestId, changes) {
 
 async function updateRequestStatus(table, requestId, status) {
   if (!currentUser || currentUser.role !== 'manager') throw new Error('관리자 권한이 필요합니다.');
-  const { error } = await getDB().from(table).update({ status }).eq('id', requestId);
-  if (error) throw error;
+  const allowedTables = new Set(['leave_requests', 'overtime_requests']);
+  const allowedStatuses = new Set(['pending', 'approved', 'rejected']);
+  if (!allowedTables.has(table) || !allowedStatuses.has(status)) throw new Error('처리할 수 없는 신청 상태입니다.');
+
+  const expectedStatuses = status === 'pending' ? ['approved', 'rejected'] : ['pending'];
+  await runRequestWriteOnce(`${table}:status:${requestId}`, async () => {
+    const { data, error } = await getDB()
+      .from(table)
+      .update({ status })
+      .eq('id', requestId)
+      .in('status', expectedStatuses)
+      .select('id');
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('다른 기기에서 이미 처리된 신청입니다. 새로고침 후 확인해 주세요.');
+    }
+  });
 }
 
 async function deleteRequestAsManager(table, requestId) {
@@ -3906,7 +3921,8 @@ window.approveLeave = async function(requestId) {
   const emp = employees.find(e => e.id === req.employeeId);
   if (!emp) return;
 
-  if (emp.remainingLeave <= 0) {
+  const consumesAnnualLeave = req.leaveType !== '공가';
+  if (consumesAnnualLeave && emp.remainingLeave <= 0) {
     alert('해당 직원은 잔여 연가가 소진되었습니다.');
     return;
   }
@@ -3932,17 +3948,15 @@ window.rejectLeave = async function(requestId) {
   if (!req) return;
 
   try {
-    await deleteRequestAsManager('leave_requests', requestId);
-    leaveRequests = leaveRequests.filter(r => r.id !== requestId);
+    await updateRequestStatus('leave_requests', requestId, 'rejected');
+    req.status = 'rejected';
     recalculateEmployeeLeaveCounts();
-    const emp = employees.find(e => e.id === req.employeeId);
-    if (emp) await saveEmployeeLeaveCounts(emp);
   } catch (error) {
     alert('연가 반려에 실패했습니다: ' + (error.message || error));
     return;
   }
 
-  alert('연가 신청이 반려되었으며 신청 내역도 삭제되었습니다.');
+  alert(`${req.leaveType || '연가'} 신청이 반려 처리되었습니다. 신청 기록은 내역에 보관됩니다.`);
   renderAdminDashboard();
   renderRoster();
 };
