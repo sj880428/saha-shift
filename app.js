@@ -208,6 +208,7 @@ let leaveRequests = [];
 let overtimeRequests = [];
 let shiftModifications = [];
 let currentUser = null;
+let isPreviewMode = false;
 
 function clearPrivateState() {
   employees = [];
@@ -255,7 +256,7 @@ async function loadStateFromServer() {
         alert("초기 데이터 등록이 완료되었습니다. 페이지가 새로고침됩니다.");
         location.reload();
       }
-      return;
+      return false;
     }
 
     // 2. Fetch only the request details this user may see. The RPC hides other staff's reasons.
@@ -336,6 +337,10 @@ async function loadStateFromServer() {
       otAfternoon: m.ot_afternoon
     }));
 
+    // Always derive leave balances from the latest approved requests and overrides.
+    // This keeps every device consistent even if the stored balance update arrives later.
+    recalculateEmployeeLeaveCounts();
+
     globalNotices = noticeData.map(n => n.content);
 
     // Save to local storage cache so that NEXT reload/refresh is 0ms instant
@@ -346,9 +351,11 @@ async function loadStateFromServer() {
     localStorage.setItem('shift_global_notices', JSON.stringify(globalNotices));
 
     updateNoticeBanner();
+    return true;
   } catch (err) {
     console.error("Failed to load state from Supabase:", err);
     alert("데이터베이스 로딩 중 오류가 발생했습니다:\n" + (err.message || err));
+    return false;
   }
 }
 
@@ -1030,7 +1037,7 @@ async function initApp() {
   initTheme();
 
   // Local visual preview only. This never reads or writes the live Supabase project.
-  const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === '1';
+  isPreviewMode = new URLSearchParams(window.location.search).get('preview') === '1';
   if (isPreviewMode) {
     employees = INITIAL_EMPLOYEES.map((employee) => ({ ...employee }));
     leaveRequests = [];
@@ -1155,6 +1162,45 @@ async function initApp() {
 
 // Subscribe to Realtime DB updates via Supabase
 let realtimeTimeout = null;
+let stateRefreshPromise = null;
+
+function renderAuthenticatedViews() {
+  updateLoginUI();
+  renderRoster();
+  updateNoticeBanner();
+  if (!currentUser) return;
+  if (currentUser.role === 'manager') {
+    renderAdminDashboard();
+    renderSpecialLeaveList();
+  } else {
+    renderMyPage();
+  }
+}
+
+async function refreshAuthenticatedState() {
+  if (isPreviewMode || !currentUser) return false;
+  if (stateRefreshPromise) return stateRefreshPromise;
+
+  const signedInEmployeeId = currentUser.id;
+  const signedInAuthUserId = currentUser.authUserId;
+  stateRefreshPromise = (async () => {
+    const loaded = await loadStateFromServer();
+    if (!loaded) return false;
+    currentUser = employees.find((employee) =>
+      (signedInAuthUserId && employee.authUserId === signedInAuthUserId) || employee.id === signedInEmployeeId
+    ) || null;
+    if (!currentUser) clearPrivateState();
+    renderAuthenticatedViews();
+    return true;
+  })();
+
+  try {
+    return await stateRefreshPromise;
+  } finally {
+    stateRefreshPromise = null;
+  }
+}
+
 function subscribeRealtimeChanges() {
   getDB()
     .channel('db-changes')
@@ -1169,16 +1215,15 @@ function subscribeRealtimeChanges() {
       clearTimeout(realtimeTimeout);
       realtimeTimeout = setTimeout(async () => {
         console.log('Executing debounced state reload from Supabase...');
-        await loadStateFromServer();
-        renderRoster();
-        renderAdminDashboard();
-        renderSpecialLeaveList();
-        renderMyPage();
-        updateNoticeBanner();
+        await refreshAuthenticatedState();
       }, 500);
     })
     .subscribe();
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') refreshAuthenticatedState();
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
