@@ -2594,7 +2594,7 @@ function updateLoginUI() {
 
     const isAdmin = isUserAdmin();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
-    if (isPhoneLayout) {
+    if (isPhoneLayout && !isAdmin) {
       document.body.classList.add('staff-mobile-mode');
       selectMobileHallForUser();
       setMobileStaffScreen(document.body.dataset.mobileScreen || 'mine');
@@ -4098,7 +4098,7 @@ window.rejectOvertime = async function(requestId) {
 window.cancelApproval = async function(requestId, type) {
   if (!currentUser || !isUserAdmin()) return;
   const confirmMessage = type === 'leave'
-    ? '승인된 연가를 취소하고 신청 내역도 완전히 삭제하시겠습니까? 잔여 연가는 자동으로 복원됩니다.'
+    ? '승인된 연가의 결재를 취소하고 다시 대기 상태로 되돌리시겠습니까? 잔여 연가는 자동으로 복원됩니다.'
     : '이 신청 건의 결재 처리를 취소하고 다시 대기 상태로 되돌리시겠습니까?';
   if (!confirm(confirmMessage)) return;
 
@@ -4106,8 +4106,8 @@ window.cancelApproval = async function(requestId, type) {
     const req = leaveRequests.find(r => r.id === requestId);
     if (req) {
       try {
-        await deleteRequestAsManager('leave_requests', requestId);
-        leaveRequests = leaveRequests.filter(r => r.id !== requestId);
+        await updateRequestStatus('leave_requests', requestId, 'pending');
+        req.status = 'pending';
         recalculateEmployeeLeaveCounts();
         const emp = employees.find(e => e.id === req.employeeId);
         if (emp) await saveEmployeeLeaveCounts(emp);
@@ -4115,7 +4115,7 @@ window.cancelApproval = async function(requestId, type) {
         alert('결재 취소에 실패했습니다: ' + (error.message || error));
         return;
       }
-      alert('연가 승인이 취소되었고 신청 내역도 삭제되었습니다.');
+      alert('연가 결재가 취소되어 신청 기록을 보존한 채 대기 상태로 변경되었습니다.');
     }
   } else {
     const req = overtimeRequests.find(r => r.id === requestId);
