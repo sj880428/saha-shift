@@ -2595,6 +2595,7 @@ function updateLoginUI() {
     const isAdmin = isUserAdmin();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
     if (isPhoneLayout && !isAdmin) {
+      document.body.classList.remove('admin-mobile-mode');
       document.body.classList.add('staff-mobile-mode');
       selectMobileHallForUser();
       setMobileStaffScreen(document.body.dataset.mobileScreen || 'mine');
@@ -2603,6 +2604,8 @@ function updateLoginUI() {
       renderMyPage();
     } else if (isAdmin) {
       document.body.classList.remove('staff-mobile-mode');
+      document.body.classList.toggle('admin-mobile-mode', isPhoneLayout);
+      if (isPhoneLayout) selectMobileHallForUser();
       mypageSection.style.display = 'none';
       adminSection.style.display = 'block';
       
@@ -2621,7 +2624,7 @@ function updateLoginUI() {
   } else {
     if (mainContent) mainContent.style.display = 'none';
     if (guestWelcome) guestWelcome.style.display = 'block';
-    document.body.classList.remove('staff-mobile-mode');
+    document.body.classList.remove('staff-mobile-mode', 'admin-mobile-mode');
     // Guest Mode
     btnLoginTrigger.style.display = 'inline-flex';
     mypageSection.style.display = 'none';
@@ -3768,11 +3771,11 @@ function renderAdminDashboard() {
       }
 
       tr.innerHTML = `
-        <td><strong>${req.employeeName}</strong> ${labelBadge}</td>
-        <td>${req.date}</td>
-        <td>${escapeHtml(req.reason)}</td>
-        <td><span class="badge ${statusBadgeClass}" style="width:auto; height:auto; border-radius:0.375rem; padding:0.25rem 0.5rem; display:inline-flex;">${statusText}</span></td>
-        <td>${actionButtons}</td>
+        <td data-label="신청 근무자"><strong>${req.employeeName}</strong> ${labelBadge}</td>
+        <td data-label="희망일">${req.date}</td>
+        <td data-label="신청 사유">${escapeHtml(req.reason)}</td>
+        <td data-label="결재 상태"><span class="badge ${statusBadgeClass}" style="width:auto; height:auto; border-radius:0.375rem; padding:0.25rem 0.5rem; display:inline-flex;">${statusText}</span></td>
+        <td data-label="결재 처리">${actionButtons}</td>
       `;
       leaveTbody.appendChild(tr);
     });
@@ -3838,12 +3841,12 @@ function renderAdminDashboard() {
       }
 
       tr.innerHTML = `
-        <td><strong>${req.employeeName}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(주간 누적: ${empWeekTotal}h)</span></td>
-        <td>${req.date}</td>
-        <td><strong>[${timeOfDayText}] ${req.hours}시간</strong></td>
-        <td>${escapeHtml(req.reason)}</td>
-        <td><span class="badge ${statusBadgeClass}" style="width:auto; height:auto; border-radius:0.375rem; padding:0.25rem 0.5rem; display:inline-flex;">${statusText}</span></td>
-        <td>${actionButtons}</td>
+        <td data-label="신청 근무자"><strong>${req.employeeName}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(주간 누적: ${empWeekTotal}h)</span></td>
+        <td data-label="희망일">${req.date}</td>
+        <td data-label="신청 시간"><strong>[${timeOfDayText}] ${req.hours}시간</strong></td>
+        <td data-label="신청 사유">${escapeHtml(req.reason)}</td>
+        <td data-label="결재 상태"><span class="badge ${statusBadgeClass}" style="width:auto; height:auto; border-radius:0.375rem; padding:0.25rem 0.5rem; display:inline-flex;">${statusText}</span></td>
+        <td data-label="결재 처리">${actionButtons}</td>
       `;
       otTbody.appendChild(tr);
     });

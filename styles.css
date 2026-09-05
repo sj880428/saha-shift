@@ -1991,6 +1991,149 @@ tr.my-roster-row td {
 }
 
 @media (max-width: 768px) {
+  body.admin-mobile-mode header {
+    padding: 0.65rem 0.75rem !important;
+    gap: 0.45rem !important;
+    flex-wrap: nowrap !important;
+  }
+
+  body.admin-mobile-mode header > div:first-child {
+    flex: 0 0 auto !important;
+    min-width: 0;
+  }
+
+  body.admin-mobile-mode .logo-section {
+    gap: 0;
+  }
+
+  body.admin-mobile-mode .logo-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 2.2rem;
+    font-size: 0.9rem;
+  }
+
+  body.admin-mobile-mode .logo-text {
+    display: none;
+  }
+
+  body.admin-mobile-mode .nav-actions {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  body.admin-mobile-mode #header-user-info {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-end;
+    padding: 0.3rem !important;
+    gap: 0.25rem !important;
+  }
+
+  body.admin-mobile-mode #header-role-wrap {
+    display: none;
+  }
+
+  body.admin-mobile-mode #btn-change-password,
+  body.admin-mobile-mode #btn-logout {
+    margin-left: 0 !important;
+    padding: 0.3rem 0.45rem !important;
+  }
+
+  body.admin-mobile-mode #screen-main {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  body.admin-mobile-mode #admin-section {
+    order: -1;
+    margin: 0.75rem !important;
+    padding: 1rem;
+  }
+
+  body.admin-mobile-mode #admin-section > .card-header {
+    align-items: stretch;
+  }
+
+  body.admin-mobile-mode #admin-section .filter-group {
+    width: 100%;
+    margin-left: 0 !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  body.admin-mobile-mode #admin-section .filter-group select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.admin-mobile-mode #admin-date-select-container {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  body.admin-mobile-mode #admin-section .collapse-trigger {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container > div,
+  body.admin-mobile-mode #admin-ot-requests-container > div {
+    overflow-x: visible !important;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container table,
+  body.admin-mobile-mode #admin-ot-requests-container table,
+  body.admin-mobile-mode #admin-leave-requests-container tbody,
+  body.admin-mobile-mode #admin-ot-requests-container tbody {
+    display: block;
+    width: 100%;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container thead,
+  body.admin-mobile-mode #admin-ot-requests-container thead {
+    display: none;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container tr,
+  body.admin-mobile-mode #admin-ot-requests-container tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container td,
+  body.admin-mobile-mode #admin-ot-requests-container td {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.45rem 0 !important;
+    border: 0;
+    text-align: left !important;
+    overflow-wrap: anywhere;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container td[data-label]::before,
+  body.admin-mobile-mode #admin-ot-requests-container td[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  body.admin-mobile-mode #admin-leave-requests-container td[colspan],
+  body.admin-mobile-mode #admin-ot-requests-container td[colspan] {
+    display: block;
+  }
+
   .dialog-overlay {
     align-items: flex-start !important;
     overflow-y: auto !important;
