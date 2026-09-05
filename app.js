@@ -221,6 +221,54 @@ function clearPrivateState() {
   updateNoticeBanner();
 }
 
+async function loadPublicRosterState() {
+  try {
+    const { data, error } = await getDB().rpc('get_public_roster_state');
+    if (error) throw error;
+
+    const state = data && typeof data === 'object' ? data : {};
+    const publicEmployees = Array.isArray(state.employees) ? state.employees : [];
+    const publicLeaves = Array.isArray(state.leave_requests) ? state.leave_requests : [];
+    const publicOvertime = Array.isArray(state.overtime_requests) ? state.overtime_requests : [];
+    const publicModifications = Array.isArray(state.shift_modifications) ? state.shift_modifications : [];
+
+    employees = publicEmployees.map((employee) => ({
+      id: employee.id,
+      name: employee.name,
+      hall: employee.hall,
+      role: employee.role,
+      shiftGroup: employee.shift_group
+    }));
+    leaveRequests = publicLeaves.map((request) => ({
+      id: request.id,
+      employeeId: request.employee_id,
+      date: request.date,
+      leaveType: request.leave_type,
+      status: request.status
+    }));
+    overtimeRequests = publicOvertime.map((request) => ({
+      id: request.id,
+      employeeId: request.employee_id,
+      date: request.date,
+      timeOfDay: request.time_of_day,
+      hours: request.hours,
+      status: request.status
+    }));
+    shiftModifications = publicModifications.map((modification) => ({
+      id: modification.id,
+      employeeId: modification.employee_id,
+      date: modification.date,
+      shift: modification.shift,
+      otMorning: modification.ot_morning,
+      otAfternoon: modification.ot_afternoon
+    }));
+    return true;
+  } catch (error) {
+    console.error('Failed to load public roster:', error);
+    return false;
+  }
+}
+
 // Helper to check and parse sessionStorage safely
 function safeGetSessionStorageObject(key, defaultValue) {
   try {
@@ -1074,6 +1122,7 @@ async function initApp() {
       if (typeof window.syncPersonalSchedules === 'function') window.syncPersonalSchedules();
     } else {
       clearPrivateState();
+      await loadPublicRosterState();
       updateLoginUI();
       renderRoster();
     }
@@ -2574,6 +2623,7 @@ function updateLoginUI() {
   document.getElementById('manager-pw').value = '';
 
   if (currentUser) {
+    document.body.classList.remove('guest-mobile-mode');
     if (mainContent) mainContent.style.display = '';
     if (guestWelcome) guestWelcome.style.display = 'none';
     btnLoginTrigger.style.display = 'none';
@@ -2622,9 +2672,12 @@ function updateLoginUI() {
       renderMyPage();
     }
   } else {
-    if (mainContent) mainContent.style.display = 'none';
-    if (guestWelcome) guestWelcome.style.display = 'block';
+    if (mainContent) mainContent.style.display = '';
+    if (guestWelcome) guestWelcome.style.display = 'none';
     document.body.classList.remove('staff-mobile-mode', 'admin-mobile-mode');
+    const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
+    document.body.classList.toggle('guest-mobile-mode', isPhoneLayout);
+    if (isPhoneLayout) selectMobileHallForUser();
     // Guest Mode
     btnLoginTrigger.style.display = 'inline-flex';
     mypageSection.style.display = 'none';

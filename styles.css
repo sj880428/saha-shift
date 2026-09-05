@@ -1991,6 +1991,98 @@ tr.my-roster-row td {
 }
 
 @media (max-width: 768px) {
+  body.guest-mobile-mode header {
+    padding: 0.65rem 0.9rem !important;
+    gap: 0.65rem !important;
+    flex-wrap: nowrap !important;
+  }
+
+  body.guest-mobile-mode header > div:first-child {
+    min-width: 0;
+  }
+
+  body.guest-mobile-mode .logo-section {
+    gap: 0.55rem;
+    flex-wrap: nowrap;
+  }
+
+  body.guest-mobile-mode .logo-icon {
+    width: 2.15rem;
+    height: 2.15rem;
+    flex: 0 0 2.15rem;
+    font-size: 0.9rem;
+  }
+
+  body.guest-mobile-mode .logo-text h1 {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  body.guest-mobile-mode .logo-text p,
+  body.guest-mobile-mode .mobile-hide-print {
+    display: none !important;
+  }
+
+  body.guest-mobile-mode .nav-actions {
+    flex: 0 0 auto;
+  }
+
+  body.guest-mobile-mode #btn-login-trigger {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  body.guest-mobile-mode .mobile-tab-btn {
+    background: #ffffff !important;
+    color: #475569 !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  body.guest-mobile-mode .mobile-tab-btn.active {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-color) !important;
+  }
+
+  body.guest-mobile-mode #screen-main {
+    width: 100%;
+    padding: 0.85rem !important;
+    overflow-x: hidden;
+  }
+
+  body.guest-mobile-mode .calendar-controls {
+    align-items: stretch !important;
+  }
+
+  body.guest-mobile-mode .calendar-title-group {
+    display: grid !important;
+    width: 100%;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 0.9fr);
+    gap: 0.4rem !important;
+  }
+
+  body.guest-mobile-mode .calendar-title-group > .btn {
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0.55rem 0.2rem;
+    font-size: 0.76rem;
+  }
+
+  body.guest-mobile-mode .current-month-label {
+    justify-content: center;
+    gap: 0.1rem !important;
+    font-size: 0.86rem !important;
+    white-space: nowrap;
+  }
+
+  body.guest-mobile-mode .current-month-label select {
+    min-width: 0;
+    max-width: 65px;
+    padding: 0.35rem 0.1rem !important;
+    font-size: 0.88rem !important;
+  }
+
   body.admin-mobile-mode header {
     padding: 0.65rem 0.75rem !important;
     gap: 0.45rem !important;
