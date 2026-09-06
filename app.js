@@ -1214,6 +1214,7 @@ async function initApp() {
   // Set up event listeners
   setupEventListeners();
   setupMobileStaffNavigation();
+  setupAdminMobileNavigation();
   if (!isPreviewMode) subscribeRealtimeChanges();
 }
 
@@ -2548,7 +2549,7 @@ function setMobileStaffScreen(screen) {
   const allowed = ['mine', 'all', 'request'];
   const nextScreen = allowed.includes(screen) ? screen : 'mine';
   document.body.dataset.mobileScreen = nextScreen;
-  document.querySelectorAll('.mobile-bottom-nav-btn').forEach((button) => {
+  document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
     button.classList.toggle('active', button.dataset.mobileScreen === nextScreen);
   });
 
@@ -2558,7 +2559,7 @@ function setMobileStaffScreen(screen) {
 }
 
 function setupMobileStaffNavigation() {
-  document.querySelectorAll('.mobile-bottom-nav-btn').forEach((button) => {
+  document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
     button.addEventListener('click', () => setMobileStaffScreen(button.dataset.mobileScreen));
   });
 
@@ -2588,6 +2589,20 @@ function setupMobileStaffNavigation() {
   } else if (typeof mobileLayoutQuery.addListener === 'function') {
     mobileLayoutQuery.addListener(handleLayoutChange);
   }
+}
+
+function setAdminMobileScreen(screen) {
+  const nextScreen = screen === 'approval' ? 'approval' : 'roster';
+  document.body.dataset.adminMobileScreen = nextScreen;
+  document.querySelectorAll('#admin-mobile-bottom-nav [data-admin-mobile-screen]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.adminMobileScreen === nextScreen);
+  });
+}
+
+function setupAdminMobileNavigation() {
+  document.querySelectorAll('#admin-mobile-bottom-nav [data-admin-mobile-screen]').forEach((button) => {
+    button.addEventListener('click', () => setAdminMobileScreen(button.dataset.adminMobileScreen));
+  });
 }
 
 function selectMobileHallForUser() {
@@ -2655,7 +2670,10 @@ function updateLoginUI() {
     } else if (isAdmin) {
       document.body.classList.remove('staff-mobile-mode');
       document.body.classList.toggle('admin-mobile-mode', isPhoneLayout);
-      if (isPhoneLayout) selectMobileHallForUser();
+      if (isPhoneLayout) {
+        selectMobileHallForUser();
+        setAdminMobileScreen(document.body.dataset.adminMobileScreen || 'roster');
+      }
       mypageSection.style.display = 'none';
       adminSection.style.display = 'block';
       
