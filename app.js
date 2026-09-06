@@ -2612,6 +2612,10 @@ function renderMyCalendar() {
     }
 
     const dateStr = formatDateString(year, month, day);
+    const now = new Date();
+    const todayStr = formatDateString(now.getFullYear(), now.getMonth(), now.getDate());
+    const isToday = dateStr === todayStr;
+    if (isToday) el.classList.add('is-today');
     const shift = calculateShift(empData, dateStr);
     
     const { badgeClass, displayLabel } = getShiftBadgeAndLabel(shift);
@@ -2633,7 +2637,7 @@ function renderMyCalendar() {
     `;
 
     el.dataset.date = dateStr;
-    el.setAttribute('aria-label', `${month + 1}월 ${day}일 ${shift}${hasPersonalSchedule ? `, 개인 일정 ${personalSchedule}` : ''}`);
+    el.setAttribute('aria-label', `${month + 1}월 ${day}일${isToday ? ' 오늘' : ''} ${shift}${hasPersonalSchedule ? `, 개인 일정 ${personalSchedule}` : ''}`);
     el.addEventListener('click', () => {
       if (typeof window.selectPersonalCalendarDate === 'function') {
         window.selectPersonalCalendarDate(dateStr, shift);

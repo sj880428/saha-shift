@@ -693,6 +693,18 @@ main {
   box-shadow: inset 0 0 0 1px var(--primary-color);
 }
 
+.personal-calendar-day.is-today {
+  background: #fff8d8;
+  border-color: #f59e0b;
+  box-shadow: inset 0 0 0 1px #f59e0b;
+}
+
+.personal-calendar-day.is-today.is-selected {
+  background: #fff3b0;
+  border-color: var(--primary-color);
+  box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
 .personal-schedule-preview {
   display: -webkit-box;
   width: calc(100% - 0.35rem);
