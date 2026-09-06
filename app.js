@@ -2130,6 +2130,51 @@ function setupEventListeners() {
       if (submitButton) submitButton.disabled = false;
     }
   });
+
+  const resetPasswordOverlay = document.getElementById('reset-password-overlay');
+  const closePasswordReset = () => {
+    resetPasswordOverlay.classList.remove('active');
+    document.getElementById('reset-password-form').reset();
+  };
+  document.getElementById('reset-password-close').addEventListener('click', closePasswordReset);
+  document.getElementById('reset-password-cancel').addEventListener('click', closePasswordReset);
+  document.getElementById('reset-password-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUser || currentUser.hall !== 'all') return;
+
+    const employeeId = document.getElementById('reset-password-employee-id').value;
+    const password = document.getElementById('reset-password-new').value;
+    const confirmation = document.getElementById('reset-password-confirm').value;
+    const employee = employees.find((item) => item.id === employeeId);
+    if (!/^\d{8}$/.test(password)) return alert('임시 비밀번호는 숫자 8자리로 입력해 주세요.');
+    if (password !== confirmation) return alert('임시 비밀번호 두 칸이 서로 다릅니다.');
+    if (!employee || !confirm(`${employee.name}님의 비밀번호를 초기화하시겠습니까?`)) return;
+
+    const submitButton = event.submitter;
+    if (submitButton) submitButton.disabled = true;
+    try {
+      const { data, error } = await getDB().functions.invoke('reset-user-password', {
+        body: { employeeId, newPassword: password },
+      });
+      if (error) {
+        let serverMessage = error.message || String(error);
+        try {
+          const errorBody = await error.context?.json();
+          serverMessage = errorBody?.error || errorBody?.message || serverMessage;
+        } catch (_) {
+          // Keep the original message when the server did not return JSON.
+        }
+        throw new Error(serverMessage);
+      }
+      if (!data?.ok) throw new Error(data?.error || '비밀번호 초기화에 실패했습니다.');
+      closePasswordReset();
+      alert(`${data.employeeName || employee.name}님의 비밀번호가 초기화되었습니다. 임시 비밀번호를 직원에게 전달해 주세요.`);
+    } catch (error) {
+      alert('비밀번호를 초기화하지 못했습니다: ' + (error.message || error));
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
 }
 
 // Recalculate remaining & used leaves based on approved leave requests and manual overrides
@@ -4035,7 +4080,10 @@ function renderAdminEmployees() {
       <td><strong>${emp.remainingLeave}일</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(사용: ${emp.usedLeave}일)</span></td>
       <td>
         <button class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openEditEmployeeModal('${emp.id}')">✏️ 정보/소속 수정</button>
-        ${currentUser.hall === 'all' ? `<button class="btn btn-primary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${emp.id}')">아이디 변경</button>` : ''}
+        ${currentUser.hall === 'all' ? `
+          <button class="btn btn-primary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${emp.id}')">아이디 변경</button>
+          <button class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.75rem;" onclick="openPasswordResetModal('${emp.id}')">비밀번호 초기화</button>
+        ` : ''}
       </td>
     `;
     tbody.appendChild(tr);
@@ -4083,6 +4131,7 @@ function renderAdminManagers() {
         ${currentUser.hall === 'all' ? `
           <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openEditManagerModal('${mgr.id}')">정보 수정</button>
           <button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openChangeLoginIdModal('${mgr.id}')">아이디 변경</button>
+          ${mgr.id !== currentUser.id ? `<button class="btn btn-secondary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openPasswordResetModal('${mgr.id}')">비밀번호 초기화</button>` : ''}
           <button class="btn btn-primary" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="openManagerTransferModal('${mgr.id}')">권한 양도</button>
         ` : '<span style="color:var(--text-muted);font-size:0.75rem;">조회만 가능</span>'}
       </td>
@@ -4123,6 +4172,16 @@ window.openChangeLoginIdModal = function(employeeId) {
   document.getElementById('change-login-current').textContent = `${employee.name} / 현재 ID: ${employee.loginId || '미연결'}`;
   document.getElementById('change-login-new-id').value = employee.loginId || '';
   document.getElementById('change-login-id-overlay').classList.add('active');
+};
+
+window.openPasswordResetModal = function(employeeId) {
+  if (!currentUser || currentUser.hall !== 'all') return;
+  const employee = employees.find((item) => item.id === employeeId);
+  if (!employee) return alert('사용자 정보를 찾지 못했습니다.');
+  document.getElementById('reset-password-form').reset();
+  document.getElementById('reset-password-employee-id').value = employee.id;
+  document.getElementById('reset-password-user').textContent = `${employee.name} / 로그인 ID: ${employee.loginId || employee.username || '미연결'}`;
+  document.getElementById('reset-password-overlay').classList.add('active');
 };
 
 
