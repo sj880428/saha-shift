@@ -2615,7 +2615,9 @@ function setMobileStaffScreen(screen) {
   const nextScreen = allowed.includes(screen) ? screen : 'mine';
   document.body.dataset.mobileScreen = nextScreen;
   document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
-    button.classList.toggle('active', button.dataset.mobileScreen === nextScreen);
+    const isActive = button.dataset.mobileScreen === nextScreen;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
   });
 
   if (nextScreen === 'request') {
@@ -2624,9 +2626,18 @@ function setMobileStaffScreen(screen) {
 }
 
 function setupMobileStaffNavigation() {
-  document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
-    button.addEventListener('click', () => setMobileStaffScreen(button.dataset.mobileScreen));
-  });
+  const mobileBottomNav = document.getElementById('mobile-bottom-nav');
+  if (mobileBottomNav) {
+    // Delegate the event from the fixed nav so taps remain reliable after a native
+    // WebView resumes, rotates, or restores its previous page state.
+    mobileBottomNav.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-mobile-screen]');
+      if (!button) return;
+      event.preventDefault();
+      setMobileStaffScreen(button.dataset.mobileScreen);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    });
+  }
 
   const dateInput = document.getElementById('mobile-request-date');
   if (dateInput && !dateInput.value) dateInput.value = formatDateString(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
@@ -2733,12 +2744,20 @@ function updateLoginUI() {
       adminSection.style.display = 'none';
       renderMyPage();
     } else if (isAdmin) {
-      document.body.classList.remove('staff-mobile-mode');
-      document.body.classList.toggle('admin-mobile-mode', isPhoneLayout);
       if (isPhoneLayout) {
+        // Managers are also roster members. On phones they use the same focused
+        // three-tab experience as staff; full approval tools remain on desktop.
+        document.body.classList.remove('admin-mobile-mode');
+        document.body.classList.add('staff-mobile-mode');
         selectMobileHallForUser();
-        setAdminMobileScreen(document.body.dataset.adminMobileScreen || 'roster');
+        setMobileStaffScreen(document.body.dataset.mobileScreen || 'mine');
+        mypageSection.style.display = 'block';
+        adminSection.style.display = 'none';
+        renderMyPage();
+        return;
       }
+
+      document.body.classList.remove('staff-mobile-mode', 'admin-mobile-mode');
       mypageSection.style.display = 'none';
       adminSection.style.display = 'block';
       

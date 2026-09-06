@@ -1459,6 +1459,10 @@ tr.my-roster-row td {
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .mobile-bottom-nav-btn.active {
@@ -1538,8 +1542,12 @@ tr.my-roster-row td {
     padding-bottom: 76px;
   }
 
-  body.staff-mobile-mode .mobile-bottom-nav {
+  body.staff-mobile-mode #mobile-bottom-nav {
     display: grid !important;
+  }
+
+  body.staff-mobile-mode #admin-mobile-bottom-nav {
+    display: none !important;
   }
 
   body.staff-mobile-mode[data-mobile-screen="mine"] .schedule-card,
