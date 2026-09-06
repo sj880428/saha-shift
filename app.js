@@ -209,6 +209,67 @@ let overtimeRequests = [];
 let shiftModifications = [];
 let currentUser = null;
 let isPreviewMode = false;
+const PUBLIC_ROSTER_CACHE_KEY = 'shift_public_roster_v1';
+
+function setConnectionStatus(status, message = '') {
+  const banner = document.getElementById('connection-status-banner');
+  const text = document.getElementById('connection-status-text');
+  if (!banner || !text) return;
+  banner.dataset.status = status || '';
+  text.textContent = message;
+  banner.style.display = message ? 'flex' : 'none';
+}
+
+function applyPublicRosterState(state) {
+  const publicEmployees = Array.isArray(state?.employees) ? state.employees : [];
+  const publicLeaves = Array.isArray(state?.leave_requests) ? state.leave_requests : [];
+  const publicOvertime = Array.isArray(state?.overtime_requests) ? state.overtime_requests : [];
+  const publicModifications = Array.isArray(state?.shift_modifications) ? state.shift_modifications : [];
+
+  employees = publicEmployees.map((employee) => ({
+    id: employee.id,
+    name: employee.name,
+    hall: employee.hall,
+    role: employee.role,
+    shiftGroup: employee.shift_group
+  }));
+  leaveRequests = publicLeaves.map((request) => ({
+    id: request.id,
+    employeeId: request.employee_id,
+    date: request.date,
+    leaveType: request.leave_type,
+    status: request.status
+  }));
+  overtimeRequests = publicOvertime.map((request) => ({
+    id: request.id,
+    employeeId: request.employee_id,
+    date: request.date,
+    timeOfDay: request.time_of_day,
+    hours: request.hours,
+    status: request.status
+  }));
+  shiftModifications = publicModifications.map((modification) => ({
+    id: modification.id,
+    employeeId: modification.employee_id,
+    date: modification.date,
+    shift: modification.shift,
+    otMorning: modification.ot_morning,
+    otAfternoon: modification.ot_afternoon
+  }));
+  return employees.length > 0;
+}
+
+function restoreAuthenticatedCache(authUserId) {
+  const cachedEmployees = safeGetLocalStorageArray('shift_employees');
+  const cachedUser = cachedEmployees.find((employee) => employee.authUserId === authUserId);
+  if (!cachedUser) return false;
+  employees = cachedEmployees;
+  leaveRequests = safeGetLocalStorageArray('shift_leave_requests');
+  overtimeRequests = safeGetLocalStorageArray('shift_overtime_requests');
+  shiftModifications = safeGetLocalStorageArray('shift_modifications');
+  globalNotices = safeGetLocalStorageArray('shift_global_notices');
+  return true;
+}
 
 function clearPrivateState() {
   employees = [];
@@ -227,45 +288,18 @@ async function loadPublicRosterState() {
     if (error) throw error;
 
     const state = data && typeof data === 'object' ? data : {};
-    const publicEmployees = Array.isArray(state.employees) ? state.employees : [];
-    const publicLeaves = Array.isArray(state.leave_requests) ? state.leave_requests : [];
-    const publicOvertime = Array.isArray(state.overtime_requests) ? state.overtime_requests : [];
-    const publicModifications = Array.isArray(state.shift_modifications) ? state.shift_modifications : [];
-
-    employees = publicEmployees.map((employee) => ({
-      id: employee.id,
-      name: employee.name,
-      hall: employee.hall,
-      role: employee.role,
-      shiftGroup: employee.shift_group
-    }));
-    leaveRequests = publicLeaves.map((request) => ({
-      id: request.id,
-      employeeId: request.employee_id,
-      date: request.date,
-      leaveType: request.leave_type,
-      status: request.status
-    }));
-    overtimeRequests = publicOvertime.map((request) => ({
-      id: request.id,
-      employeeId: request.employee_id,
-      date: request.date,
-      timeOfDay: request.time_of_day,
-      hours: request.hours,
-      status: request.status
-    }));
-    shiftModifications = publicModifications.map((modification) => ({
-      id: modification.id,
-      employeeId: modification.employee_id,
-      date: modification.date,
-      shift: modification.shift,
-      otMorning: modification.ot_morning,
-      otAfternoon: modification.ot_afternoon
-    }));
-    return true;
+    const applied = applyPublicRosterState(state);
+    if (applied) localStorage.setItem(PUBLIC_ROSTER_CACHE_KEY, JSON.stringify(state));
+    setConnectionStatus('', '');
+    return applied;
   } catch (error) {
     console.error('Failed to load public roster:', error);
-    return false;
+    const cachedState = safeGetLocalStorageObject(PUBLIC_ROSTER_CACHE_KEY, null);
+    const restored = cachedState ? applyPublicRosterState(cachedState) : false;
+    setConnectionStatus('offline', restored
+      ? '인터넷 연결이 불안정해 마지막으로 받은 근무표를 보여주고 있어요.'
+      : '인터넷에 연결되지 않아 근무표를 불러오지 못했어요.');
+    return restored;
   }
 }
 
@@ -284,7 +318,7 @@ function safeGetSessionStorageObject(key, defaultValue) {
 const initialNamesStr = INITIAL_EMPLOYEES.map(e => e.name).sort().join(',');
 
 // Load State from Supabase Server (Async)
-async function loadStateFromServer() {
+async function loadStateFromServer(options = {}) {
   try {
     // 1. Fetch Employees
     let { data: empData, error: empErr } = await getDB().rpc('get_visible_employees');
@@ -399,10 +433,12 @@ async function loadStateFromServer() {
     localStorage.setItem('shift_global_notices', JSON.stringify(globalNotices));
 
     updateNoticeBanner();
+    setConnectionStatus('', '');
     return true;
   } catch (err) {
     console.error("Failed to load state from Supabase:", err);
-    alert("데이터베이스 로딩 중 오류가 발생했습니다:\n" + (err.message || err));
+    setConnectionStatus('offline', '서버 연결이 불안정해 마지막으로 받은 내용을 보여주고 있어요. 신청과 결재는 연결 후 이용해 주세요.');
+    if (!options.silent) alert("데이터베이스 로딩 중 오류가 발생했습니다:\n" + (err.message || err));
     return false;
   }
 }
@@ -586,6 +622,8 @@ async function runRequestWriteOnce(lockKey, writeAction) {
   pendingRequestWrites.add(lockKey);
   try {
     return await writeAction();
+  } catch (error) {
+    throw normalizeNetworkWriteError(error);
   } finally {
     pendingRequestWrites.delete(lockKey);
   }
@@ -598,11 +636,18 @@ function createRequestId(prefix) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function normalizeNetworkWriteError(error) {
+  if (!navigator.onLine || error instanceof TypeError || /fetch|network/i.test(String(error?.message || ''))) {
+    return new Error('인터넷 연결을 확인해 주세요. 변경 내용은 서버에 저장되지 않았습니다.');
+  }
+  return error;
+}
+
 function requestWriteError(error, duplicateMessage) {
   if (error && error.code === '23505') {
     return new Error(duplicateMessage);
   }
-  return error;
+  return normalizeNetworkWriteError(error);
 }
 
 async function createLeaveRequest(request) {
@@ -685,7 +730,7 @@ async function updateRequestStatus(table, requestId, status) {
 async function deleteRequestAsManager(table, requestId) {
   if (!currentUser || !isUserAdmin()) throw new Error('관리자 권한이 필요합니다.');
   const { data, error } = await getDB().from(table).delete().eq('id', requestId).select('id');
-  if (error) throw error;
+  if (error) throw normalizeNetworkWriteError(error);
   if (!data || data.length === 0) throw new Error('삭제할 신청 내역을 서버에서 찾지 못했습니다.');
 }
 
@@ -696,7 +741,7 @@ async function deleteOwnRequest(table, requestId) {
     .eq('id', requestId)
     .eq('employee_id', currentUser.id)
     .select('id');
-  if (error) throw error;
+  if (error) throw normalizeNetworkWriteError(error);
   if (!data || data.length === 0) throw new Error('취소할 신청을 서버에서 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.');
 }
 
@@ -1110,7 +1155,8 @@ async function initApp() {
   if (!isPreviewMode) {
     const sessionUser = await window.SahaAuth.getSessionUser();
     if (sessionUser) {
-      await loadStateFromServer();
+      const loaded = await loadStateFromServer({ silent: true });
+      if (!loaded) restoreAuthenticatedCache(sessionUser.id);
       currentUser = employees.find((employee) => employee.authUserId === sessionUser.id) || null;
       updateLoginUI();
       renderRoster();
@@ -1243,7 +1289,7 @@ async function refreshAuthenticatedState() {
   const signedInEmployeeId = currentUser.id;
   const signedInAuthUserId = currentUser.authUserId;
   stateRefreshPromise = (async () => {
-    const loaded = await loadStateFromServer();
+    const loaded = await loadStateFromServer({ silent: true });
     if (!loaded) return false;
     currentUser = employees.find((employee) =>
       (signedInAuthUserId && employee.authUserId === signedInAuthUserId) || employee.id === signedInEmployeeId
@@ -1282,6 +1328,21 @@ function subscribeRealtimeChanges() {
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') refreshAuthenticatedState();
+});
+
+window.addEventListener('offline', () => {
+  setConnectionStatus('offline', '인터넷 연결이 끊겼어요. 근무표는 볼 수 있지만 신청과 결재는 연결 후 이용해 주세요.');
+});
+
+window.addEventListener('online', async () => {
+  setConnectionStatus('syncing', '인터넷이 연결되어 최신 내용을 확인하고 있어요.');
+  if (currentUser) {
+    await refreshAuthenticatedState();
+  } else {
+    await loadPublicRosterState();
+    updateLoginUI();
+    renderRoster();
+  }
 });
 
 if (document.readyState === 'loading') {
@@ -1735,7 +1796,11 @@ function setupEventListeners() {
 
     try {
       const authUser = await window.SahaAuth.signIn(loginId, password);
-      await loadStateFromServer();
+      const loaded = await loadStateFromServer({ silent: true });
+      if (!loaded && !restoreAuthenticatedCache(authUser.id)) {
+        await window.SahaAuth.signOut();
+        throw new Error('로그인은 확인됐지만 서버에서 근무 정보를 불러오지 못했어요. 인터넷 연결 후 다시 시도해 주세요.');
+      }
       const found = employees.find((employee) => employee.authUserId === authUser.id);
 
       if (!found || (activeTab === 'staff' && found.role !== 'staff') || (activeTab === 'manager' && found.role !== 'manager')) {
@@ -1755,7 +1820,7 @@ function setupEventListeners() {
       alert(`${found.name}님, 로그인되었습니다.`);
     } catch (error) {
       console.error('Login failed:', error);
-      alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 확인해 주세요.');
+      alert(error?.message || '아이디 또는 비밀번호가 맞지 않습니다. 다시 확인해 주세요.');
     }
   });
 

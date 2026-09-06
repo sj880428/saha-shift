@@ -17,15 +17,27 @@ const appFiles = [
 
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
+await mkdir(resolve(outputDir, 'vendor'), { recursive: true });
 
 for (const file of appFiles) {
   await cp(resolve(projectRoot, file), resolve(outputDir, file));
 }
 
+await cp(
+  resolve(projectRoot, 'node_modules/@supabase/supabase-js/dist/umd/supabase.js'),
+  resolve(outputDir, 'vendor/supabase.js')
+);
+await cp(
+  resolve(projectRoot, 'node_modules/html2canvas/dist/html2canvas.min.js'),
+  resolve(outputDir, 'vendor/html2canvas.min.js')
+);
+
 const indexPath = resolve(outputDir, 'index.html');
 let indexHtml = await readFile(indexPath, 'utf8');
 indexHtml = indexHtml
   .replace('width=device-width, initial-scale=1.0', 'width=device-width, initial-scale=1.0, viewport-fit=cover')
+  .replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', 'vendor/supabase.js')
+  .replace('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'vendor/html2canvas.min.js')
   .replace('</head>', '  <link rel="stylesheet" href="mobile-app.css">\n</head>');
 await writeFile(indexPath, indexHtml);
 

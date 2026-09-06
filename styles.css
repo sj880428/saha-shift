@@ -1496,6 +1496,35 @@ tr.my-roster-row td {
   display: none;
 }
 
+.connection-status-banner {
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 3rem);
+  max-width: 1200px;
+  margin: 0.75rem auto 0;
+  padding: 0.6rem 1rem;
+  border: 1px solid #f6c453;
+  border-radius: 0.65rem;
+  background: #fff8db;
+  color: #7c4a03;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.connection-status-banner[data-status="syncing"] {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .connection-status-banner {
+    width: calc(100% - 2rem);
+    margin-top: 0.65rem;
+  }
+}
+
 .mobile-calendar-heading {
   margin-bottom: 1rem;
 }
