@@ -1,14 +1,39 @@
 import AppKit
 
 let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+let sourceURL = root.appendingPathComponent("assets/app-icon-final.png")
 
-func savePNG(_ image: NSImage, to relativePath: String) throws {
+guard let sourceIcon = NSImage(contentsOf: sourceURL) else {
+    fatalError("Could not load assets/app-icon-final.png")
+}
+
+func savePNG(_ image: NSImage, to relativePath: String, opaque: Bool = true) throws {
     let target = root.appendingPathComponent(relativePath)
     try FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
-    guard let data = image.tiffRepresentation,
-          let bitmap = NSBitmapImageRep(data: data),
-          let png = bitmap.representation(using: .png, properties: [:]) else {
+    let width = Int(image.size.width)
+    let height = Int(image.size.height)
+    var proposedRect = NSRect(origin: .zero, size: image.size)
+    let alphaInfo: CGImageAlphaInfo = opaque ? .noneSkipLast : .premultipliedLast
+    guard let source = image.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil),
+          let context = CGContext(
+              data: nil,
+              width: width,
+              height: height,
+              bitsPerComponent: 8,
+              bytesPerRow: width * 4,
+              space: CGColorSpaceCreateDeviceRGB(),
+              bitmapInfo: alphaInfo.rawValue
+          ) else {
         throw NSError(domain: "IconGenerator", code: 1)
+    }
+    context.interpolationQuality = .high
+    context.draw(source, in: CGRect(x: 0, y: 0, width: width, height: height))
+    guard let rendered = context.makeImage() else {
+        throw NSError(domain: "IconGenerator", code: 2)
+    }
+    let bitmap = NSBitmapImageRep(cgImage: rendered)
+    guard let png = bitmap.representation(using: .png, properties: [:]) else {
+        throw NSError(domain: "IconGenerator", code: 3)
     }
     try png.write(to: target)
 }
@@ -17,57 +42,27 @@ func icon(size: Int, adaptiveForeground: Bool = false) -> NSImage {
     let canvas = NSImage(size: NSSize(width: size, height: size))
     canvas.lockFocus()
 
-    let scale = CGFloat(size) / 1024
     let full = NSRect(x: 0, y: 0, width: size, height: size)
     if adaptiveForeground {
         NSColor.clear.setFill()
         full.fill()
+        // Android applies its own circle/squircle mask. Keep the artwork inside
+        // the adaptive-icon safe zone and let the cream background blend out.
+        let inset = CGFloat(size) * 0.14
+        sourceIcon.draw(
+            in: full.insetBy(dx: inset, dy: inset),
+            from: NSRect(origin: .zero, size: sourceIcon.size),
+            operation: .sourceOver,
+            fraction: 1
+        )
     } else {
-        NSColor(calibratedRed: 0.075, green: 0.475, blue: 0.357, alpha: 1).setFill()
-        full.fill()
+        sourceIcon.draw(
+            in: full,
+            from: NSRect(origin: .zero, size: sourceIcon.size),
+            operation: .sourceOver,
+            fraction: 1
+        )
     }
-
-    // Adaptive icons need extra breathing room because Android applies the final mask.
-    let inset: CGFloat = adaptiveForeground ? 285 * scale : 174 * scale
-    let card = NSRect(x: inset, y: inset * 0.82, width: CGFloat(size) - inset * 2, height: CGFloat(size) - inset * 1.68)
-    let radius = (adaptiveForeground ? 64 : 72) * scale
-    let cardPath = NSBezierPath(roundedRect: card, xRadius: radius, yRadius: radius)
-    NSColor.white.setFill()
-    cardPath.fill()
-
-    let green = NSColor(calibratedRed: 0.075, green: 0.475, blue: 0.357, alpha: 1)
-    let pale = NSColor(calibratedRed: 0.851, green: 0.949, blue: 0.910, alpha: 1)
-
-    let ringWidth = (adaptiveForeground ? 24 : 34) * scale
-    let ringY = card.maxY - (adaptiveForeground ? 30 : 42) * scale
-    for x in [card.minX + card.width * 0.27, card.minX + card.width * 0.73] {
-        let ring = NSBezierPath()
-        ring.lineWidth = ringWidth
-        ring.lineCapStyle = .round
-        ring.move(to: NSPoint(x: x, y: ringY - 42 * scale))
-        ring.line(to: NSPoint(x: x, y: ringY + 54 * scale))
-        pale.setStroke()
-        ring.stroke()
-    }
-
-    let divider = NSBezierPath()
-    divider.lineWidth = (adaptiveForeground ? 20 : 30) * scale
-    divider.move(to: NSPoint(x: card.minX, y: card.maxY - card.height * 0.31))
-    divider.line(to: NSPoint(x: card.maxX, y: card.maxY - card.height * 0.31))
-    green.setStroke()
-    divider.stroke()
-
-    let fontSize = (adaptiveForeground ? 94 : 142) * scale
-    let paragraph = NSMutableParagraphStyle()
-    paragraph.alignment = .center
-    let attributes: [NSAttributedString.Key: Any] = [
-        .font: NSFont.systemFont(ofSize: fontSize, weight: .bold),
-        .foregroundColor: green,
-        .paragraphStyle: paragraph
-    ]
-    let textHeight = fontSize * 1.25
-    let textRect = NSRect(x: card.minX, y: card.minY + card.height * 0.12, width: card.width, height: textHeight)
-    ("사하" as NSString).draw(in: textRect, withAttributes: attributes)
 
     canvas.unlockFocus()
     return canvas
@@ -130,14 +125,19 @@ func splash(width: Int, height: Int) -> NSImage {
 }
 
 try savePNG(icon(size: 1024), to: "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png")
+try savePNG(icon(size: 1024), to: "app-icon.png")
 
-let androidSizes: [(String, Int)] = [
-    ("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 144), ("xxxhdpi", 192)
+let androidSizes: [(String, Int, Int)] = [
+    ("mdpi", 48, 108),
+    ("hdpi", 72, 162),
+    ("xhdpi", 96, 216),
+    ("xxhdpi", 144, 324),
+    ("xxxhdpi", 192, 432)
 ]
-for (density, size) in androidSizes {
+for (density, size, adaptiveSize) in androidSizes {
     try savePNG(icon(size: size), to: "android/app/src/main/res/mipmap-\(density)/ic_launcher.png")
     try savePNG(icon(size: size), to: "android/app/src/main/res/mipmap-\(density)/ic_launcher_round.png")
-    try savePNG(icon(size: size, adaptiveForeground: true), to: "android/app/src/main/res/mipmap-\(density)/ic_launcher_foreground.png")
+    try savePNG(icon(size: adaptiveSize, adaptiveForeground: true), to: "android/app/src/main/res/mipmap-\(density)/ic_launcher_foreground.png", opaque: false)
 }
 
 let androidSplashSizes: [(String, Int, Int)] = [

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'saha-shift-v20260824-2';
+const CACHE_NAME = 'saha-shift-v20260907-1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -7,7 +7,7 @@ const APP_SHELL = [
   './app.js?v=20260824_2',
   './mobile-enhancements.js?v=20260822_2',
   './manifest.webmanifest',
-  './app-icon.svg?v=20260824_1'
+  './app-icon.png?v=20260907_1'
 ];
 
 self.addEventListener('install', (event) => {

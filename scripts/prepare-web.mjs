@@ -12,7 +12,7 @@ const appFiles = [
   'pwa.js',
   'service-worker.js',
   'manifest.webmanifest',
-  'app-icon.svg'
+  'app-icon.png'
 ];
 
 await rm(outputDir, { recursive: true, force: true });
