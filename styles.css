@@ -2503,3 +2503,48 @@ tr.my-roster-row td {
   }
 }
 
+/* Initial app loading screen */
+.app-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fffaf2;
+  opacity: 1;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.app-loading-screen img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-loading-screen p {
+  position: absolute;
+  top: calc(50% + 8.25rem);
+  left: 1rem;
+  right: 1rem;
+  margin: 0;
+  color: #477066;
+  font-size: 0.9rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.app-loading-screen.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading-screen {
+    transition: none;
+  }
+}

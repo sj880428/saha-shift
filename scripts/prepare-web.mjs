@@ -18,10 +18,16 @@ const appFiles = [
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
 await mkdir(resolve(outputDir, 'vendor'), { recursive: true });
+await mkdir(resolve(outputDir, 'assets'), { recursive: true });
 
 for (const file of appFiles) {
   await cp(resolve(projectRoot, file), resolve(outputDir, file));
 }
+
+await cp(
+  resolve(projectRoot, 'assets/app-loading-screen.png'),
+  resolve(outputDir, 'assets/app-loading-screen.png')
+);
 
 await cp(
   resolve(projectRoot, 'node_modules/@supabase/supabase-js/dist/umd/supabase.js'),

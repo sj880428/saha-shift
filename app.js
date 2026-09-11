@@ -1264,6 +1264,13 @@ async function initApp() {
   if (!isPreviewMode) subscribeRealtimeChanges();
 }
 
+function hideAppLoadingScreen() {
+  const loadingScreen = document.getElementById('app-loading-screen');
+  if (!loadingScreen || loadingScreen.classList.contains('is-hidden')) return;
+  loadingScreen.classList.add('is-hidden');
+  window.setTimeout(() => loadingScreen.remove(), 450);
+}
+
 // Subscribe to Realtime DB updates via Supabase
 let realtimeTimeout = null;
 let stateRefreshPromise = null;
@@ -1346,10 +1353,15 @@ window.addEventListener('online', async () => {
 });
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', () => {
+    initApp().catch(console.error).finally(hideAppLoadingScreen);
+  });
 } else {
-  initApp();
+  initApp().catch(console.error).finally(hideAppLoadingScreen);
 }
+
+// 네트워크 장애나 예상치 못한 오류가 생겨도 로딩 화면에 갇히지 않게 한다.
+window.setTimeout(hideAppLoadingScreen, 12000);
 
 
 // Setup Events
