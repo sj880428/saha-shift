@@ -650,32 +650,22 @@ function requestWriteError(error, duplicateMessage) {
   return normalizeNetworkWriteError(error);
 }
 
-async function createLeaveRequest(request, employee = currentUser) {
-  const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
+async function createLeaveRequest(request) {
   const row = {
     id: request.id,
     group_id: request.groupId || null,
-    employee_id: employee.id,
-    employee_name: employee.name,
-    hall: employee.hall,
+    employee_id: currentUser.id,
+    employee_name: currentUser.name,
+    hall: currentUser.hall,
     date: request.date,
     leave_type: request.leaveType,
     reason: request.reason,
     status: 'pending'
   };
-  await runRequestWriteOnce(`leave:create:${employee.id}:${request.date}`, async () => {
-    const result = isManagerProxy
-      ? await getDB().rpc('create_leave_request_as_manager', {
-          p_id: row.id,
-          p_employee_id: row.employee_id,
-          p_date: row.date,
-          p_leave_type: row.leave_type,
-          p_reason: row.reason
-        })
-      : await getDB().from('leave_requests').insert(row);
-    const { error } = result;
+  await runRequestWriteOnce(`leave:create:${currentUser.id}:${request.date}`, async () => {
+    const { error } = await getDB().from('leave_requests').insert(row);
     if (error) throw requestWriteError(error, '같은 날짜에 이미 진행 중인 휴가 신청이 있습니다. 새로고침 후 확인해 주세요.');
-    leaveRequests.push({ ...request, employeeId: employee.id, employeeName: employee.name, hall: employee.hall, status: 'pending' });
+    leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
   });
 }
 
@@ -688,33 +678,22 @@ async function updateOwnLeaveRequest(requestId, changes) {
   });
 }
 
-async function createOvertimeRequest(request, employee = currentUser) {
-  const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
+async function createOvertimeRequest(request) {
   const row = {
     id: request.id,
-    employee_id: employee.id,
-    employee_name: employee.name,
-    hall: employee.hall,
+    employee_id: currentUser.id,
+    employee_name: currentUser.name,
+    hall: currentUser.hall,
     date: request.date,
     time_of_day: request.timeOfDay,
     hours: request.hours,
     reason: request.reason,
     status: 'pending'
   };
-  await runRequestWriteOnce(`overtime:create:${employee.id}:${request.date}:${request.timeOfDay}`, async () => {
-    const result = isManagerProxy
-      ? await getDB().rpc('create_overtime_request_as_manager', {
-          p_id: row.id,
-          p_employee_id: row.employee_id,
-          p_date: row.date,
-          p_time_of_day: row.time_of_day,
-          p_hours: row.hours,
-          p_reason: row.reason
-        })
-      : await getDB().from('overtime_requests').insert(row);
-    const { error } = result;
+  await runRequestWriteOnce(`overtime:create:${currentUser.id}:${request.date}:${request.timeOfDay}`, async () => {
+    const { error } = await getDB().from('overtime_requests').insert(row);
     if (error) throw requestWriteError(error, '같은 날짜와 시간대에 이미 진행 중인 시간외 신청이 있습니다. 새로고침 후 확인해 주세요.');
-    overtimeRequests.push({ ...request, employeeId: employee.id, employeeName: employee.name, hall: employee.hall, status: 'pending' });
+    overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
   });
 }
 
@@ -1593,7 +1572,7 @@ function setupEventListeners() {
     };
 
     try {
-      await createLeaveRequest(newRequest, employee);
+      await createLeaveRequest(newRequest);
     } catch (error) {
       alert('연가 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
@@ -1666,7 +1645,7 @@ function setupEventListeners() {
       };
 
       try {
-        await createLeaveRequest(newRequest, employee);
+        await createLeaveRequest(newRequest);
       } catch (error) {
         alert('공가 신청을 저장하지 못했습니다: ' + (error.message || error));
         return;
@@ -1788,7 +1767,7 @@ function setupEventListeners() {
     };
 
     try {
-      await createOvertimeRequest(newRequest, employee);
+      await createOvertimeRequest(newRequest);
     } catch (error) {
       alert('시간외 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
@@ -2354,8 +2333,7 @@ function openStaffRequestModal(employee, dateStr, currentShift) {
   
   if (cancelPanel && cancelList) {
     cancelList.innerHTML = '';
-    const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
-    const hasPending = !isManagerProxy && (pendingLeave || pendingOts.length > 0);
+    const hasPending = pendingLeave || pendingOts.length > 0;
     
     if (hasPending) {
       cancelPanel.style.display = 'block';
@@ -2683,6 +2661,7 @@ function renderMyCalendar() {
 // Update UI based on Current User login state
 function setMobileStaffScreen(screen) {
   const allowed = ['mine', 'all', 'request'];
+  if (currentUser && currentUser.role === 'manager') allowed.push('approval');
   const nextScreen = allowed.includes(screen) ? screen : 'mine';
   document.body.dataset.mobileScreen = nextScreen;
   document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
@@ -2693,6 +2672,8 @@ function setMobileStaffScreen(screen) {
 
   if (nextScreen === 'request') {
     renderMyPage();
+  } else if (nextScreen === 'approval') {
+    renderMobileAdminApprovals();
   }
 }
 
@@ -2752,30 +2733,67 @@ function setupAdminMobileNavigation() {
   });
 }
 
-function configureAdminMobileRequestTarget() {
-  const wrapper = document.getElementById('admin-mobile-request-target');
-  const select = document.getElementById('admin-mobile-request-employee');
-  if (!wrapper || !select) return;
-
+function configureMobileAdminApprovalTab() {
+  const tab = document.getElementById('mobile-admin-approval-tab');
+  const nav = document.getElementById('mobile-bottom-nav');
+  if (!tab || !nav) return;
   const enabled = Boolean(currentUser && currentUser.role === 'manager' && window.matchMedia('(max-width: 768px)').matches);
-  wrapper.hidden = !enabled;
-  if (!enabled) return;
+  tab.hidden = !enabled;
+  nav.classList.toggle('has-admin-approval', enabled);
+}
 
-  const previousValue = select.value;
-  const hallLabels = { girincho: '기린초', mulbongseon: '물봉선', all: '전체' };
-  const choices = [...employees].sort((a, b) => {
-    if (a.id === currentUser.id) return -1;
-    if (b.id === currentUser.id) return 1;
-    return `${a.hall}-${a.name}`.localeCompare(`${b.hall}-${b.name}`, 'ko');
+function renderMobileAdminApprovals() {
+  const list = document.getElementById('mobile-admin-approval-list');
+  const count = document.getElementById('mobile-admin-pending-count');
+  if (!list || !count || !currentUser || currentUser.role !== 'manager') return;
+
+  const requests = [
+    ...leaveRequests.filter((request) => request.status === 'pending').map((request) => ({ ...request, requestKind: 'leave' })),
+    ...overtimeRequests.filter((request) => request.status === 'pending').map((request) => ({ ...request, requestKind: 'overtime' }))
+  ].sort((a, b) => a.date.localeCompare(b.date) || a.employeeName.localeCompare(b.employeeName, 'ko'));
+
+  count.textContent = `${requests.length}건`;
+  list.replaceChildren();
+  if (!requests.length) {
+    const empty = document.createElement('div');
+    empty.className = 'mobile-admin-approval-empty';
+    empty.textContent = '현재 결재를 기다리는 신청이 없어요.';
+    list.appendChild(empty);
+    return;
+  }
+
+  requests.forEach((request) => {
+    const card = document.createElement('article');
+    card.className = 'mobile-admin-approval-card';
+    const isOvertime = request.requestKind === 'overtime';
+    const typeLabel = isOvertime
+      ? `시간외 · ${request.timeOfDay === 'morning' ? '오전' : '오후'} ${request.hours}시간`
+      : (request.leaveType || '연가');
+    card.innerHTML = `
+      <div class="mobile-admin-approval-heading">
+        <strong>${escapeHtml(request.employeeName)}</strong>
+        <span>${escapeHtml(typeLabel)}</span>
+      </div>
+      <time datetime="${request.date}">${request.date}</time>
+      <p>${escapeHtml(request.reason || '사유 없음')}</p>
+      <div class="mobile-admin-approval-actions">
+        <button type="button" class="btn btn-danger" data-action="reject">반려</button>
+        <button type="button" class="btn btn-primary" data-action="approve">승인</button>
+      </div>`;
+
+    card.querySelectorAll('button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        card.querySelectorAll('button').forEach((item) => { item.disabled = true; });
+        if (button.dataset.action === 'approve') {
+          await (isOvertime ? window.approveOvertime(request.id) : window.approveLeave(request.id));
+        } else {
+          await (isOvertime ? window.rejectOvertime(request.id) : window.rejectLeave(request.id));
+        }
+        renderMobileAdminApprovals();
+      });
+    });
+    list.appendChild(card);
   });
-  select.replaceChildren();
-  choices.forEach((employee) => {
-    const option = document.createElement('option');
-    option.value = employee.id;
-    option.textContent = `${employee.name} · ${hallLabels[employee.hall] || employee.hall || '소속 없음'}`;
-    select.appendChild(option);
-  });
-  select.value = choices.some((employee) => employee.id === previousValue) ? previousValue : currentUser.id;
 }
 
 function selectMobileHallForUser() {
@@ -2832,7 +2850,7 @@ function updateLoginUI() {
 
     const isAdmin = isUserAdmin();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
-    configureAdminMobileRequestTarget();
+    configureMobileAdminApprovalTab();
     if (isPhoneLayout && !isAdmin) {
       document.body.classList.remove('admin-mobile-mode');
       document.body.classList.add('staff-mobile-mode');
@@ -2875,7 +2893,7 @@ function updateLoginUI() {
     if (mainContent) mainContent.style.display = '';
     if (guestWelcome) guestWelcome.style.display = 'none';
     document.body.classList.remove('staff-mobile-mode', 'admin-mobile-mode');
-    configureAdminMobileRequestTarget();
+    configureMobileAdminApprovalTab();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
     document.body.classList.toggle('guest-mobile-mode', isPhoneLayout);
     if (isPhoneLayout) selectMobileHallForUser();

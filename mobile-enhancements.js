@@ -261,20 +261,14 @@
     const label = document.getElementById('mobile-request-calendar-label');
     if (!container || !label || !currentUser) return;
 
-    const managerTarget = document.getElementById('admin-mobile-request-employee');
-    const selectedEmployeeId = currentUser.role === 'manager' && managerTarget && managerTarget.value
-      ? managerTarget.value
-      : currentUser.id;
-    const employee = employees.find((item) => item.id === selectedEmployeeId);
+    const employee = employees.find((item) => item.id === currentUser.id);
     if (!employee) return;
 
     const year = currentYear;
     const month = currentMonth;
     const dateInput = document.getElementById('mobile-request-date');
     const selectedDate = dateInput ? dateInput.value : '';
-    label.textContent = currentUser.role === 'manager' && employee.id !== currentUser.id
-      ? `${year}년 ${month + 1}월 ${employee.name} 근무`
-      : `${year}년 ${month + 1}월 내 근무`;
+    label.textContent = `${year}년 ${month + 1}월 내 근무`;
     container.innerHTML = '';
 
     ['일', '월', '화', '수', '목', '금', '토'].forEach((day, index) => {
@@ -397,9 +391,6 @@
   function initializeMobileEnhancements() {
     const dateInput = document.getElementById('mobile-request-date');
     if (dateInput) dateInput.addEventListener('change', renderMobileRequestCalendar);
-
-    const managerTarget = document.getElementById('admin-mobile-request-employee');
-    if (managerTarget) managerTarget.addEventListener('change', renderMobileRequestCalendar);
 
     document.querySelectorAll('[data-mobile-month-delta]').forEach((button) => {
       button.addEventListener('click', () => changeMobileMonth(Number(button.dataset.mobileMonthDelta)));

@@ -484,11 +484,6 @@
       <div class="card-header">
         <h2 class="card-title">신청</h2>
       </div>
-      <div id="admin-mobile-request-target" class="admin-mobile-request-target" hidden>
-        <label for="admin-mobile-request-employee">신청할 직원</label>
-        <select id="admin-mobile-request-employee" aria-label="신청할 직원 선택"></select>
-        <small>관리자가 선택한 직원의 신청을 대신 등록합니다.</small>
-      </div>
       <p class="mobile-request-help">달력에서 날짜를 누르면 연가·공가·시간외 신청 창이 바로 열립니다.</p>
       <div class="mobile-calendar-heading mobile-request-calendar-heading">
         <button type="button" class="mobile-month-button" data-mobile-month-delta="-1" aria-label="이전달">‹</button>
@@ -503,6 +498,14 @@
         <div id="mobile-request-history"></div>
       </div>
     </section>
+    <section id="mobile-admin-approval-section" class="card" style="display: none; margin-bottom: 6rem;">
+      <div class="card-header">
+        <h2 class="card-title">신청 결재</h2>
+        <span id="mobile-admin-pending-count" class="badge badge-pending">0건</span>
+      </div>
+      <p class="mobile-request-help">직원들의 대기 중인 신청만 간단히 승인하거나 반려할 수 있어요.</p>
+      <div id="mobile-admin-approval-list" class="mobile-admin-approval-list"></div>
+    </section>
   </main>
 
   <!-- Logged-in staff only: app-like bottom navigation -->
@@ -510,6 +513,7 @@
     <button type="button" class="mobile-bottom-nav-btn active" data-mobile-screen="mine">내 근무표</button>
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="all">전체 근무표</button>
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="request">신청</button>
+    <button type="button" id="mobile-admin-approval-tab" class="mobile-bottom-nav-btn" data-mobile-screen="approval" hidden>신청 결재</button>
   </nav>
   <nav id="admin-mobile-bottom-nav" class="mobile-bottom-nav no-print" aria-label="관리자용 메뉴" style="display: none;">
     <button type="button" class="mobile-bottom-nav-btn active" data-admin-mobile-screen="roster">전체 근무표</button>

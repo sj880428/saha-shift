@@ -1487,44 +1487,57 @@ tr.my-roster-row td {
   line-height: 1.6;
 }
 
-.admin-mobile-request-target {
-  margin: 0 0 1rem;
-  padding: 0.9rem;
-  border: 1px solid #dbe3ef;
+.mobile-admin-approval-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mobile-admin-approval-card,
+.mobile-admin-approval-empty {
+  padding: 1rem;
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
-  background: #f8fafc;
+  background: var(--card-bg);
 }
 
-.admin-mobile-request-target[hidden] {
-  display: none !important;
+.mobile-admin-approval-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.admin-mobile-request-target label,
-.admin-mobile-request-target small {
-  display: block;
-}
-
-.admin-mobile-request-target label {
-  margin-bottom: 0.45rem;
-  font-size: 0.88rem;
+.mobile-admin-approval-heading span {
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.4rem;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
-.admin-mobile-request-target select {
-  width: 100%;
-  min-height: 44px;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.6rem;
-  background: var(--card-bg);
-  color: var(--text-main);
-  font: inherit;
+.mobile-admin-approval-card time {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
 }
 
-.admin-mobile-request-target small {
-  margin-top: 0.45rem;
+.mobile-admin-approval-card p {
+  margin: 0.75rem 0;
+  line-height: 1.5;
+}
+
+.mobile-admin-approval-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.mobile-admin-approval-empty {
   color: var(--text-muted);
-  line-height: 1.4;
+  text-align: center;
 }
 
 .mobile-request-form {
@@ -1598,6 +1611,14 @@ tr.my-roster-row td {
     display: grid !important;
   }
 
+  body.staff-mobile-mode #mobile-bottom-nav.has-admin-approval {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  #mobile-admin-approval-tab[hidden] {
+    display: none !important;
+  }
+
   body.staff-mobile-mode #admin-mobile-bottom-nav {
     display: none !important;
   }
@@ -1634,6 +1655,18 @@ tr.my-roster-row td {
   }
 
   body.staff-mobile-mode[data-mobile-screen="request"] #mobile-request-section {
+    display: block !important;
+  }
+
+  body.staff-mobile-mode[data-mobile-screen="approval"] .schedule-card,
+  body.staff-mobile-mode[data-mobile-screen="approval"] #mypage-section,
+  body.staff-mobile-mode[data-mobile-screen="approval"] #admin-section,
+  body.staff-mobile-mode[data-mobile-screen="approval"] #mobile-request-section,
+  body.staff-mobile-mode[data-mobile-screen="approval"] #screen-main > section.card:first-child {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode[data-mobile-screen="approval"] #mobile-admin-approval-section {
     display: block !important;
   }
 
