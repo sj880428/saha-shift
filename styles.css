@@ -1487,6 +1487,46 @@ tr.my-roster-row td {
   line-height: 1.6;
 }
 
+.admin-mobile-request-target {
+  margin: 0 0 1rem;
+  padding: 0.9rem;
+  border: 1px solid #dbe3ef;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.admin-mobile-request-target[hidden] {
+  display: none !important;
+}
+
+.admin-mobile-request-target label,
+.admin-mobile-request-target small {
+  display: block;
+}
+
+.admin-mobile-request-target label {
+  margin-bottom: 0.45rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.admin-mobile-request-target select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font: inherit;
+}
+
+.admin-mobile-request-target small {
+  margin-top: 0.45rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 .mobile-request-form {
   display: grid;
   gap: 0.75rem;

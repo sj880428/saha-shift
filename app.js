@@ -650,22 +650,32 @@ function requestWriteError(error, duplicateMessage) {
   return normalizeNetworkWriteError(error);
 }
 
-async function createLeaveRequest(request) {
+async function createLeaveRequest(request, employee = currentUser) {
+  const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
   const row = {
     id: request.id,
     group_id: request.groupId || null,
-    employee_id: currentUser.id,
-    employee_name: currentUser.name,
-    hall: currentUser.hall,
+    employee_id: employee.id,
+    employee_name: employee.name,
+    hall: employee.hall,
     date: request.date,
     leave_type: request.leaveType,
     reason: request.reason,
     status: 'pending'
   };
-  await runRequestWriteOnce(`leave:create:${currentUser.id}:${request.date}`, async () => {
-    const { error } = await getDB().from('leave_requests').insert(row);
+  await runRequestWriteOnce(`leave:create:${employee.id}:${request.date}`, async () => {
+    const result = isManagerProxy
+      ? await getDB().rpc('create_leave_request_as_manager', {
+          p_id: row.id,
+          p_employee_id: row.employee_id,
+          p_date: row.date,
+          p_leave_type: row.leave_type,
+          p_reason: row.reason
+        })
+      : await getDB().from('leave_requests').insert(row);
+    const { error } = result;
     if (error) throw requestWriteError(error, '같은 날짜에 이미 진행 중인 휴가 신청이 있습니다. 새로고침 후 확인해 주세요.');
-    leaveRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+    leaveRequests.push({ ...request, employeeId: employee.id, employeeName: employee.name, hall: employee.hall, status: 'pending' });
   });
 }
 
@@ -678,22 +688,33 @@ async function updateOwnLeaveRequest(requestId, changes) {
   });
 }
 
-async function createOvertimeRequest(request) {
+async function createOvertimeRequest(request, employee = currentUser) {
+  const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
   const row = {
     id: request.id,
-    employee_id: currentUser.id,
-    employee_name: currentUser.name,
-    hall: currentUser.hall,
+    employee_id: employee.id,
+    employee_name: employee.name,
+    hall: employee.hall,
     date: request.date,
     time_of_day: request.timeOfDay,
     hours: request.hours,
     reason: request.reason,
     status: 'pending'
   };
-  await runRequestWriteOnce(`overtime:create:${currentUser.id}:${request.date}:${request.timeOfDay}`, async () => {
-    const { error } = await getDB().from('overtime_requests').insert(row);
+  await runRequestWriteOnce(`overtime:create:${employee.id}:${request.date}:${request.timeOfDay}`, async () => {
+    const result = isManagerProxy
+      ? await getDB().rpc('create_overtime_request_as_manager', {
+          p_id: row.id,
+          p_employee_id: row.employee_id,
+          p_date: row.date,
+          p_time_of_day: row.time_of_day,
+          p_hours: row.hours,
+          p_reason: row.reason
+        })
+      : await getDB().from('overtime_requests').insert(row);
+    const { error } = result;
     if (error) throw requestWriteError(error, '같은 날짜와 시간대에 이미 진행 중인 시간외 신청이 있습니다. 새로고침 후 확인해 주세요.');
-    overtimeRequests.push({ ...request, employeeId: currentUser.id, employeeName: currentUser.name, hall: currentUser.hall, status: 'pending' });
+    overtimeRequests.push({ ...request, employeeId: employee.id, employeeName: employee.name, hall: employee.hall, status: 'pending' });
   });
 }
 
@@ -1572,7 +1593,7 @@ function setupEventListeners() {
     };
 
     try {
-      await createLeaveRequest(newRequest);
+      await createLeaveRequest(newRequest, employee);
     } catch (error) {
       alert('연가 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
@@ -1645,7 +1666,7 @@ function setupEventListeners() {
       };
 
       try {
-        await createLeaveRequest(newRequest);
+        await createLeaveRequest(newRequest, employee);
       } catch (error) {
         alert('공가 신청을 저장하지 못했습니다: ' + (error.message || error));
         return;
@@ -1767,7 +1788,7 @@ function setupEventListeners() {
     };
 
     try {
-      await createOvertimeRequest(newRequest);
+      await createOvertimeRequest(newRequest, employee);
     } catch (error) {
       alert('시간외 신청을 저장하지 못했습니다: ' + (error.message || error));
       return;
@@ -2333,7 +2354,8 @@ function openStaffRequestModal(employee, dateStr, currentShift) {
   
   if (cancelPanel && cancelList) {
     cancelList.innerHTML = '';
-    const hasPending = pendingLeave || pendingOts.length > 0;
+    const isManagerProxy = currentUser && currentUser.role === 'manager' && employee.id !== currentUser.id;
+    const hasPending = !isManagerProxy && (pendingLeave || pendingOts.length > 0);
     
     if (hasPending) {
       cancelPanel.style.display = 'block';
@@ -2730,6 +2752,32 @@ function setupAdminMobileNavigation() {
   });
 }
 
+function configureAdminMobileRequestTarget() {
+  const wrapper = document.getElementById('admin-mobile-request-target');
+  const select = document.getElementById('admin-mobile-request-employee');
+  if (!wrapper || !select) return;
+
+  const enabled = Boolean(currentUser && currentUser.role === 'manager' && window.matchMedia('(max-width: 768px)').matches);
+  wrapper.hidden = !enabled;
+  if (!enabled) return;
+
+  const previousValue = select.value;
+  const hallLabels = { girincho: '기린초', mulbongseon: '물봉선', all: '전체' };
+  const choices = [...employees].sort((a, b) => {
+    if (a.id === currentUser.id) return -1;
+    if (b.id === currentUser.id) return 1;
+    return `${a.hall}-${a.name}`.localeCompare(`${b.hall}-${b.name}`, 'ko');
+  });
+  select.replaceChildren();
+  choices.forEach((employee) => {
+    const option = document.createElement('option');
+    option.value = employee.id;
+    option.textContent = `${employee.name} · ${hallLabels[employee.hall] || employee.hall || '소속 없음'}`;
+    select.appendChild(option);
+  });
+  select.value = choices.some((employee) => employee.id === previousValue) ? previousValue : currentUser.id;
+}
+
 function selectMobileHallForUser() {
   const availableTabs = ['girincho', 'mulbongseon', 'managers'];
   const preferredHall = currentUser && availableTabs.includes(currentUser.hall)
@@ -2784,6 +2832,7 @@ function updateLoginUI() {
 
     const isAdmin = isUserAdmin();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
+    configureAdminMobileRequestTarget();
     if (isPhoneLayout && !isAdmin) {
       document.body.classList.remove('admin-mobile-mode');
       document.body.classList.add('staff-mobile-mode');
@@ -2826,6 +2875,7 @@ function updateLoginUI() {
     if (mainContent) mainContent.style.display = '';
     if (guestWelcome) guestWelcome.style.display = 'none';
     document.body.classList.remove('staff-mobile-mode', 'admin-mobile-mode');
+    configureAdminMobileRequestTarget();
     const isPhoneLayout = window.matchMedia('(max-width: 768px)').matches;
     document.body.classList.toggle('guest-mobile-mode', isPhoneLayout);
     if (isPhoneLayout) selectMobileHallForUser();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'saha-shift-v20260907-1';
+const CACHE_NAME = 'saha-shift-v20260911-1';
 const APP_SHELL = [
   './',
   './index.html',
