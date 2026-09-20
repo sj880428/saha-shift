@@ -2569,3 +2569,21 @@ tr.my-roster-row td {
     transition: none;
   }
 }
+
+/* Keep the manager approval view reliable inside native WebViews. */
+@media (max-width: 768px) {
+  body.staff-mobile-mode.mobile-approval-active #schedule-section-girincho,
+  body.staff-mobile-mode.mobile-approval-active #schedule-section-mulbongseon,
+  body.staff-mobile-mode.mobile-approval-active #schedule-section-managers,
+  body.staff-mobile-mode.mobile-approval-active .schedule-card,
+  body.staff-mobile-mode.mobile-approval-active #mypage-section,
+  body.staff-mobile-mode.mobile-approval-active #admin-section,
+  body.staff-mobile-mode.mobile-approval-active #mobile-request-section,
+  body.staff-mobile-mode.mobile-approval-active #screen-main > section.card:first-child {
+    display: none !important;
+  }
+
+  body.staff-mobile-mode.mobile-approval-active #mobile-admin-approval-section {
+    display: block !important;
+  }
+}

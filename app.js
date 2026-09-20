@@ -2676,6 +2676,7 @@ function setMobileStaffScreen(screen) {
   if (currentUser && currentUser.role === 'manager') allowed.push('approval');
   const nextScreen = allowed.includes(screen) ? screen : 'mine';
   document.body.dataset.mobileScreen = nextScreen;
+  document.body.classList.toggle('mobile-approval-active', nextScreen === 'approval');
   document.querySelectorAll('#mobile-bottom-nav .mobile-bottom-nav-btn').forEach((button) => {
     const isActive = button.dataset.mobileScreen === nextScreen;
     button.classList.toggle('active', isActive);
