@@ -5007,8 +5007,9 @@ function renderSpecialLeaveEmployeeSelect() {
   if (!select) return;
   
   select.innerHTML = '';
-  // Target all employees except mgr_admin
-  const targetList = employees.filter(emp => emp.id !== 'mgr_admin');
+  // Special leave applies only to shift-roster workers. Organization-wide
+  // administrators are day workers and are intentionally excluded.
+  const targetList = employees.filter(emp => emp.role === 'staff' || (emp.role === 'manager' && emp.hall !== 'all'));
   targetList.forEach(emp => {
     const opt = document.createElement('option');
     opt.value = emp.id;
