@@ -1493,6 +1493,34 @@ tr.my-roster-row td {
   margin-top: 1rem;
 }
 
+.mobile-admin-approval-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mobile-admin-approval-filters label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mobile-admin-approval-filters input,
+.mobile-admin-approval-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.65rem;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font: inherit;
+}
+
 .mobile-admin-approval-card,
 .mobile-admin-approval-empty {
   padding: 1rem;
@@ -1517,22 +1545,15 @@ tr.my-roster-row td {
   font-weight: 700;
 }
 
-.mobile-admin-approval-card time {
-  display: block;
-  margin-top: 0.35rem;
-  color: var(--text-muted);
-  font-size: 0.82rem;
+.mobile-admin-approval-heading time {
+  color: var(--primary-color);
 }
 
 .mobile-admin-approval-card p {
-  margin: 0.75rem 0;
+  margin: 0.55rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
   line-height: 1.5;
-}
-
-.mobile-admin-approval-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
 }
 
 .mobile-admin-approval-empty {

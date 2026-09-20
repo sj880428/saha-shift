@@ -2743,6 +2743,14 @@ function setupAdminMobileNavigation() {
   document.querySelectorAll('#admin-mobile-bottom-nav [data-admin-mobile-screen]').forEach((button) => {
     button.addEventListener('click', () => setAdminMobileScreen(button.dataset.adminMobileScreen));
   });
+
+  const monthFilter = document.getElementById('mobile-admin-approval-month');
+  const hallFilter = document.getElementById('mobile-admin-approval-hall');
+  if (monthFilter && !monthFilter.value) {
+    monthFilter.value = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}`;
+  }
+  monthFilter?.addEventListener('change', renderMobileAdminApprovals);
+  hallFilter?.addEventListener('change', renderMobileAdminApprovals);
 }
 
 function configureMobileAdminApprovalTab() {
@@ -2759,17 +2767,26 @@ function renderMobileAdminApprovals() {
   const count = document.getElementById('mobile-admin-pending-count');
   if (!list || !count || !currentUser || currentUser.role !== 'manager') return;
 
+  const monthFilter = document.getElementById('mobile-admin-approval-month');
+  const hallFilter = document.getElementById('mobile-admin-approval-hall');
+  const selectedMonth = monthFilter?.value || `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}`;
+  const selectedHall = hallFilter?.value || 'all';
+  if (monthFilter && !monthFilter.value) monthFilter.value = selectedMonth;
+
   const requests = [
     ...leaveRequests.filter((request) => request.status === 'pending').map((request) => ({ ...request, requestKind: 'leave' })),
     ...overtimeRequests.filter((request) => request.status === 'pending').map((request) => ({ ...request, requestKind: 'overtime' }))
-  ].sort((a, b) => a.date.localeCompare(b.date) || a.employeeName.localeCompare(b.employeeName, 'ko'));
+  ]
+    .filter((request) => request.date?.startsWith(selectedMonth))
+    .filter((request) => selectedHall === 'all' || request.hall === selectedHall)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.employeeName.localeCompare(b.employeeName, 'ko'));
 
   count.textContent = `${requests.length}건`;
   list.replaceChildren();
   if (!requests.length) {
     const empty = document.createElement('div');
     empty.className = 'mobile-admin-approval-empty';
-    empty.textContent = '현재 결재를 기다리는 신청이 없어요.';
+    empty.textContent = '선택한 월과 생활관에 대기 중인 신청이 없어요.';
     list.appendChild(empty);
     return;
   }
@@ -2781,29 +2798,13 @@ function renderMobileAdminApprovals() {
     const typeLabel = isOvertime
       ? `시간외 · ${request.timeOfDay === 'morning' ? '오전' : '오후'} ${request.hours}시간`
       : (request.leaveType || '연가');
+    const day = Number(request.date.slice(8, 10));
     card.innerHTML = `
       <div class="mobile-admin-approval-heading">
-        <strong>${escapeHtml(request.employeeName)}</strong>
-        <span>${escapeHtml(typeLabel)}</span>
+        <strong><time datetime="${request.date}">${day}일</time> · ${escapeHtml(request.employeeName)}</strong>
+        <span>${escapeHtml(typeLabel)} 신청</span>
       </div>
-      <time datetime="${request.date}">${request.date}</time>
-      <p>${escapeHtml(request.reason || '사유 없음')}</p>
-      <div class="mobile-admin-approval-actions">
-        <button type="button" class="btn btn-danger" data-action="reject">반려</button>
-        <button type="button" class="btn btn-primary" data-action="approve">승인</button>
-      </div>`;
-
-    card.querySelectorAll('button').forEach((button) => {
-      button.addEventListener('click', async () => {
-        card.querySelectorAll('button').forEach((item) => { item.disabled = true; });
-        if (button.dataset.action === 'approve') {
-          await (isOvertime ? window.approveOvertime(request.id) : window.approveLeave(request.id));
-        } else {
-          await (isOvertime ? window.rejectOvertime(request.id) : window.rejectLeave(request.id));
-        }
-        renderMobileAdminApprovals();
-      });
-    });
+      <p>${escapeHtml(request.reason || '사유 없음')}</p>`;
     list.appendChild(card);
   });
 }

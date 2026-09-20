@@ -13,7 +13,7 @@
   <link rel="icon" href="app-icon.png?v=20260907_1" type="image/png">
   <link rel="apple-touch-icon" href="app-icon.png?v=20260907_1">
   <title>사하의집 근무계획 - 연가 및 시간외 관리</title>
-  <link rel="stylesheet" href="styles.css?v=20260911_1">
+  <link rel="stylesheet" href="styles.css?v=20260920_1">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -505,10 +505,24 @@
     </section>
     <section id="mobile-admin-approval-section" class="card" style="display: none; margin-bottom: 6rem;">
       <div class="card-header">
-        <h2 class="card-title">신청 결재</h2>
+        <h2 class="card-title">결재</h2>
         <span id="mobile-admin-pending-count" class="badge badge-pending">0건</span>
       </div>
-      <p class="mobile-request-help">직원들의 대기 중인 신청만 간단히 승인하거나 반려할 수 있어요.</p>
+      <p class="mobile-request-help">월과 생활관별 신청을 확인하고, 실제 처리는 전체 근무표의 신청 칸에서 할 수 있어요.</p>
+      <div class="mobile-admin-approval-filters">
+        <label>
+          <span>월</span>
+          <input type="month" id="mobile-admin-approval-month">
+        </label>
+        <label>
+          <span>생활관</span>
+          <select id="mobile-admin-approval-hall">
+            <option value="all">전체 생활관</option>
+            <option value="girincho">기린초생활관</option>
+            <option value="mulbongseon">물봉선생활관</option>
+          </select>
+        </label>
+      </div>
       <div id="mobile-admin-approval-list" class="mobile-admin-approval-list"></div>
     </section>
   </main>
@@ -518,11 +532,11 @@
     <button type="button" class="mobile-bottom-nav-btn active" data-mobile-screen="mine">내 근무표</button>
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="all">전체 근무표</button>
     <button type="button" class="mobile-bottom-nav-btn" data-mobile-screen="request">신청</button>
-    <button type="button" id="mobile-admin-approval-tab" class="mobile-bottom-nav-btn" data-mobile-screen="approval" hidden>신청 결재</button>
+    <button type="button" id="mobile-admin-approval-tab" class="mobile-bottom-nav-btn" data-mobile-screen="approval" hidden>결재</button>
   </nav>
   <nav id="admin-mobile-bottom-nav" class="mobile-bottom-nav no-print" aria-label="관리자용 메뉴" style="display: none;">
     <button type="button" class="mobile-bottom-nav-btn active" data-admin-mobile-screen="roster">전체 근무표</button>
-    <button type="button" class="mobile-bottom-nav-btn" data-admin-mobile-screen="approval">신청 결재</button>
+    <button type="button" class="mobile-bottom-nav-btn" data-admin-mobile-screen="approval">결재</button>
   </nav>
 
   <!-- Personal schedule dialog -->
@@ -1064,7 +1078,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="auth-service.js?v=20260814_3"></script>
-  <script src="app.js?v=20260911_1"></script>
+  <script src="app.js?v=20260920_1"></script>
   <script src="mobile-enhancements.js?v=20260904_1"></script>
   <script src="pwa.js?v=20260814_1"></script>
 </body>
