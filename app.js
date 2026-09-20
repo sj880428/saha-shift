@@ -3329,8 +3329,10 @@ function renderRosterForManagers(headerRowId, tbodyId) {
   // Get total days in month
   const totalDays = new Date(year, month + 1, 0).getDate();
   
-  // Filter employees for managers (except mgr_admin)
-  const filteredEmployees = employees.filter(emp => emp.role === 'manager' && emp.id !== 'mgr_admin');
+  // Only living-hall team leaders belong in the shift roster.
+  // Organization-wide administrators (director/chief/manager/developer) keep
+  // their approval permissions but do not have working shifts to display.
+  const filteredEmployees = employees.filter(emp => emp.role === 'manager' && emp.hall !== 'all');
 
   // Generate Table Header
   const headerRow = document.getElementById(headerRowId);
@@ -3612,7 +3614,7 @@ function populateMasterPrintTable() {
   // Mulbongseon Employees
   const mulbongseonStaff = employees.filter(emp => emp.role === 'staff' && emp.hall === 'mulbongseon').sort((a, b) => a.shiftGroup - b.shiftGroup);
   // Team Leaders
-  const teamLeaders = employees.filter(emp => emp.role === 'manager' && emp.id !== 'mgr_admin');
+  const teamLeaders = employees.filter(emp => emp.role === 'manager' && emp.hall !== 'all');
 
   // Helper to append rows
   const renderSectionRows = (staffList, sectionLabel) => {
@@ -4204,7 +4206,7 @@ function renderAdminManagers() {
 
   managers.forEach(mgr => {
     const tr = document.createElement('tr');
-    let roleLabel = '전체 관리자 (개발자)';
+    let roleLabel = '전체 관리자';
     if (mgr.hall === 'girincho') roleLabel = '기린초생활관 팀장';
     else if (mgr.hall === 'mulbongseon') roleLabel = '물봉선생활관 팀장';
     
