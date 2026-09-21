@@ -133,8 +133,8 @@ const INITIAL_EMPLOYEES = [
   { id: 'emp_m7', name: '물봉선7', phoneLast4: '2007', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Managers (2 Team Leaders + 1 System Admin)
-  { id: 'mgr_g', name: '기린초팀장', username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'mgr_m', name: '물봉선팀장', username: null, hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'mgr_g', name: '정경숙', username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'mgr_m', name: '변은주', username: null, hall: 'mulbongseon', role: 'manager', joinYearMonth: '2019-03', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
   { id: 'mgr_admin', name: '시스템 관리자', username: null, hall: 'all', role: 'manager' }
 ];
 
@@ -3532,6 +3532,8 @@ function populateMasterPrintTable() {
   const year = currentYear;
   const month = currentMonth;
   const totalDays = new Date(year, month + 1, 0).getDate();
+  const printTable = document.querySelector('.print-master-table');
+  if (printTable) printTable.style.setProperty('--print-day-count', totalDays);
   
   // 1. Update Title
   document.getElementById('print-title-month').textContent = `${year}년 ${month + 1}월 근무(시간외) 계획 : 생활지원팀`;
@@ -3788,7 +3790,7 @@ function populateMasterPrintTable() {
     const tr = document.createElement('tr');
     tr.className = 'print-separator-row';
     const td = document.createElement('td');
-    td.colSpan = 36;
+    td.colSpan = totalDays + 5; // 생활관, 조, 성명, 서명 + 날짜 + 합
     td.style.backgroundColor = '#eeeeee'; // Light gray separator matching background shading
     td.style.borderTop = '2.5px solid #000000 !important';
     td.style.borderBottom = '2.5px solid #000000 !important';

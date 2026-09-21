@@ -1133,8 +1133,8 @@ main {
   }
 
   .print-approval-cell {
-    width: 55px;
-    height: 44px;
+    width: 68px;
+    height: 48px;
   }
 
   .print-master-table #print-th-row-1 th {
@@ -1179,18 +1179,18 @@ main {
   }
 
   .print-master-table .print-sig-col {
-    width: 35px !important;
-    min-width: 35px !important;
-    max-width: 35px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
     border-right: 2.5px solid #000000 !important; /* Thick vertical divider */
   }
 
   /* Ensure date columns are of exactly identical width */
   .print-master-table th.date-col,
   .print-master-table td.date-cell {
-    width: calc((100% - 169px) / 31) !important;
-    min-width: calc((100% - 169px) / 31) !important;
-    max-width: calc((100% - 169px) / 31) !important;
+    width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
+    min-width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
+    max-width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
   }
 
   /* Sum column (합) - minimized width as requested */
@@ -2456,14 +2456,12 @@ tr.my-roster-row td {
     background: #ffffff !important;
   }
 
-  body > *:not(#master-print-layout) {
-    display: none !important;
-  }
-
   #mobile-bottom-nav,
+  #admin-mobile-bottom-nav,
   #screen-main,
   #guest-welcome,
   #global-notice-banner,
+  #app-loading-screen,
   header,
   footer,
   .dialog-overlay,
@@ -2500,11 +2498,12 @@ tr.my-roster-row td {
   }
 
   .print-approval-cell {
-    height: 32px !important;
+    width: 68px !important;
+    height: 48px !important;
   }
 
   .print-master-table tr:not(.print-separator-row) {
-    height: 24px !important;
+    height: 27px !important;
   }
 
   .print-master-table tr.print-separator-row {
@@ -2585,5 +2584,15 @@ tr.my-roster-row td {
 
   body.staff-mobile-mode.mobile-approval-active #mobile-admin-approval-section {
     display: block !important;
+  }
+}
+
+/* Final print guard: app navigation must never consume space on paper. */
+@media print {
+  body #mobile-bottom-nav,
+  body #admin-mobile-bottom-nav,
+  body > nav.mobile-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
   }
 }
