@@ -1186,11 +1186,10 @@ main {
   }
 
   /* Ensure date columns are of exactly identical width */
+  .print-master-table col.date-col,
   .print-master-table th.date-col,
   .print-master-table td.date-cell {
-    width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
-    min-width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
-    max-width: calc((100% - 194px) / var(--print-day-count, 31)) !important;
+    width: calc((100% - 185px) / var(--print-day-count, 31)) !important;
   }
 
   /* Sum column (합) - minimized width as requested */

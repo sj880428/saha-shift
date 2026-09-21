@@ -116,21 +116,20 @@ function calculateTotalLeave(joinYearMonth) {
 // Development-only seed data. Real employee information must live only in the database.
 const INITIAL_EMPLOYEES = [
   // Girincho Living Hall (6 staff)
-  { id: 'emp_g1', name: '기린초1', phoneLast4: '1001', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_g2', name: '기린초2', phoneLast4: '1002', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_g3', name: '기린초3', phoneLast4: '1003', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_g4', name: '기린초4', phoneLast4: '1004', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_g5', name: '기린초5', phoneLast4: '1005', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
-  { id: 'emp_g6', name: '기린초6', phoneLast4: '1006', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_g1', name: '황정임', phoneLast4: '1001', hall: 'girincho', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-03', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g2', name: '전영순', phoneLast4: '1002', hall: 'girincho', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-05', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_g3', name: '백승진', phoneLast4: '1003', hall: 'girincho', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-07', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g4', name: '박기태', phoneLast4: '1004', hall: 'girincho', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-09', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_g5', name: '허수영', phoneLast4: '1005', hall: 'girincho', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-11', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_g6', name: '김명수', phoneLast4: '1006', hall: 'girincho', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-05', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
-  // Mulbongseon Living Hall (7 staff)
-  { id: 'emp_m1', name: '물봉선1', phoneLast4: '2001', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
-  { id: 'emp_m2', name: '물봉선2', phoneLast4: '2002', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2020-04', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_m3', name: '물봉선3', phoneLast4: '2003', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
-  { id: 'emp_m4', name: '물봉선4', phoneLast4: '2004', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_m5', name: '물봉선5', phoneLast4: '2005', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
-  { id: 'emp_m6', name: '물봉선6', phoneLast4: '2006', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
-  { id: 'emp_m7', name: '물봉선7', phoneLast4: '2007', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  // Mulbongseon Living Hall (6 staff; one employee per group)
+  { id: 'emp_m1', name: '정두리', phoneLast4: '2001', hall: 'mulbongseon', role: 'staff', shiftGroup: 1, joinYearMonth: '2019-01', totalLeave: 18, remainingLeave: 18, usedLeave: 0 },
+  { id: 'emp_m2', name: '권미선', phoneLast4: '2002', hall: 'mulbongseon', role: 'staff', shiftGroup: 2, joinYearMonth: '2021-08', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
+  { id: 'emp_m3', name: '이종숙', phoneLast4: '2003', hall: 'mulbongseon', role: 'staff', shiftGroup: 3, joinYearMonth: '2022-10', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m4', name: '김순이', phoneLast4: '2004', hall: 'mulbongseon', role: 'staff', shiftGroup: 4, joinYearMonth: '2023-12', totalLeave: 16, remainingLeave: 16, usedLeave: 0 },
+  { id: 'emp_m5', name: '임미정', phoneLast4: '2005', hall: 'mulbongseon', role: 'staff', shiftGroup: 5, joinYearMonth: '2024-06', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
+  { id: 'emp_m6', name: '이윤정', phoneLast4: '2006', hall: 'mulbongseon', role: 'staff', shiftGroup: 6, joinYearMonth: '2025-02', totalLeave: 15, remainingLeave: 15, usedLeave: 0 },
   
   // Managers (2 Team Leaders + 1 System Admin)
   { id: 'mgr_g', name: '정경숙', username: null, hall: 'girincho', role: 'manager', joinYearMonth: '2020-01', totalLeave: 17, remainingLeave: 17, usedLeave: 0 },
@@ -3533,7 +3532,26 @@ function populateMasterPrintTable() {
   const month = currentMonth;
   const totalDays = new Date(year, month + 1, 0).getDate();
   const printTable = document.querySelector('.print-master-table');
-  if (printTable) printTable.style.setProperty('--print-day-count', totalDays);
+  if (printTable) {
+    printTable.style.setProperty('--print-day-count', totalDays);
+
+    // Keep the physical table grid in sync with the selected month. Without an
+    // explicit colgroup, a cached separator row from a 31-day month can make
+    // browsers retain an anonymous blank column when printing a 30-day month.
+    let colgroup = printTable.querySelector('colgroup');
+    if (!colgroup) {
+      colgroup = document.createElement('colgroup');
+      printTable.insertBefore(colgroup, printTable.firstChild);
+    }
+    colgroup.innerHTML = `
+      <col class="print-hall-col">
+      <col class="print-group-col">
+      <col class="print-name-col">
+      <col class="print-sig-col">
+      ${Array.from({ length: totalDays }, () => '<col class="date-col">').join('')}
+      <col class="print-sum-col">
+    `;
+  }
   
   // 1. Update Title
   document.getElementById('print-title-month').textContent = `${year}년 ${month + 1}월 근무(시간외) 계획 : 생활지원팀`;
@@ -3554,7 +3572,6 @@ function populateMasterPrintTable() {
     const th = document.createElement('th');
     th.classList.add('date-col');
     th.style.fontSize = '8pt';
-    th.style.width = '2.4%';
     th.textContent = day;
     
     const d = new Date(year, month, day);
@@ -3641,24 +3658,14 @@ function populateMasterPrintTable() {
         tr.appendChild(hallTd);
       }
 
-      // Render 조 (Group) Cell
-      // If Mulbongseon group 1 has two staff members, we merge them into a single cell spanning 2 rows
-      if (sectionLabel === '물봉선' && emp.shiftGroup === 1) {
-        if (index === 0) {
-          const groupTd = document.createElement('td');
-          groupTd.className = 'print-group-col';
-          groupTd.rowSpan = 2;
-          groupTd.textContent = '1조';
-          groupTd.style.verticalAlign = 'middle';
-          groupTd.style.fontWeight = 'bold';
-          groupTd.style.fontSize = '8.5pt';
-          groupTd.style.backgroundColor = bgColor;
-          tr.appendChild(groupTd);
-        }
-        // Skip index === 1 (the second staff row)
-      } else {
+      // Render 조 (Group) Cell. Merge only when the current data actually has
+      // multiple employees in the same group, so departures cannot shift columns.
+      const sameGroupStaff = staffList.filter((staff) => staff.shiftGroup === emp.shiftGroup);
+      const firstGroupIndex = staffList.findIndex((staff) => staff.shiftGroup === emp.shiftGroup);
+      if (index === firstGroupIndex) {
         const groupTd = document.createElement('td');
         groupTd.className = 'print-group-col';
+        if (sameGroupStaff.length > 1) groupTd.rowSpan = sameGroupStaff.length;
         groupTd.textContent = `${emp.shiftGroup}조`;
         groupTd.style.verticalAlign = 'middle';
         groupTd.style.fontWeight = 'bold';
