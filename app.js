@@ -2751,6 +2751,28 @@ function setupAdminMobileNavigation() {
   }
   monthFilter?.addEventListener('change', renderMobileAdminApprovals);
   hallFilter?.addEventListener('change', renderMobileAdminApprovals);
+
+  const approvalList = document.getElementById('mobile-admin-approval-list');
+  approvalList?.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-mobile-approval-action]');
+    if (!button || button.disabled) return;
+
+    const { mobileApprovalAction: action, requestKind, requestId } = button.dataset;
+    if (!requestId || !requestKind) return;
+    if (action === 'reject' && !window.confirm('이 신청을 반려할까요?')) return;
+
+    const card = button.closest('.mobile-admin-approval-card');
+    card?.querySelectorAll('button').forEach((item) => { item.disabled = true; });
+    try {
+      if (requestKind === 'leave') {
+        await (action === 'approve' ? window.approveLeave(requestId) : window.rejectLeave(requestId));
+      } else {
+        await (action === 'approve' ? window.approveOvertime(requestId) : window.rejectOvertime(requestId));
+      }
+    } finally {
+      renderMobileAdminApprovals();
+    }
+  });
 }
 
 function configureMobileAdminApprovalTab() {
@@ -2804,7 +2826,11 @@ function renderMobileAdminApprovals() {
         <strong><time datetime="${request.date}">${day}일</time> · ${escapeHtml(request.employeeName)}</strong>
         <span>${escapeHtml(typeLabel)} 신청</span>
       </div>
-      <p>${escapeHtml(request.reason || '사유 없음')}</p>`;
+      <p>${escapeHtml(request.reason || '사유 없음')}</p>
+      <div class="mobile-admin-approval-actions">
+        <button type="button" class="btn btn-danger" data-mobile-approval-action="reject" data-request-kind="${request.requestKind}" data-request-id="${request.id}">반려</button>
+        <button type="button" class="btn btn-primary" data-mobile-approval-action="approve" data-request-kind="${request.requestKind}" data-request-id="${request.id}">승인</button>
+      </div>`;
     list.appendChild(card);
   });
 }
